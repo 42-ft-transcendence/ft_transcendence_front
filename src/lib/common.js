@@ -1,0 +1,1 @@
+export const channelIcon = ["fa fa-users", "fa fa-user-plus", "fa fa-lock fa-lg"] // public, private, protected
