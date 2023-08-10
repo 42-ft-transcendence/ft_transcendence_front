@@ -19,7 +19,7 @@
     };
     let pointerEvent: MouseEvent | undefined;
     let contextmenuComponent: ComponentType | undefined;
-    $: classesActive = (href: string) => (href === $page.url.pathname ? 'bg-primary-active-token' : '');
+    $: classesActive = (href: string) => ($page.url.pathname.startsWith(href) ? 'bg-primary-active-token' : '');
 
     function addCoworkers():void {
         const modal: ModalSettings = {
