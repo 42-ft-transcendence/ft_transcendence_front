@@ -1,1 +1,1 @@
-<a href="http://localhost:3000/auth/42/login" class="btn variant-filled">login</a>
+<a href="http://localhost:3000/oauth/42" class="btn variant-filled">login</a>
