@@ -1,5 +1,1 @@
-<div class="container p-10 space-y-4">
-	<h1>Homepage</h1>
-	<hr />
-	<p> Welcome message</p>
-</div>
+<a href="http://localhost:3000/auth/42/login" class="btn variant-filled">login</a>
