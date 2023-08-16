@@ -1,6 +1,7 @@
 <script lang='ts'>
     import { modalStore } from '@skeletonlabs/skeleton';
     import { channelIcon } from '$lib/common';
+	import { getCookie } from '../common';
     
     // Props
 	/** Exposes parent props to this component. */
@@ -13,11 +14,18 @@
         name: '',
         password: undefined,
     }
+    
     async function searchChannel() {
         // TODO fuc searchChannel
         // const response = fetch()
-        const response = {data:[{name:'public', type:0}, {name:'protected', type:2}, {name:'protected', type:2}, {name:'protected', type:2}]}
-        channels = [...response.data]
+        // const response = {data:[{name:'public', type:0}, {name:'protected', type:2}, {name:'protected', type:2}, {name:'protected', type:2}]}
+        // channels = [...response.data]
+        const response = await fetch('http://localhost:8080/api/channels', {
+            headers: {
+                'Authorization': `Bearer ${getCookie('JsonWebToken')}`
+            }
+        })
+        channels = await response.json();
     }
     function joinChannel() {
         // TODO fuc joinChannel
