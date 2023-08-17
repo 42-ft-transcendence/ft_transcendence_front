@@ -1,7 +1,8 @@
 <script lang='ts'>
     import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
     import { Avatar } from '@skeletonlabs/skeleton';
-    import { channelIcon } from '$lib/common';
+    import { channelIcon, getCookie } from '$lib/common';
+	import { page } from '$app/stores';
     
     // Props
 	/** Exposes parent props to this component. */
@@ -20,8 +21,13 @@
     async function searchUser() {
         // TODO fuc searchUser
         // const response = fetch()
-        const response = {data:[{name:'cgim', avatar:"avatar_cgim"}, {name:'sooyokim', avatar:"sooyokim"}]}
-        return response.data;
+        // const response = {data:[{name:'cgim', avatar:"avatar_cgim"}, {name:'sooyokim', avatar:"sooyokim"}]}
+        // return response.data;
+        return (await fetch(`/api/channels/${$modalStore[0].meta.id}/participants`, {
+            headers: {
+                'Authorization': `Bearer ${getCookie('JsonWebToken')}`
+            }
+        })).json();
     }
 
     function showProfile(name:string): void {
@@ -50,13 +56,13 @@
             <div class="grid grid-cols-[auto_1fr] border border-surface-500 space-y-4 rounded-container-token">
                 <!-- TODO API 맞춰서 변경 -->
                 <div class={cChannelInfoTableHead}>채널 이름</div>
-                <div class={cChannelInfoTableBody}>{$modalStore[0].title ?? '(channel name missing)'}</div>
+                <div class={cChannelInfoTableBody}>{$modalStore[0].meta.title}</div>
                 <div class={cChannelInfoTableHead}>채널 소유자</div>
-                <div class={cChannelInfoTableBody}>cgim</div>
+                <div class={cChannelInfoTableBody}>{$modalStore[0].meta.owner}</div>
                 <div class={cChannelInfoTableHead}>타입</div>
-                <div class={cChannelInfoTableBody}>public</div>
+                <div class={cChannelInfoTableBody}>{$modalStore[0].meta.type}</div>
                 <div class={cChannelInfoTableHead}>생성날짜</div>
-                <div class={cChannelInfoTableBody}>date</div>
+                <div class={cChannelInfoTableBody}>{$modalStore[0].meta.createdAt}</div>
             </div>
             {:else}
             <form class="modal-form {cForm}">
@@ -71,7 +77,7 @@
                     <nav>
                         <ul>
                 {#await promise}
-                    {#each {length: 10 } as _, i }
+                    {#each { length: 10 } as _, i }
                     {#if i !== 0}
                         <hr>
                     {/if}
@@ -88,17 +94,17 @@
                     </li>
                     {/each}
                 {:then users}
-                    {#each users as {name, avatar}, i}
+                    {#each users as { nickname, avatar }, i}
                         {#if i !== 0}
                         <hr>
                         {/if}
                         <li>
                             <div class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
                                 <div class="flex items-center">
-                                    <Avatar src="https://i.pravatar.cc/?img={avatar}" width="w-6" rounded="rounded-md" />
-                                    <div class="ml-2">{name}</div>
+                                    <Avatar src={avatar} width="w-6" rounded="rounded-md" />
+                                    <div class="ml-2">{nickname}</div>
                                 </div>
-                                <button type="button" class="btn btn-sm variant-filled hidden group-hover:block" on:click={()=>showProfile(name)}>프로필 보기</button>
+                                <button type="button" class="btn btn-sm variant-filled hidden group-hover:block" on:click={()=>showProfile(nickname)}>프로필 보기</button>
                             </div>
                         </li>
                     {/each}           

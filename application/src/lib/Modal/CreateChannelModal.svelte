@@ -15,7 +15,7 @@
         type: 'PUBLIC',
         password: undefined, //TODO consider security problems.
     }
-
+    //TODO: 409 conflict error handling
     async function onFormSubmit() {
         //TODO check channel is a unique name?
         try {

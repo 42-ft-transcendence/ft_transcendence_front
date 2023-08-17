@@ -7,8 +7,8 @@
 	console.log(data); //TODO: remove
 	
 	const channelData = data.channelData;
-
-	export let username:string = "Jane"; //TODO: 현재 로그인해있는 사용자의 이름을 받아와서 저장해서 이 페이지에서 반영구적으로 사용하는 방법 찾아보기
+	//TODO: 현재 로그인해있는 사용자의 이름을 받아와서 저장해서 이 페이지에서 반영구적으로 사용하는 방법 찾아보기 context api?
+	export let username:string = "gyepark";
 	
 	let currentMessage:string = '';
 	
@@ -36,10 +36,9 @@
 		if (currentMessage === '')
 			return;
 		const newMessage = {
-			avatar: 'Jane_avatar',
-			name: 'Jane',
-			timestamp: new Date(),
-			message: currentMessage
+			content: currentMessage,
+			createdAt: new Date(),
+			sender: {nickname: 'Jane', avatar: 'Jane_avatar'},
 		};
 		// Append the new message to the message feed
 		channelData.message = [...channelData.message, newMessage];
@@ -90,12 +89,18 @@
 
 	function showChannelInfo(){
 		const modal: ModalSettings = {
-			title: channelData.name,
 			type: 'component',
 			component: showChannelInfoModalComponent,
 			response: (r) => {
 				if (r !== false)
 					elemChat?.dispatchEvent(r)
+			},
+			meta: {
+				id: channelData.id,
+				title: channelData.name,
+				owner: channelData.owner.nickname,
+				type: channelData.type,
+				createdAt: channelData.createdAt
 			}
 		};
 		modalStore.trigger(modal);
@@ -115,39 +120,39 @@
 	</section>
 	<section class="p-4 overflow-y-auto space-y-4">
 		{#each channelData.message as bubble}
-			{#if canInsertChatFlag(bubble.timestamp)}
-				{#if isToday(bubble.timestamp)}
+			{#if canInsertChatFlag(bubble.createdAt)}
+				{#if isToday(bubble.createdAt)}
 				<div class="flex justify-center items-center">
 					<span class="badge variant-filled">오늘</span>
 				</div>
 				{:else}
 				<div class="flex justify-center items-center">
 					<span class="badge variant-filled">
-						{bubble.timestamp.getFullYear() + "년 " + bubble.timestamp.getMonth() + "월 " + bubble.timestamp.getDate() + "일"}
+						{bubble.createdAt.getFullYear() + "년 " + bubble.createdAt.getMonth() + "월 " + bubble.createdAt.getDate() + "일"}
 					</span>
 				</div>
 				{/if}
 			{/if}
-			{#if username === bubble.name}
+			{#if username === bubble.sender.nickname}
 				<div class="grid grid-cols-[1fr_auto] gap-2">
 					<div class="card p-4 variant-soft-primary rounded-tr-none space-y-2">
 						<header class="flex justify-between items-center">
-							<p class="font-bold">{bubble.name}</p>
-							<small class="opacity-50">{convertTimeToDateFormat(bubble.timestamp)}</small>
+							<p class="font-bold">{bubble.sender.nickname}</p>
+							<small class="opacity-50">{convertTimeToDateFormat(bubble.createdAt)}</small>
 						</header>
-						<p>{bubble.message}</p>
+						<p>{bubble.content}</p>
 					</div>
-					<Avatar src="https://i.pravatar.cc/?img={bubble.avatar}" width="w-12" />
+					<Avatar src="https://i.pravatar.cc/?img={bubble.sender.avatar}" width="w-12" />
 				</div>
 			{:else}
 				<div class="grid grid-cols-[auto_1fr] gap-2">
-					<Avatar src="https://i.pravatar.cc/?img={bubble.avatar}" width="w-12" />
+					<Avatar src="https://i.pravatar.cc/?img={bubble.sender.avatar}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
-							<p class="font-bold">{bubble.name}</p>
-							<small class="opacity-50">{convertTimeToDateFormat(bubble.timestamp)}</small>
+							<p class="font-bold">{bubble.sender.nickname}</p>
+							<small class="opacity-50">{convertTimeToDateFormat(bubble.createdAt)}</small>
 						</header>
-						<p>{bubble.message}</p>
+						<p>{bubble.content}</p>
 					</div>
 				</div>
 			{/if}
