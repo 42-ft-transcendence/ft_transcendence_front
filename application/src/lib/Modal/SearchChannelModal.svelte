@@ -20,7 +20,7 @@
         // const response = fetch()
         // const response = {data:[{name:'public', type:0}, {name:'protected', type:2}, {name:'protected', type:2}, {name:'protected', type:2}]}
         // channels = [...response.data]
-        const response = await fetch('http://localhost:8080/api/channels', {
+        const response = await fetch('/api/channels/', {
             headers: {
                 'Authorization': `Bearer ${getCookie('JsonWebToken')}`
             }

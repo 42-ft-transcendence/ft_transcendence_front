@@ -4,8 +4,14 @@
 	import { onMount } from 'svelte';
 
 	export let data;
-	export let username:string = "Jane";
+	console.log(data); //TODO: remove
+	
+	const channelData = data.channelData;
+
+	export let username:string = "Jane"; //TODO: 현재 로그인해있는 사용자의 이름을 받아와서 저장해서 이 페이지에서 반영구적으로 사용하는 방법 찾아보기
+	
 	let currentMessage:string = '';
+	
 	const showChannelInfoModalComponent: ModalComponent = {
 		ref: ShowChannelInfoModal
 	};
@@ -36,7 +42,7 @@
 			message: currentMessage
 		};
 		// Append the new message to the message feed
-		data.channel = [...data.channel, newMessage];
+		channelData.message = [...channelData.message, newMessage];
 		// Clear the textarea message and dataFlag
 		currentMessage = '';
 		dateFlag = [-1, -1, -1];
@@ -84,7 +90,7 @@
 
 	function showChannelInfo(){
 		const modal: ModalSettings = {
-			title: data.title,
+			title: channelData.name,
 			type: 'component',
 			component: showChannelInfoModalComponent,
 			response: (r) => {
@@ -100,15 +106,15 @@
 	<section class="border-y border-surface-500/30 p-2.5 sticky top-0 bg-surface-100-800-token z-50">
 		<div class="grid grid-cols-[1fr_auto]">
 			<div class="flex items-center">
-				<div class="font-bold text-lg">{data.title}</div>
+				<div class="font-bold text-lg">{channelData.name}</div>
 			</div>
 			<button class="p-2 rounded-md hover:bg-surface-200-700-token" on:click={showChannelInfo}>
-			<div><i class="fa fa-user" aria-hidden="true" />{data.total}</div>
+			<div><i class="fa fa-user" aria-hidden="true" />{channelData._count.participant}</div>
 			</button>
 		</div>
 	</section>
 	<section class="p-4 overflow-y-auto space-y-4">
-		{#each data.channel as bubble}
+		{#each channelData.message as bubble}
 			{#if canInsertChatFlag(bubble.timestamp)}
 				{#if isToday(bubble.timestamp)}
 				<div class="flex justify-center items-center">

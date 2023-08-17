@@ -3,6 +3,7 @@
     import { modalStore } from '@skeletonlabs/skeleton';
     import { channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
+	import { goto } from '$app/navigation';
     
     // Props
 	/** Exposes parent props to this component. */
@@ -18,7 +19,7 @@
     async function onFormSubmit() {
         //TODO check channel is a unique name?
         try {
-            const newChannel = await fetch('http://localhost:8080/api/channels', {
+            const newChannel = await fetch('/api/channels/', {
                 method: "POST",
                 mode: "same-origin",
                 headers: {
@@ -27,11 +28,11 @@
                 },
                 body: JSON.stringify(formData),
             });
-            console.log(newChannel);        
+            goto(`/channel/${(await newChannel.json()).id}`)
+            modalStore.close();
         } catch (err) {
             console.log(err);
         }
-        // throw redirect(301, `/chat/${newChannel.body.id}`);
     }
 
     const channelTypes = [{name: 'PUBLIC', description: '사용자 누구나 가입할 수 있음'}, 

@@ -4,7 +4,7 @@ interface Channel {
     timestamp: Date;
     message: string;
 }
-export const channel: {title: string,total: number, channel: Channel[]} = {
+export const channel: {title: string, total: number, channel: Channel[]} = {
     title: "Channel Name",
     total: 12,
     channel: [
