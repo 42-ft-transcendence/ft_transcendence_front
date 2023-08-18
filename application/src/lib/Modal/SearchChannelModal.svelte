@@ -41,23 +41,21 @@
 </script>
 
 {#if $modalStore[0]}
-	<div class={cBase}>
-		<header class={cHeader}>Search a channel</header>
+	<div class="{cBase}">
+		<header class="{cHeader}">Search a channel</header>
 		<form class="modal-form {cForm}">
 			<label class="label">
 				<span class="font-bold">채널 이름</span>
 				<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-					<div class="input-group-shim"><i class="fa fa-search" /></div>
+					<div class="input-group-shim"><i class="fa fa-search"></i></div>
 					<input
 						class="pl-2 py-1.5"
-						bind:value={input}
+						bind:value="{input}"
 						type="search"
-						placeholder="Enter the channel name..."
-					/>
+						placeholder="Enter the channel name..." />
 					<button
 						class="variant-filled-secondary hover:brightness-125 active:scale-[95%] active:brightness-90"
-						on:click={searchChannel}>Search</button
-					>
+						on:click="{searchChannel}">Search</button>
 				</div>
 			</label>
 			{#if channels === undefined}
@@ -65,7 +63,7 @@
 			{:else if channels.length === 0}
 				<div class="text-center {cChannels}">결과 없음</div>
 			{:else}
-				<div class={cChannels}>
+				<div class="{cChannels}">
 					<nav class="">
 						<ul>
 							{#each channels as channel, i}
@@ -75,43 +73,38 @@
 								<li>
 									{#if channel.type !== 2}
 										<div
-											class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400"
-										>
+											class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
 												<i
-													class="{channelIcon[channel.type]} mr-1"
-													aria-hidden="true"
-												/>{channel.name}
+													class="{channelIcon[channel.type]} inline-block w-8 mr-1"
+													aria-hidden="true"></i
+												>{channel.name}
 											</div>
 											<button
 												type="button"
 												class="btn btn-sm variant-filled hidden group-hover:block"
-												on:click={joinChannel}>참여</button
-											>
+												on:click="{joinChannel}">참여</button>
 										</div>
 									{:else}
 										<div
-											class="group w-full grid grid-cols-[1fr_auto_auto] h-12 p-2 rounded-md hover:bg-surface-400"
-										>
+											class="group w-full grid grid-cols-[1fr_auto_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
 												<i
-													class="{channelIcon[channel.type]} mr-1"
-													aria-hidden="true"
-												/>{channel.name}
+													class="{channelIcon[channel.type]} inline-block w-8 mr-1"
+													aria-hidden="true"></i
+												>{channel.name}
 											</div>
 											<input
 												type="password"
 												class="input py-1 px-2 hidden group-hover:block"
 												name="protected"
 												placeholder="Enter password..."
-												bind:value={formData.password}
-												on:keypress={onPromptKeydown}
-											/>
+												bind:value="{formData.password}"
+												on:keypress="{onPromptKeydown}" />
 											<button
 												type="button"
 												class="btn btn-sm variant-filled ml-2 hidden group-hover:block"
-												on:click={joinChannel}>참여</button
-											>
+												on:click="{joinChannel}">참여</button>
 										</div>
 									{/if}
 								</li>
@@ -122,9 +115,8 @@
 			{/if}
 		</form>
 		<footer class="modal-footer {parent.regionFooter}">
-			<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}
-				>{parent.buttonTextCancel}</button
-			>
+			<button class="btn {parent.buttonNeutral}" on:click="{parent.onClose}"
+				>{parent.buttonTextCancel}</button>
 		</footer>
 	</div>
 {/if}
