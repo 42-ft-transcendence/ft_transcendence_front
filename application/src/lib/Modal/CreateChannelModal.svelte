@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { redirect } from '@sveltejs/kit';
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { channelIcon } from '$lib/common';
+	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
 	import { goto } from '$app/navigation';
 
@@ -24,7 +24,7 @@
 				mode: 'same-origin',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${getCookie('JsonWebToken')}`
+					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
 				},
 				body: JSON.stringify(formData)
 			});

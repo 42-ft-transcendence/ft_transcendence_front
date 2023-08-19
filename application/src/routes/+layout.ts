@@ -1,4 +1,4 @@
-import { getCookie, hasCookie } from "$lib/common";
+import { JWT_COOKIE_KEY, getCookie, hasCookie } from "$lib/common";
 
 export const ssr = false;
 
@@ -15,10 +15,10 @@ export async function load() {
     let directs: UserChannel[];
     //TODO: let friends
 
-    if (hasCookie('JsonWebToken')) {
+    if (hasCookie(JWT_COOKIE_KEY)) {
         const userChannels: UserChannel[] = (await (await fetch('/api/channels/ofCurrentUser', {
-            headers: { Authorization: `Bearer ${getCookie('JsonWebToken')}` }
-        })).json()).map((channel: UserChannel) => ({name: channel.name, type: channel.type, href: `/channel/${channel.id}`}));
+            headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
+        })).json()).map((channel: UserChannel) => ({ name: channel.name, type: channel.type, href: `/channel/${channel.id}` }));
         channels = userChannels.filter(c => c.type !== ONE_TO_ONE);
         directs = userChannels.filter(c => c.type === ONE_TO_ONE);
         console.log(userChannels);

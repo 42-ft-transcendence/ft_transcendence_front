@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { channelIcon } from '$lib/common';
+	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
 
 	// Props
@@ -18,7 +18,7 @@
 	async function searchChannel() {
 		const url = input && input.length > 0 ? `/api/channels/name?name=${input}` : '/api/channels/';
 		const response = await fetch(url, {
-			headers: { Authorization: `Bearer ${getCookie('JsonWebToken')}` }
+			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
 		});
 		channels = await response.json();
 	}
