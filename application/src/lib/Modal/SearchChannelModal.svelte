@@ -16,7 +16,10 @@
 	};
 
 	async function searchChannel() {
-		const url = input && input.length > 0 ? `/api/channels/name?name=${input}` : '/api/channels/';
+		const url =
+			input && input.length > 0
+				? `/api/channels/name/?type=GROUP&name=${input}`
+				: '/api/channels/?type=GROUP';
 		const response = await fetch(url, {
 			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
 		});
