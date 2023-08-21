@@ -130,7 +130,7 @@
 			</button>
 		</div>
 	</section>
-	<section class="p-4 overflow-y-auto space-y-4">
+	<section class="p-4 overflow-y-auto space-y-4 h-screen">
 		{#each channelData.messages as bubble}
 			{#if canInsertChatFlag(bubble.createdAt)}
 				{#if isToday(bubble.createdAt)}
