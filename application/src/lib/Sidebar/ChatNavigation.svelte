@@ -59,7 +59,7 @@
 				<ul>
 					{#each data.chat[0].list as { href, type, name }}
 						<li on:contextmenu|preventDefault="{handleRightClickedChannel}">
-							<a href="{href}" class="{classesActive(href)}"
+							<a href="{href}" data-channel-name="{name}" class="{classesActive(href)}"
 								><i class="{channelIcon[type]} inline-block w-8" aria-hidden="true"></i>{name}</a>
 						</li>
 					{/each}
