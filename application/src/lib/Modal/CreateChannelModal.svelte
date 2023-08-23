@@ -4,6 +4,8 @@
 	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
 	import { goto } from '$app/navigation';
+	import { addNewChannel } from '$lib/store';
+	import type { LeftSideBarChannel, UserChannel } from '$lib/type';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -19,17 +21,20 @@
 	async function onFormSubmit() {
 		//TODO check channel is a unique name?
 		try {
-			const newChannel = await fetch('/api/channels/', {
-				method: 'POST',
-				mode: 'same-origin',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
-				},
-				body: JSON.stringify(formData)
-			});
+			const newChannel: UserChannel = await (
+				await fetch('/api/channels/', {
+					method: 'POST',
+					mode: 'same-origin',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
+					},
+					body: JSON.stringify(formData)
+				})
+			).json();
+			addNewChannel(newChannel);
 			modalStore.close();
-			goto(`/channel/${(await newChannel.json()).id}`);
+			goto(`/channel/${newChannel.id}`);
 		} catch (err) {
 			console.log(err);
 		}

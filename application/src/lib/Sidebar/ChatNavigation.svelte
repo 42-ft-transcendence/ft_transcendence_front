@@ -10,8 +10,13 @@
 	import { page } from '$app/stores';
 	import { channelIcon } from '$lib/common';
 	import StartDirectMessage from '$lib/Modal/StartDirectMessage.svelte';
+	import { channelUserInStore } from '$lib/store';
+	import { get } from 'svelte/store';
 
 	export let data: any;
+
+	const userChannels = get(channelUserInStore);
+
 	const classOnline = 'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
 	const classOffline = 'w-1.5 h-1.5 bg-neutral-500 relative top-2.5 rounded-full';
 	const startDirectMessageModalComponent: ModalComponent = {
@@ -57,7 +62,7 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each data.chat[0].list as { href, type, name }}
+					{#each userChannels as { href, type, name }}
 						<li on:contextmenu|preventDefault="{handleRightClickedChannel}">
 							<a href="{href}" data-channel-name="{name}" class="{classesActive(href)}"
 								><i class="{channelIcon[type]} inline-block w-8" aria-hidden="true"></i>{name}</a>
