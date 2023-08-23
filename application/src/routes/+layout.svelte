@@ -51,7 +51,7 @@
 	</svelte:fragment>
 	<!-- (pageHeader) -->
 	<!-- Router Slot -->
-	<div on:profile={handleProfileEvent}>
+	<div class="h-full" on:profile={handleProfileEvent}>
 	<slot />
 	</div>
 	<!-- ---- / ---- -->
