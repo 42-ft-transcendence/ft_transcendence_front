@@ -15,6 +15,7 @@
 
 	channelUserInStore.subscribe(() => {
 		userChannelNames = get(channelUserInStore).map((channel) => channel.name);
+		if (channels) channels = channels.filter((channel) => !userChannelNames.includes(channel.name));
 	});
 
 	let input: string | undefined;
@@ -27,7 +28,7 @@
 	async function searchChannel() {
 		const url =
 			input && input.length > 0
-				? `/api/channels/name/?type=GROUP&name=${input}`
+				? `/api/channels/name/?type=GROUP&partialName=${input}`
 				: '/api/channels/?type=GROUP';
 		const response = await fetch(url, {
 			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
@@ -42,7 +43,7 @@
 		let button = event.target as HTMLButtonElement;
 		let channelId = button.dataset.channelId;
 
-		const channel = await (
+		const newChannel = await (
 			await fetch('/api/participants/', {
 				method: 'POST',
 				mode: 'same-origin',
@@ -54,7 +55,7 @@
 			})
 		).json();
 		//TODO: channel을 실시간으로 사이드바에 표시하기
-		addNewChannel(channel);
+		addNewChannel(newChannel);
 	}
 	function onPromptKeydown(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
