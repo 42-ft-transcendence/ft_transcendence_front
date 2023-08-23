@@ -12,10 +12,16 @@
 	import StartDirectMessage from '$lib/Modal/StartDirectMessage.svelte';
 	import { channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
+	import type { LeftSideBarChannel } from '$lib/type';
 
 	export let data: any;
 
-	const userChannels = get(channelUserInStore);
+	let userChannels: LeftSideBarChannel[];
+
+	channelUserInStore.subscribe(() => {
+		userChannels = get(channelUserInStore);
+		//TODO: userDirects
+	});
 
 	const classOnline = 'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
 	const classOffline = 'w-1.5 h-1.5 bg-neutral-500 relative top-2.5 rounded-full';
