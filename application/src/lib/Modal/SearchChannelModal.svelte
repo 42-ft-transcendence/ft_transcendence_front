@@ -2,12 +2,20 @@
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
-	import { addNewChannel } from '$lib/store';
+	import { addNewChannel, channelUserInStore } from '$lib/store';
+	import { get } from 'svelte/store';
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
+
 	let channels: any[] | undefined;
+
+	let userChannelNames: string[];
+
+	channelUserInStore.subscribe(() => {
+		userChannelNames = get(channelUserInStore).map((channel) => channel.name);
+	});
 
 	let input: string | undefined;
 	// Form Data
@@ -25,6 +33,9 @@
 			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
 		});
 		channels = await response.json();
+		if (channels) {
+			channels = channels.filter((channel) => !userChannelNames.includes(channel.name));
+		}
 	}
 	async function joinChannel(event: MouseEvent | KeyboardEvent) {
 		// TODO fuc joinChannel
