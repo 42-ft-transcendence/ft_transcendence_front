@@ -119,7 +119,7 @@
 	}
 </script>
 
-<div class="chat" bind:this="{elemChat}">
+<div class="chat grid grid-rows-[auto_1fr_auto] h-full" bind:this="{elemChat}">
 	<section class="border-y border-surface-500/30 p-2.5 sticky top-0 bg-surface-100-800-token z-50">
 		<div class="grid grid-cols-[1fr_auto]">
 			<div class="flex items-center">
@@ -130,7 +130,7 @@
 			</button>
 		</div>
 	</section>
-	<section class="p-4 overflow-y-auto space-y-4 h-screen">
+	<section class="p-4 space-y-4">
 		{#each channelData.messages as bubble}
 			{#if canInsertChatFlag(bubble.createdAt)}
 				{#if isToday(bubble.createdAt)}
