@@ -2,6 +2,7 @@
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
+	import { addNewChannel } from '$lib/store';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -25,14 +26,29 @@
 		});
 		channels = await response.json();
 	}
-	function joinChannel() {
+	async function joinChannel(event: MouseEvent | KeyboardEvent) {
 		// TODO fuc joinChannel
-		console.log('joinChannel');
+		let button = event.target as HTMLButtonElement;
+		let channelId = button.dataset.channelId;
+
+		const channel = await (
+			await fetch('/api/participants/', {
+				method: 'POST',
+				mode: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
+				},
+				body: JSON.stringify({ channelId: channelId })
+			})
+		).json();
+		//TODO: channel을 실시간으로 사이드바에 표시하기
+		addNewChannel(channel);
 	}
 	function onPromptKeydown(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault();
-			joinChannel();
+			joinChannel(event);
 		}
 	}
 
@@ -86,6 +102,7 @@
 											<button
 												type="button"
 												class="btn btn-sm variant-filled hidden group-hover:block"
+												data-channel-id="{channel.id}"
 												on:click="{joinChannel}">참여</button>
 										</div>
 									{:else}
@@ -107,6 +124,7 @@
 											<button
 												type="button"
 												class="btn btn-sm variant-filled ml-2 hidden group-hover:block"
+												data-channel-id="{channel.id}"
 												on:click="{joinChannel}">참여</button>
 										</div>
 									{/if}
