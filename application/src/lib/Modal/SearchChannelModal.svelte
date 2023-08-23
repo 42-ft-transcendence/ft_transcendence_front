@@ -50,7 +50,7 @@
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
 				},
-				body: JSON.stringify({ channelId: channelId })
+				body: JSON.stringify({ channelId: parseInt(channelId as string) })
 			})
 		).json();
 		//TODO: channel을 실시간으로 사이드바에 표시하기
