@@ -1,12 +1,23 @@
 <script lang="ts">
-	import { JWT_COOKIE_KEY, getCookie } from '$lib/common';
+	import { goto } from '$app/navigation';
+	import { JWT_COOKIE_KEY, channelDateReviver, getCookie } from '$lib/common';
+	import { addNewDirect, directUserInStore } from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
+	import { get } from 'svelte/store';
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
+
 	let users: any[] | undefined;
+
+	let interlocatorNames: string[];
+
+	directUserInStore.subscribe(() => {
+		interlocatorNames = get(directUserInStore).map((direct) => direct.userName);
+		if (users) users = users.filter((user) => !interlocatorNames.includes(user.nickname));
+	});
 
 	let input: string;
 	// Form Data
@@ -14,16 +25,39 @@
 		name: '',
 		password: undefined
 	};
+
 	async function searchUser() {
 		const url = input && input.length > 0 ? `/api/users/name?name=${input}` : '/api/users/';
 		const response = await fetch(url, {
 			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
 		});
 		users = await response.json();
+		if (users) {
+			users = users.filter((user) => !interlocatorNames.includes(user.userName));
+		}
 	}
-	function startDM() {
-		// TODO fuc startDM
-		console.log('start a direct messsage');
+
+	async function startDM(event: MouseEvent) {
+		// TODO fuc joinChannel
+		const button = event.target as HTMLButtonElement;
+		const userId = button.dataset.userId;
+		const userName = button.dataset.userName;
+
+		const response = await fetch('/api/channels/directChannel', {
+			method: 'POST',
+			mode: 'same-origin',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
+			},
+			body: JSON.stringify({
+				interlocatorId: parseInt(userId as string),
+				interlocatorName: userName
+			})
+		});
+		const newDirect = await response.json();
+		addNewDirect(newDirect);
+		goto(`/channel/${newDirect.id}/`);
 	}
 
 	// Base Classes
@@ -73,6 +107,8 @@
 										<button
 											type="button"
 											class="btn btn-sm variant-filled hidden group-hover:block"
+											data-user-id="{user.id}"
+											data-user-name="{user.nickname}"
 											on:click="{startDM}">대화 시작</button>
 									</div>
 								</li>

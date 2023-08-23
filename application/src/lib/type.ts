@@ -6,8 +6,9 @@ export interface LeftSideBarChannel {
 
 export interface LeftSideBarDirect {
 	href: string,
+	channelId: number;
 	avatar: string,
-	name: string,
+	userName: string,
 }
 
 export interface UserChannel {
@@ -18,9 +19,15 @@ export interface UserChannel {
 	createdAt: Date;
 }
 
+export interface UserDirectChannel {
+	id: number,
+	userName: string,
+	avatar: string;
+}
+
 export enum ChannelType {
-  PUBLIC = 'PUBLIC',
-  PRIVATE = 'PRIVATE',
-  PROTECTED = 'PROTECTED',
-  ONETOONE = 'ONETOONE',
+	PUBLIC = 'PUBLIC',
+	PRIVATE = 'PRIVATE',
+	PROTECTED = 'PROTECTED',
+	ONETOONE = 'ONETOONE',
 }

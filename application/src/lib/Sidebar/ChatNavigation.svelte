@@ -10,17 +10,21 @@
 	import { page } from '$app/stores';
 	import { channelIcon } from '$lib/common';
 	import StartDirectMessage from '$lib/Modal/StartDirectMessage.svelte';
-	import { channelUserInStore } from '$lib/store';
+	import { channelUserInStore, directUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
-	import type { LeftSideBarChannel } from '$lib/type';
+	import type { LeftSideBarChannel, LeftSideBarDirect } from '$lib/type';
 
 	export let data: any;
 
 	let userChannels: LeftSideBarChannel[];
+	let userDirects: LeftSideBarDirect[];
 
 	channelUserInStore.subscribe(() => {
 		userChannels = get(channelUserInStore);
-		//TODO: userDirects
+	});
+
+	directUserInStore.subscribe(() => {
+		userDirects = get(directUserInStore);
 	});
 
 	const classOnline = 'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
@@ -86,15 +90,12 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each data.chat[1].list as { href, avatar, name }}
+					{#each userDirects as userDirect}
 						<li on:contextmenu|preventDefault="{handleRightClickedDM}">
-							<a href="{href}" class="{classesActive(href)}">
+							<a href="{userDirect.href}" class="{classesActive(userDirect.href)}">
 								<div class="w-full grid grid-cols-[auto_1fr_auto]">
-									<Avatar
-										src="https://i.pravatar.cc/?img={avatar}"
-										width="w-6"
-										rounded="rounded-md" />
-									<div class="ml-2">{name}</div>
+									<Avatar src="{userDirect.avatar}" width="w-6" rounded="rounded-md" />
+									<div class="ml-2">{userDirect.userName}</div>
 									<div class="{classOnline}"></div>
 								</div>
 							</a>
