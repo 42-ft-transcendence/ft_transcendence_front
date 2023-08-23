@@ -12,6 +12,23 @@ export function hasCookie(name: string) {
 	return document.cookie.includes(name);
 }
 
+export function channelDateReviver(key: string, value: any) {
+	if (key === 'createdAt' || key === 'updatedAt')
+		return new Date(value);
+	return value;
+}
+
+export function channelContentDateReviver(key: string, value: any) {
+	if (key === 'createdAt' || key === 'updatedAt')
+		return new Date(value);
+	if (key === 'messages') {
+		value = value.map((each: any) => {
+			const { createdAt, ...others } = each;
+			return { ...others, createdAt: new Date(createdAt) };
+		});
+	}
+	return value;
+}
 export const channelIcon: { [index: string]: string; } = {
 	PUBLIC: "fa fa-users",
 	PRIVATE: "fa fa-user-secret",

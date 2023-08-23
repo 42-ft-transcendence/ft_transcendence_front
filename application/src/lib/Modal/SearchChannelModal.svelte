@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
+	import { JWT_COOKIE_KEY, channelDateReviver, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
 	import { addNewChannel, channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
+	import { goto } from '$app/navigation';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -43,19 +44,20 @@
 		let button = event.target as HTMLButtonElement;
 		let channelId = button.dataset.channelId;
 
-		const newChannel = await (
-			await fetch('/api/participants/', {
-				method: 'POST',
-				mode: 'same-origin',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
-				},
-				body: JSON.stringify({ channelId: parseInt(channelId as string) })
-			})
-		).json();
+		const response = await fetch('/api/participants/', {
+			method: 'POST',
+			mode: 'same-origin',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
+			},
+			body: JSON.stringify({ channelId: parseInt(channelId as string) })
+		});
+		const responseJson = await response.json();
+		const newChannel = JSON.parse(JSON.stringify(responseJson), channelDateReviver);
 		//TODO: channel을 실시간으로 사이드바에 표시하기
 		addNewChannel(newChannel);
+		goto(`/channel/${newChannel.id}/`);
 	}
 	function onPromptKeydown(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {

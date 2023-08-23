@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { redirect } from '@sveltejs/kit';
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
+	import { JWT_COOKIE_KEY, channelDateReviver, channelIcon } from '$lib/common';
 	import { getCookie } from '../common';
 	import { goto } from '$app/navigation';
 	import { addNewChannel } from '$lib/store';
@@ -21,17 +21,17 @@
 	async function onFormSubmit() {
 		//TODO check channel is a unique name?
 		try {
-			const newChannel: UserChannel = await (
-				await fetch('/api/channels/', {
-					method: 'POST',
-					mode: 'same-origin',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
-					},
-					body: JSON.stringify(formData)
-				})
-			).json();
+			const response = await fetch('/api/channels/', {
+				method: 'POST',
+				mode: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
+				},
+				body: JSON.stringify(formData)
+			});
+			const responseJson = await response.json();
+			const newChannel = JSON.parse(JSON.stringify(responseJson), channelDateReviver);
 			addNewChannel(newChannel);
 			modalStore.close();
 			goto(`/channel/${newChannel.id}`);
