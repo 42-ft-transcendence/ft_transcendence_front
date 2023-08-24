@@ -12,8 +12,6 @@
 	console.log(data); //TODO: remove
 
 	$: channelData = data.channelData;
-	//TODO: 현재 로그인해있는 사용자의 이름을 받아와서 저장해서 이 페이지에서 반영구적으로 사용하는 방법 찾아보기 context api?
-	export let username: string = 'gyepark';
 
 	let currentMessage: string = '';
 
@@ -150,7 +148,7 @@
 					</div>
 				{/if}
 			{/if}
-			{#if username === bubble.sender.nickname}
+			{#if bubble.isMine}
 				<div class="grid grid-cols-[1fr_auto] gap-2">
 					<div class="card p-4 variant-soft-primary rounded-tr-none space-y-2">
 						<header class="flex justify-between items-center">
@@ -159,11 +157,11 @@
 						</header>
 						<p>{bubble.content}</p>
 					</div>
-					<Avatar src="https://i.pravatar.cc/?img={bubble.sender.avatar}" width="w-12" />
+					<Avatar src="{bubble.sender.avatar}" width="w-12" />
 				</div>
 			{:else}
 				<div class="grid grid-cols-[auto_1fr] gap-2">
-					<Avatar src="https://i.pravatar.cc/?img={bubble.sender.avatar}" width="w-12" />
+					<Avatar src="{bubble.sender.avatar}" width="w-12" />
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{bubble.sender.nickname}</p>
