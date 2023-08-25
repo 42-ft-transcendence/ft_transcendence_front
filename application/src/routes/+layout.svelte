@@ -12,7 +12,7 @@
 	import { Modal } from '@skeletonlabs/skeleton';
 	
 	export let data;
-	let register = false;
+	let register = data.register;
 	let sidebarLeftBtn = false;
 	let sidebarRightBtn = false;
 	let username:string;
@@ -32,22 +32,30 @@
 	<svelte:fragment slot="header">
 		<AppBar>
 			<svelte:fragment slot="lead">
+				{#if register}
 				<button class="invisible sm:visible" on:click={() => sidebarLeftBtn=!sidebarLeftBtn}>
 					<i class="fa fa-bars fa-lg" aria-hidden="true"></i>
 				</button>
+				{/if}
 			</svelte:fragment>
 			<b>PonGo</b>
 			<svelte:fragment slot="trail">
 				<LightSwitch /> <!-- TODO this will be changed for OS mode-->
+				{#if register}
 				<button on:click={handleMyProfile}><i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i></button>
+				{/if}
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
+		{#if register}
 		<Navigation {sidebarLeftBtn} {data}/>
+		{/if}
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarRight">
+		{#if register}
 		<Profile {sidebarRightBtn} {username} on:closeSidebarRight={()=>sidebarRightBtn=false}/>
+		{/if}
 	</svelte:fragment>
 	<!-- (pageHeader) -->
 	<!-- Router Slot -->
