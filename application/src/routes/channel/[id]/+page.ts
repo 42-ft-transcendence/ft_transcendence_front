@@ -1,11 +1,7 @@
-import { JWT_COOKIE_KEY, channelContentDateReviver, getCookie } from "$lib/common";
+import { BaseUrl, JWT_COOKIE_KEY, channelContentDateReviver, getCookie } from "$lib/common";
+import { getRequestApi } from '$lib/fetch.js';
 
 export async function load({ params }) {
-	const channelId = params.id;
-	const response = await fetch(`/api/channels/${channelId}/detail`, {
-		headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
-	});
-	const responseJson = await response.json();
-	const channelData = JSON.parse(JSON.stringify(responseJson), channelContentDateReviver);
-	return { channelData: channelData };
+	const channelData = await getRequestApi(BaseUrl.CHANNELS + `${params.id}/detail`);
+	return { channelData: JSON.parse(JSON.stringify(channelData), channelContentDateReviver) };
 }

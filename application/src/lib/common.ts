@@ -1,4 +1,12 @@
+import { goto } from '$app/navigation';
+
 export const JWT_COOKIE_KEY = 'JsonWebToken';
+
+export const enum BaseUrl {
+	USERS = '/api/users/',
+	CHANNELS = '/api/channels/',
+	PARTICIPANTS = '/api/participants/',
+}
 
 export function getCookie(name: string) {
 	const value = `; ${document.cookie}`;
@@ -8,6 +16,7 @@ export function getCookie(name: string) {
 		if (part) return part.split(';').shift();
 	}
 }
+
 export function hasCookie(name: string) {
 	return document.cookie.includes(name);
 }
@@ -29,6 +38,11 @@ export function channelContentDateReviver(key: string, value: any) {
 	}
 	return value;
 }
+
+export function loadPage(routeParam: number) {
+	goto(`/channel/${routeParam}`);
+}
+
 export const channelIcon: { [index: string]: string; } = {
 	PUBLIC: "fa fa-users",
 	PRIVATE: "fa fa-user-secret",

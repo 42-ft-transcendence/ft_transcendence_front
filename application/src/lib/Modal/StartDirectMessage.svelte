@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { JWT_COOKIE_KEY, channelDateReviver, getCookie } from '$lib/common';
+	import { BaseUrl, loadPage } from '$lib/common';
+	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { addNewDirect, directUserInStore } from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
@@ -27,11 +27,7 @@
 	};
 
 	async function searchUser() {
-		const url = input && input.length > 0 ? `/api/users/name?name=${input}` : '/api/users/';
-		const response = await fetch(url, {
-			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
-		});
-		users = await response.json();
+		users = await getRequestApi(BaseUrl.USERS + (input ? `name/?name=${input}` : ''));
 		if (users) {
 			users = users.filter((user) => !interlocatorNames.includes(user.userName));
 		}
@@ -40,24 +36,16 @@
 	async function startDM(event: MouseEvent) {
 		// TODO fuc joinChannel
 		const button = event.target as HTMLButtonElement;
-		const userId = button.dataset.userId;
+		const userId = parseInt(button.dataset.userId as string);
 		const userName = button.dataset.userName;
 
-		const response = await fetch('/api/channels/directChannel', {
-			method: 'POST',
-			mode: 'same-origin',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
-			},
-			body: JSON.stringify({
-				interlocatorId: parseInt(userId as string),
-				interlocatorName: userName
-			})
+		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+			interlocatorId: userId,
+			interlocatorName: userName
 		});
-		const newDirect = await response.json();
 		addNewDirect(newDirect);
-		goto(`/channel/${newDirect.id}/`);
+		loadPage(newDirect.id);
+		//TOOD: close modal
 	}
 
 	// Base Classes

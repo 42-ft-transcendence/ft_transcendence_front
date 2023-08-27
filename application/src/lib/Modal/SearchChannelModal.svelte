@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { JWT_COOKIE_KEY, channelDateReviver, channelIcon } from '$lib/common';
-	import { getCookie } from '../common';
+	import { BaseUrl, channelDateReviver, channelIcon, loadPage } from '$lib/common';
 	import { addNewChannel, channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
-	import { goto } from '$app/navigation';
+	import { getRequestApi, postRequestApi } from '$lib/fetch';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -27,38 +26,26 @@
 	};
 
 	async function searchChannel() {
-		const url =
-			input && input.length > 0
-				? `/api/channels/name/?type=GROUP&partialName=${input}`
-				: '/api/channels/?type=GROUP';
-		const response = await fetch(url, {
-			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
-		});
-		channels = await response.json();
+		channels = await getRequestApi(
+			BaseUrl.CHANNELS + (input ? `name/?type=GROUP&partialName=${input}` : '?type=GROUP')
+		);
 		if (channels) {
 			channels = channels.filter((channel) => !userChannelNames.includes(channel.name));
 		}
 	}
+
 	async function joinChannel(event: MouseEvent | KeyboardEvent) {
 		// TODO fuc joinChannel
-		let button = event.target as HTMLButtonElement;
-		let channelId = button.dataset.channelId;
+		const button = event.target as HTMLButtonElement;
+		const channelId = parseInt(button.dataset.channelId as string);
 
-		const response = await fetch('/api/participants/', {
-			method: 'POST',
-			mode: 'same-origin',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
-			},
-			body: JSON.stringify({ channelId: parseInt(channelId as string) })
-		});
-		const responseJson = await response.json();
-		const newChannel = JSON.parse(JSON.stringify(responseJson), channelDateReviver);
-		//TODO: channel을 실시간으로 사이드바에 표시하기
-		addNewChannel(newChannel);
-		goto(`/channel/${newChannel.id}/`);
+		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, { channelId: channelId });
+		const dateChannel = JSON.parse(JSON.stringify(newChannel), channelDateReviver);
+		addNewChannel(dateChannel);
+		loadPage(dateChannel.id);
+		//TODO: close modal
 	}
+
 	function onPromptKeydown(event: KeyboardEvent): void {
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault();

@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { JWT_COOKIE_KEY, channelIcon, getCookie } from '$lib/common';
-	import { page } from '$app/stores';
-
+	import { BaseUrl } from '$lib/common';
+	import { getRequestApi } from '$lib/fetch';
+	import { onMount } from 'svelte';
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
-	// let users: any[] | undefined;
+
+	let users: any[];
 
 	let input: string;
-	let promise = searchUser();
 	let tabSet: number = 0;
 	// Form Data
 	const formData = {
@@ -18,19 +18,9 @@
 		password: undefined
 	};
 
-	async function searchUser() {
-		// TODO fuc searchUser
-		// const response = fetch()
-		// const response = {data:[{name:'cgim', avatar:"avatar_cgim"}, {name:'sooyokim', avatar:"sooyokim"}]}
-		// return response.data;
-		return (
-			await fetch(`/api/channels/${$modalStore[0].meta.id}/participants`, {
-				headers: {
-					Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
-				}
-			})
-		).json();
-	}
+	onMount(async () => {
+		users = await getRequestApi(BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/participants`);
+	});
 
 	function showProfile(name: string): void {
 		if ($modalStore[0].response)
@@ -83,43 +73,24 @@
 						<div class="{cUsers}">
 							<nav>
 								<ul>
-									{#await promise}
-										{#each { length: 10 } as _, i}
-											{#if i !== 0}
-												<hr />
-											{/if}
-											<li>
-												<div class="w-full grid grid-cols-[1fr_auto] h-12 p-2">
-													<div class="flex items-center">
-														<div class="placeholder-circle animate-pulse w-6"></div>
-														<div class="ml-2 placeholder animate-pulse w-36"></div>
-													</div>
-													<div class="flex items-center">
-														<div class="placeholder animate-pulse w-12"></div>
-													</div>
+									{#each users as { nickname, avatar }, i}
+										{#if i !== 0}
+											<hr />
+										{/if}
+										<li>
+											<div
+												class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
+												<div class="flex items-center">
+													<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
+													<div class="ml-2">{nickname}</div>
 												</div>
-											</li>
-										{/each}
-									{:then users}
-										{#each users as { nickname, avatar }, i}
-											{#if i !== 0}
-												<hr />
-											{/if}
-											<li>
-												<div
-													class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
-													<div class="flex items-center">
-														<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
-														<div class="ml-2">{nickname}</div>
-													</div>
-													<button
-														type="button"
-														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => showProfile(nickname)}">프로필 보기</button>
-												</div>
-											</li>
-										{/each}
-									{/await}
+												<button
+													type="button"
+													class="btn btn-sm variant-filled hidden group-hover:block"
+													on:click="{() => showProfile(nickname)}">프로필 보기</button>
+											</div>
+										</li>
+									{/each}
 								</ul>
 							</nav>
 						</div>
