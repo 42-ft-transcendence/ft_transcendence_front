@@ -2,13 +2,13 @@
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl } from '$lib/common';
-	import { getRequestApi } from '$lib/fetch';
+	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { onMount } from 'svelte';
-	import { update_await_block_branch } from 'svelte/internal';
 	
-	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나?
+	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
 	type User = {
+		id: number,
 		nickname: string;
 		avatar: string;
 	}
@@ -32,6 +32,8 @@
 	let normalParticipants: User[] = [];
 	let content: Content = { isOwner: false, participants: [], administrators: [] };
 
+	let adminSwitch = true;
+
 	let input: string; //TODO: 여러 구성 요소에서 동일한 변수인 input을 사용자의 입력을 받는데 사용하면 해당 구성 요소들 중 하나에 값을 입력했을 때 모든 구성 요소에 동일한 내용이 표시된다. 구성 요소마다 서로 다른 변수를 사용하도록 하자.
 	let tabSet: number = 0;
 	// Form Data
@@ -44,13 +46,29 @@
 		content = await getRequestApi(BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`);
 		participants = content.participants.map(p => p.user);
 		administrators = content.administrators.map(a => a.user);
-		normalParticipants = participants.filter(p => !administrators.some(a => a.nickname === p.nickname && a.avatar === p.avatar));
+		normalParticipants = participants.filter(p => !administrators.some(a => a.nickname === p.nickname));
 	});
+
+	function toggleAdminSwitch() {
+		adminSwitch = !adminSwitch;
+	}
 
 	function showProfile(name: string): void {
 		if ($modalStore[0].response)
 			$modalStore[0].response(new CustomEvent('profile', { bubbles: true, detail: name }));
 		modalStore.close();
+	}
+	//TODO: authorization "owner"
+	async function addAdministrator(id: number) {
+		const admin = await postRequestApi(BaseUrl.PARTICIPANTS, { channelId: $modalStore[0].meta.id, userId: id });
+		administrators = [...administrators, admin];
+		normalParticipants = participants.filter(p => !administrators.some(a => a.nickname === p.nickname));
+	}
+	//TODO: authorization "owner"
+	async function removeAdministrator(user: User) {
+		const removed = await deleteRequestApi(BaseUrl.PARTICIPANTS + `channelId/${$modalStore[0].meta.id}/userId/${user.id}`);
+		administrators = administrators.filter(a => a.id != user.id);
+		normalParticipants = [...participants, user];
 	}
 
 	// Base Classes
@@ -62,13 +80,23 @@
 	const cChannelInfoTableBody = 'p-2';
 </script>
 
+<style>
+	input:checked ~ .toggle__line {
+			background-color: #48bb78;
+	}
+
+	input:checked ~ .toggle__dot {
+			transform: translateX(100%);
+	}
+</style>
+
 {#if $modalStore[0]}
 	<div class="{cBase}">
 		<header class="{cHeader}">채널 정보</header>
 		<TabGroup>
 			<Tab bind:group="{tabSet}" name="member" value="{0}">정보</Tab>
 			<Tab bind:group="{tabSet}" name="member" value="{1}">멤버</Tab>
-			{#if administrators}
+			{#if content.isOwner}
 				<Tab bind:group="{tabSet}" name="member" value="{2}">관리</Tab>
 			{/if}
 			<svelte:fragment slot="panel">
@@ -101,7 +129,7 @@
 						<div class="{cUsers}">
 							<nav>
 								<ul>
-									{#each participants as { nickname, avatar }, i}
+									{#each participants as { id, nickname, avatar }, i}
 										{#if i !== 0}
 											<hr />
 										{/if}
@@ -124,10 +152,18 @@
 						</div>
 					</form>
 				{:else if tabSet === 2 && content.isOwner}
-					<div class="flex">
+					<label class="flex items-center cursor-pointer">
+							<div class="relative">
+									<input type="checkbox" class="hidden" on:change="{toggleAdminSwitch}" />
+									<div class="toggle__line w-8 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+									<div class="toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0"></div>
+							</div>
+							<div class="ml-3 font-medium">참여자/관리자 토글</div>
+					</label>
+					{#if adminSwitch}
 						<form class="modal-form {cForm}">
 							<label class="label">
-								<span class="font-bold">일반 유저</span>
+								<span class="font-bold">유저 이름</span>
 								<div class="input-group input-group-divider grid-cols-[auto_1fr]">
 									<div class="input-group-shim"><i class="fa fa-search"></i></div>
 									<input
@@ -140,7 +176,7 @@
 							<div class="{cUsers}">
 								<nav>
 									<ul>
-										{#each normalParticipants as { nickname, avatar }, i}
+										{#each normalParticipants as { id, nickname, avatar }, i}
 											{#if i !== 0}
 												<hr />
 											{/if}
@@ -154,7 +190,7 @@
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => showProfile(nickname)}">관리자추가</button>
+															on:click="{() => addAdministrator(nickname)}">관리자추가</button>
 												</div>
 											</li>
 										{/each}
@@ -162,6 +198,7 @@
 								</nav>
 							</div>
 						</form>
+					{:else}
 						<form class="modal-form {cForm}">
 							<label class="label">
 								<span class="font-bold">관리자 이름</span>
@@ -177,7 +214,7 @@
 							<div class="{cUsers}">
 								<nav>
 									<ul>
-										{#each administrators as { nickname, avatar }, i}
+										{#each administrators as { id, nickname, avatar }, i}
 											{#if i !== 0}
 												<hr />
 											{/if}
@@ -188,10 +225,12 @@
 														<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
 														<div class="ml-2">{nickname}</div>
 													</div>
+													{#if nickname !== $modalStore[0].meta.nickname}
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => showProfile(nickname)}">관리자제거</button>
+															on:click="{() => removeAdministrator({ id: id, nickname: nickname, avatar: avatar })}">관리자제거</button>
+													{/if}
 												</div>
 											</li>
 										{/each}
@@ -199,7 +238,7 @@
 								</nav>
 							</div>
 						</form>
-					</div>
+					{/if}
 				{/if}
 			</svelte:fragment>
 		</TabGroup>

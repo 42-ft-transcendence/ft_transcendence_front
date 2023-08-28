@@ -20,3 +20,13 @@ export async function postRequestApi(url: string, payload: any) {
   });
   return await response.json();
 }
+
+export async function deleteRequestApi(url: string) {
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`
+    },
+  });
+  return await response.json();
+}
