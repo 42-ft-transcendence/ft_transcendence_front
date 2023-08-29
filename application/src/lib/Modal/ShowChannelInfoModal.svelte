@@ -2,7 +2,7 @@
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl } from '$lib/common';
-	import { deleteRequestApi, getRequestApi, postRequestApi } from '$lib/fetch';
+	import { deleteRequestAuthApi, getRequestApi, postRequestAuthApi } from '$lib/fetch';
 	import { onMount } from 'svelte';
 
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
@@ -64,18 +64,19 @@
 	}
 	//TODO: authorization "owner"
 	async function addAdministrator(id: number) {
-		const admin = await postRequestApi(BaseUrl.ADMINISTRATORS, {
-			channelId: $modalStore[0].meta.id,
+		const channelId = $modalStore[0].meta.id;
+		const admin = await postRequestAuthApi(BaseUrl.ADMINISTRATORS, {
+			channelId: channelId,
 			userId: id
-		});
+		}, channelId);
 		administrators = [...administrators, admin];
 		normalParticipants = normalParticipants.filter(p => p.id != id);
 	}
 	//TODO: authorization "owner"
 	async function removeAdministrator(id: number) {
-		const removed = await deleteRequestApi(
-			BaseUrl.ADMINISTRATORS + `channelId/${$modalStore[0].meta.id}/userId/${id}`
-		);
+		const channelId = $modalStore[0].meta.id;
+		const removed = await deleteRequestAuthApi(
+			BaseUrl.ADMINISTRATORS + `channelId/${channelId}/userId/${id}`, channelId);
 		administrators = administrators.filter((a) => a.id != id);
 		normalParticipants = [...normalParticipants, removed];
 	}
@@ -159,47 +160,9 @@
 								class="toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0">
 							</div>
 						</div>
-						<div class="ml-3 font-medium">참여자/관리자 토글</div>
+						<div class="ml-2 font-medium">참여자/관리자</div>
 					</label>
 					{#if adminSwitch}
-						<form class="modal-form {cForm}">
-							<label class="label">
-								<span class="font-bold">유저 이름</span>
-								<div class="input-group input-group-divider grid-cols-[auto_1fr]">
-									<div class="input-group-shim"><i class="fa fa-search"></i></div>
-									<input
-										class="pl-2 py-1.5"
-										bind:value="{input}"
-										type="search"
-										placeholder="Enter the user name..." />
-								</div>
-							</label>
-							<div class="{cUsers}">
-								<nav>
-									<ul>
-										{#each normalParticipants as { id, nickname, avatar }, i}
-											{#if i !== 0}
-												<hr />
-											{/if}
-											<li>
-												<div
-													class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
-													<div class="flex items-center">
-														<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
-														<div class="ml-2">{nickname}</div>
-													</div>
-													<button
-														type="button"
-														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => addAdministrator(id)}">관리자추가</button>
-												</div>
-											</li>
-										{/each}
-									</ul>
-								</nav>
-							</div>
-						</form>
-					{:else}
 						<form class="modal-form {cForm}">
 							<label class="label">
 								<span class="font-bold">관리자 이름</span>
@@ -232,6 +195,44 @@
 															class="btn btn-sm variant-filled hidden group-hover:block"
 															on:click="{() => removeAdministrator(id)}">관리자제거</button>
 													{/if}
+												</div>
+											</li>
+										{/each}
+									</ul>
+								</nav>
+							</div>
+						</form>
+					{:else}
+						<form class="modal-form {cForm}">
+							<label class="label">
+								<span class="font-bold">유저 이름</span>
+								<div class="input-group input-group-divider grid-cols-[auto_1fr]">
+									<div class="input-group-shim"><i class="fa fa-search"></i></div>
+									<input
+										class="pl-2 py-1.5"
+										bind:value="{input}"
+										type="search"
+										placeholder="Enter the user name..." />
+								</div>
+							</label>
+							<div class="{cUsers}">
+								<nav>
+									<ul>
+										{#each normalParticipants as { id, nickname, avatar }, i}
+											{#if i !== 0}
+												<hr />
+											{/if}
+											<li>
+												<div
+													class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
+													<div class="flex items-center">
+														<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
+														<div class="ml-2">{nickname}</div>
+													</div>
+													<button
+														type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+														on:click="{() => addAdministrator(id)}">관리자추가</button>
 												</div>
 											</li>
 										{/each}
