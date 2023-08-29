@@ -66,20 +66,16 @@
 			channelId: $modalStore[0].meta.id,
 			userId: id
 		});
-		console.log(admin);
 		administrators = [...administrators, admin];
-		normalParticipants = participants.filter(
-			(p) => !administrators.some((a) => a.nickname === p.nickname)
-		);
+		normalParticipants = normalParticipants.filter(p => p.id != id);
 	}
 	//TODO: authorization "owner"
-	async function removeAdministrator(user: User) {
+	async function removeAdministrator(id: number) {
 		const removed = await deleteRequestApi(
-			BaseUrl.ADMINISTRATORS + `channelId/${$modalStore[0].meta.id}/userId/${user.id}`
+			BaseUrl.ADMINISTRATORS + `channelId/${$modalStore[0].meta.id}/userId/${id}`
 		);
-		console.log(removed);
-		administrators = administrators.filter((a) => a.id != user.id);
-		normalParticipants = [...normalParticipants, user];
+		administrators = administrators.filter((a) => a.id != id);
+		normalParticipants = [...normalParticipants, removed];
 	}
 
 	// Base Classes
@@ -232,12 +228,7 @@
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() =>
-																removeAdministrator({
-																	id: id,
-																	nickname: nickname,
-																	avatar: avatar
-																})}">관리자제거</button>
+															on:click="{() => removeAdministrator(id)}">관리자제거</button>
 													{/if}
 												</div>
 											</li>
