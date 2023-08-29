@@ -32,7 +32,7 @@
 	let normalParticipants: User[] = [];
 	let content: Content = { isOwner: false, participants: [], administrators: [] };
 
-	let adminSwitch = true;
+	let adminSwitch = false;
 
 	let input: string; //TODO: 여러 구성 요소에서 동일한 변수인 input을 사용자의 입력을 받는데 사용하면 해당 구성 요소들 중 하나에 값을 입력했을 때 모든 구성 요소에 동일한 내용이 표시된다. 구성 요소마다 서로 다른 변수를 사용하도록 하자.
 	let tabSet: number = 0;
@@ -41,8 +41,9 @@
 		name: '',
 		password: undefined
 	};
-
+	
 	onMount(async () => {
+		adminSwitch = localStorage.getItem('adminSwitch') === 'true';
 		content = await getRequestApi(BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`);
 		participants = content.participants.map((p) => p.user);
 		administrators = content.administrators.map((a) => a.user);
@@ -53,6 +54,7 @@
 
 	function toggleAdminSwitch() {
 		adminSwitch = !adminSwitch;
+		localStorage.setItem('adminSwitch', `${adminSwitch}`);
 	}
 
 	function showProfile(name: string): void {
@@ -151,7 +153,7 @@
 				{:else if tabSet === 2 && content.isOwner}
 					<label class="flex items-center cursor-pointer">
 						<div class="relative">
-							<input type="checkbox" class="hidden" on:change="{toggleAdminSwitch}" />
+							<input type="checkbox" class="hidden" on:change="{toggleAdminSwitch}" checked="{adminSwitch}" />
 							<div class="toggle__line w-8 h-4 bg-gray-400 rounded-full shadow-inner"></div>
 							<div
 								class="toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0">
@@ -224,7 +226,7 @@
 														<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
 														<div class="ml-2">{nickname}</div>
 													</div>
-													{#if nickname !== $modalStore[0].meta.nickname}
+													{#if nickname !== $modalStore[0].meta.owner}
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
