@@ -2,25 +2,25 @@
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl } from '$lib/common';
-	import { getRequestApi, postRequestApi } from '$lib/fetch';
+	import { deleteRequestApi, getRequestApi, postRequestApi } from '$lib/fetch';
 	import { onMount } from 'svelte';
-	
+
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
 	type User = {
-		id: number,
+		id: number;
 		nickname: string;
 		avatar: string;
-	}
+	};
 
 	type Content = {
 		isOwner: boolean;
 		participants: {
 			user: User;
 		}[];
-    administrators: {
-        user: User;
-    }[];
+		administrators: {
+			user: User;
+		}[];
 	};
 
 	// Props
@@ -44,9 +44,11 @@
 
 	onMount(async () => {
 		content = await getRequestApi(BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`);
-		participants = content.participants.map(p => p.user);
-		administrators = content.administrators.map(a => a.user);
-		normalParticipants = participants.filter(p => !administrators.some(a => a.nickname === p.nickname));
+		participants = content.participants.map((p) => p.user);
+		administrators = content.administrators.map((a) => a.user);
+		normalParticipants = participants.filter(
+			(p) => !administrators.some((a) => a.nickname === p.nickname)
+		);
 	});
 
 	function toggleAdminSwitch() {
@@ -60,15 +62,24 @@
 	}
 	//TODO: authorization "owner"
 	async function addAdministrator(id: number) {
-		const admin = await postRequestApi(BaseUrl.PARTICIPANTS, { channelId: $modalStore[0].meta.id, userId: id });
+		const admin = await postRequestApi(BaseUrl.ADMINISTRATORS, {
+			channelId: $modalStore[0].meta.id,
+			userId: id
+		});
+		console.log(admin);
 		administrators = [...administrators, admin];
-		normalParticipants = participants.filter(p => !administrators.some(a => a.nickname === p.nickname));
+		normalParticipants = participants.filter(
+			(p) => !administrators.some((a) => a.nickname === p.nickname)
+		);
 	}
 	//TODO: authorization "owner"
 	async function removeAdministrator(user: User) {
-		const removed = await deleteRequestApi(BaseUrl.PARTICIPANTS + `channelId/${$modalStore[0].meta.id}/userId/${user.id}`);
-		administrators = administrators.filter(a => a.id != user.id);
-		normalParticipants = [...participants, user];
+		const removed = await deleteRequestApi(
+			BaseUrl.ADMINISTRATORS + `channelId/${$modalStore[0].meta.id}/userId/${user.id}`
+		);
+		console.log(removed);
+		administrators = administrators.filter((a) => a.id != user.id);
+		normalParticipants = [...normalParticipants, user];
 	}
 
 	// Base Classes
@@ -79,16 +90,6 @@
 	const cChannelInfoTableHead = 'p-2';
 	const cChannelInfoTableBody = 'p-2';
 </script>
-
-<style>
-	input:checked ~ .toggle__line {
-			background-color: #48bb78;
-	}
-
-	input:checked ~ .toggle__dot {
-			transform: translateX(100%);
-	}
-</style>
 
 {#if $modalStore[0]}
 	<div class="{cBase}">
@@ -153,12 +154,14 @@
 					</form>
 				{:else if tabSet === 2 && content.isOwner}
 					<label class="flex items-center cursor-pointer">
-							<div class="relative">
-									<input type="checkbox" class="hidden" on:change="{toggleAdminSwitch}" />
-									<div class="toggle__line w-8 h-4 bg-gray-400 rounded-full shadow-inner"></div>
-									<div class="toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0"></div>
+						<div class="relative">
+							<input type="checkbox" class="hidden" on:change="{toggleAdminSwitch}" />
+							<div class="toggle__line w-8 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+							<div
+								class="toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-0 left-0">
 							</div>
-							<div class="ml-3 font-medium">참여자/관리자 토글</div>
+						</div>
+						<div class="ml-3 font-medium">참여자/관리자 토글</div>
 					</label>
 					{#if adminSwitch}
 						<form class="modal-form {cForm}">
@@ -187,10 +190,10 @@
 														<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
 														<div class="ml-2">{nickname}</div>
 													</div>
-														<button
-															type="button"
-															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => addAdministrator(nickname)}">관리자추가</button>
+													<button
+														type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+														on:click="{() => addAdministrator(id)}">관리자추가</button>
 												</div>
 											</li>
 										{/each}
@@ -229,7 +232,12 @@
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => removeAdministrator({ id: id, nickname: nickname, avatar: avatar })}">관리자제거</button>
+															on:click="{() =>
+																removeAdministrator({
+																	id: id,
+																	nickname: nickname,
+																	avatar: avatar
+																})}">관리자제거</button>
 													{/if}
 												</div>
 											</li>
@@ -248,3 +256,13 @@
 		</footer>
 	</div>
 {/if}
+
+<style>
+	input:checked ~ .toggle__line {
+		background-color: #48bb78;
+	}
+
+	input:checked ~ .toggle__dot {
+		transform: translateX(100%);
+	}
+</style>
