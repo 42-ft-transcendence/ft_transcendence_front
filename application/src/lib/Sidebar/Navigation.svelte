@@ -36,7 +36,7 @@
 <div
 	class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token w-0 ease-in-out duration-300 {sidebarLeftBtn
 		? sidebarLeftExtension
-			? 'border-r border-surface-500/30 sm:w-72 '
+			? 'border-r border-surface-500/30 sm:w-[450px]'
 			: 'border-r border-surface-500/30 sm:w-20'
 		: ''} "
 >
