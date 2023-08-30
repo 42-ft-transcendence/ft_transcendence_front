@@ -6,7 +6,9 @@ export const enum BaseUrl {
 	USERS = '/api/users/',
 	CHANNELS = '/api/channels/',
 	PARTICIPANTS = '/api/participants/',
-	ADMINISTRATORS = '/api/administrators/'
+	ADMINISTRATORS = '/api/administrators/',
+	BANNED = '/api/bans/',
+
 }
 
 export function getCookie(name: string) {
