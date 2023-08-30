@@ -2,7 +2,7 @@
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl } from '$lib/common';
-	import { deleteRequestAuthApi, getRequestApi, postRequestAuthApi } from '$lib/fetch';
+	import { deleteRequestAuthApi, getRequestApi, patchRequestApi, patchRequestAuthApi, postRequestAuthApi } from '$lib/fetch';
 	import { onMount } from 'svelte';
 
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
@@ -57,26 +57,48 @@
 		localStorage.setItem('adminSwitch', `${adminSwitch}`);
 	}
 
+	async function ban(userId: number) {
+		const channelId = parseInt($modalStore[0].meta.id);
+		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /ban으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
+		const user = await patchRequestAuthApi(
+			BaseUrl.USERS + `ban/userId/${userId}/channelId/${channelId}`, {}, { channelId: channelId, userId: userId });
+		participants = participants.filter(p => p.id != user.id);
+		normalParticipants = normalParticipants.filter(p => p.id != user.id);
+	}
+
+	async function kick(userId: number) {
+		const channelId = parseInt($modalStore[0].meta.id);
+		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /kick으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
+		const user = await patchRequestAuthApi(
+			BaseUrl.USERS + `kick/userId/${userId}/channelId/${channelId}`, {}, { channelId: channelId, userId: userId });
+		participants = participants.filter(p => p.id != user.id);
+		normalParticipants = normalParticipants.filter(p => p.id != user.id);
+	}
+
+	function mute(userId: number) {
+		const channelId = parseInt($modalStore[0].meta.id);
+		//TODO: implement using socket.io
+	}
+
 	function showProfile(name: string): void {
 		if ($modalStore[0].response)
 			$modalStore[0].response(new CustomEvent('profile', { bubbles: true, detail: name }));
 		modalStore.close();
 	}
-	//TODO: authorization "owner"
+
 	async function addAdministrator(id: number) {
 		const channelId = $modalStore[0].meta.id;
-		const admin = await postRequestAuthApi(BaseUrl.ADMINISTRATORS, {
-			channelId: channelId,
-			userId: id
-		}, channelId);
+		const payload = { channelId: channelId, userId: id }
+		const admin = await postRequestAuthApi(BaseUrl.ADMINISTRATORS, payload, payload);
 		administrators = [...administrators, admin];
 		normalParticipants = normalParticipants.filter(p => p.id != id);
 	}
 	//TODO: authorization "owner"
 	async function removeAdministrator(id: number) {
 		const channelId = $modalStore[0].meta.id;
+		const payload = { channelId: channelId, userId: id }
 		const removed = await deleteRequestAuthApi(
-			BaseUrl.ADMINISTRATORS + `channelId/${channelId}/userId/${id}`, channelId);
+			BaseUrl.ADMINISTRATORS + `channelId/${channelId}/userId/${id}`, payload);
 		administrators = administrators.filter((a) => a.id != id);
 		normalParticipants = [...normalParticipants, removed];
 	}
@@ -96,7 +118,7 @@
 		<TabGroup>
 			<Tab bind:group="{tabSet}" name="member" value="{0}">정보</Tab>
 			<Tab bind:group="{tabSet}" name="member" value="{1}">멤버</Tab>
-			{#if content.isOwner}
+			{#if content.isOwner && $modalStore[0].meta.type !== 'ONETOONE'}
 				<Tab bind:group="{tabSet}" name="member" value="{2}">관리</Tab>
 			{/if}
 			<svelte:fragment slot="panel">
@@ -140,10 +162,20 @@
 													<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
 													<div class="ml-2">{nickname}</div>
 												</div>
-												<button
-													type="button"
-													class="btn btn-sm variant-filled hidden group-hover:block"
-													on:click="{() => showProfile(nickname)}">프로필 보기</button>
+												<div class="flex item-center">
+													<button type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+													on:click="{() => ban(id)}">ban</button>
+													<button type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+													on:click="{() => kick(id)}">kick</button>
+													<button type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+													on:click="{() => mute(id)}">mute</button>
+													<button type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+														on:click="{() => showProfile(nickname)}">프로필 보기</button>
+												</div>
 											</div>
 										</li>
 									{/each}
@@ -259,4 +291,10 @@
 	input:checked ~ .toggle__dot {
 		transform: translateX(100%);
 	}
+
+  .btn-sm {
+    font-size: calc(0.5rem + 0.25vw);
+    padding: calc(0.15rem + 0.25vw) calc(0.15rem + 1vw);
+  }
+
 </style>
