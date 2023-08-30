@@ -20,6 +20,7 @@
 
 	type Content = {
 		isOwner: boolean;
+		isAdmin: boolean;
 		participants: {
 			user: User;
 		}[];
@@ -43,6 +44,7 @@
 
 	let content: Content = {
 		isOwner: false,
+		isAdmin: false,
 		participants: [],
 		administrators: [],
 		bans: [],
@@ -247,18 +249,20 @@
 													<div class="ml-2">{nickname}</div>
 												</div>
 												<div class="flex item-center">
-													<button
-														type="button"
-														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => ban(id)}">영구추방</button>
-													<button
-														type="button"
-														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => kick(id)}">임시추방</button>
-													<button
-														type="button"
-														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => mute(id)}">음소거</button>
+													{#if content.isAdmin}
+														<button
+															type="button"
+															class="btn btn-sm variant-filled hidden group-hover:block"
+															on:click="{() => ban(id)}">영구추방</button>
+														<button
+															type="button"
+															class="btn btn-sm variant-filled hidden group-hover:block"
+															on:click="{() => kick(id)}">임시추방</button>
+														<button
+															type="button"
+															class="btn btn-sm variant-filled hidden group-hover:block"
+															on:click="{() => mute(id)}">음소거</button>
+													{/if}
 													<button
 														type="button"
 														class="btn btn-sm variant-filled hidden group-hover:block"
@@ -284,10 +288,13 @@
 													<div class="ml-2">{nickname}</div>
 												</div>
 												<div class="flex item-center">
-													<button
-														type="button"
-														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => unban(id)}">영구추방 해제</button>
+													{#if content.isAdmin}
+														<button
+															type="button"
+															class="btn btn-sm variant-filled hidden group-hover:block"
+															on:click="{() => unban(id)}"
+															>영구추방 해제</button>
+													{/if}
 													<button
 														type="button"
 														class="btn btn-sm variant-filled hidden group-hover:block"
