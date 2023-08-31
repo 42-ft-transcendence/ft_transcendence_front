@@ -4,7 +4,7 @@
 		Avatar,
 		modalStore,
 		type ModalComponent,
-		type ModalSettings
+		type ModalSettings,
 	} from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
@@ -16,7 +16,7 @@
 	let currentMessage: string = '';
 
 	const showChannelInfoModalComponent: ModalComponent = {
-		ref: ShowChannelInfoModal
+		ref: ShowChannelInfoModal,
 	};
 	// ƒør making comment timezone
 	const date = new Date();
@@ -40,7 +40,7 @@
 		const newMessage = {
 			content: currentMessage,
 			createdAt: new Date(),
-			sender: { nickname: 'Jane', avatar: 'Jane_avatar' }
+			sender: { nickname: 'Jane', avatar: 'Jane_avatar' },
 		};
 		// Append the new message to the message feed
 		channelData.messages = [...channelData.messages, newMessage];
@@ -66,7 +66,10 @@
 
 	function convertTimeToDateFormat(dateObj: Date): string {
 		let hour = dateObj.getHours();
-		let minute = dateObj.getMinutes() < 10 ? '0' + dateObj.getMinutes() : dateObj.getMinutes();
+		let minute =
+			dateObj.getMinutes() < 10
+				? '0' + dateObj.getMinutes()
+				: dateObj.getMinutes();
 		let meridiem = '오전 ';
 		if (hour >= 12) {
 			meridiem = '오후 ';
@@ -110,21 +113,27 @@
 				title: channelData.name,
 				owner: channelData.owner.nickname,
 				type: channelData.type,
-				createdAt: channelData.createdAt
-			}
+				createdAt: channelData.createdAt,
+			},
 		};
 		modalStore.trigger(modal);
 	}
 </script>
 
 <div class="chat" bind:this="{elemChat}">
-	<section class="border-y border-surface-500/30 p-2.5 sticky top-0 bg-surface-100-800-token z-50">
+	<section
+		class="border-y border-surface-500/30 p-2.5 sticky top-0 bg-surface-100-800-token z-50">
 		<div class="grid grid-cols-[1fr_auto]">
 			<div class="flex items-center">
 				<div class="font-bold text-lg">{channelData.name}</div>
 			</div>
-			<button class="p-2 rounded-md hover:bg-surface-200-700-token" on:click="{showChannelInfo}">
-				<div><i class="fa fa-user" aria-hidden="true"></i>{channelData._count.participants}</div>
+			<button
+				class="p-2 rounded-md hover:bg-surface-200-700-token"
+				on:click="{showChannelInfo}">
+				<div>
+					<i class="fa fa-user" aria-hidden="true"></i>{channelData._count
+						.participants}
+				</div>
 			</button>
 		</div>
 	</section>
@@ -153,7 +162,8 @@
 					<div class="card p-4 variant-soft-primary rounded-tr-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{bubble.sender.nickname}</p>
-							<small class="opacity-50">{convertTimeToDateFormat(bubble.createdAt)}</small>
+							<small class="opacity-50"
+								>{convertTimeToDateFormat(bubble.createdAt)}</small>
 						</header>
 						<p>{bubble.content}</p>
 					</div>
@@ -165,7 +175,8 @@
 					<div class="card p-4 variant-soft rounded-tl-none space-y-2">
 						<header class="flex justify-between items-center">
 							<p class="font-bold">{bubble.sender.nickname}</p>
-							<small class="opacity-50">{convertTimeToDateFormat(bubble.createdAt)}</small>
+							<small class="opacity-50"
+								>{convertTimeToDateFormat(bubble.createdAt)}</small>
 						</header>
 						<p>{bubble.content}</p>
 					</div>
@@ -173,8 +184,10 @@
 			{/if}
 		{/each}
 	</section>
-	<section class="border-t border-surface-500/30 p-4 sticky bottom-0 backdrop-blur-md">
-		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
+	<section
+		class="border-t border-surface-500/30 p-4 sticky bottom-0 backdrop-blur-md">
+		<div
+			class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
 			<button class="input-group-shim">+</button>
 			<textarea
 				bind:value="{currentMessage}"

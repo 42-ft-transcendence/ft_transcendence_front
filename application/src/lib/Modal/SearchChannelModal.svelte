@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl, channelDateReviver, channelIcon, loadPage } from '$lib/common';
+	import {
+		BaseUrl,
+		channelDateReviver,
+		channelIcon,
+		loadPage,
+	} from '$lib/common';
 	import { addNewChannel, channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
@@ -15,22 +20,28 @@
 
 	channelUserInStore.subscribe(() => {
 		userChannelNames = get(channelUserInStore).map((channel) => channel.name);
-		if (channels) channels = channels.filter((channel) => !userChannelNames.includes(channel.name));
+		if (channels)
+			channels = channels.filter(
+				(channel) => !userChannelNames.includes(channel.name),
+			);
 	});
 
 	let input: string | undefined;
 	// Form Data
 	const formData = {
 		name: '',
-		password: undefined
+		password: undefined,
 	};
 
 	async function searchChannel() {
 		channels = await getRequestApi(
-			BaseUrl.CHANNELS + (input ? `name/?type=GROUP&partialName=${input}` : '?type=GROUP')
+			BaseUrl.CHANNELS +
+				(input ? `name/?type=GROUP&partialName=${input}` : '?type=GROUP'),
 		);
 		if (channels) {
-			channels = channels.filter((channel) => !userChannelNames.includes(channel.name));
+			channels = channels.filter(
+				(channel) => !userChannelNames.includes(channel.name),
+			);
 		}
 	}
 
@@ -39,8 +50,13 @@
 		const button = event.target as HTMLButtonElement;
 		const channelId = parseInt(button.dataset.channelId as string);
 
-		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, { channelId: channelId });
-		const dateChannel = JSON.parse(JSON.stringify(newChannel), channelDateReviver);
+		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
+			channelId: channelId,
+		});
+		const dateChannel = JSON.parse(
+			JSON.stringify(newChannel),
+			channelDateReviver,
+		);
 		addNewChannel(dateChannel);
 		loadPage(dateChannel.id);
 		//TODO: close modal
@@ -56,7 +72,8 @@
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
-	const cForm = 'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
+	const cForm =
+		'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const cChannels = 'rounded-md w-full max-h-96 p-4 overflow-y-auto';
 </script>
 
@@ -96,7 +113,9 @@
 											class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
 												<i
-													class="{channelIcon[channel.type]} inline-block w-8 mr-1"
+													class="{channelIcon[
+														channel.type
+													]} inline-block w-8 mr-1"
 													aria-hidden="true"></i
 												>{channel.name}
 											</div>
@@ -111,7 +130,9 @@
 											class="group w-full grid grid-cols-[1fr_auto_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
 												<i
-													class="{channelIcon[channel.type]} inline-block w-8 mr-1"
+													class="{channelIcon[
+														channel.type
+													]} inline-block w-8 mr-1"
 													aria-hidden="true"></i
 												>{channel.name}
 											</div>

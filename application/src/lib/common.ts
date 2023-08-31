@@ -8,7 +8,6 @@ export const enum BaseUrl {
 	PARTICIPANTS = '/api/participants/',
 	ADMINISTRATORS = '/api/administrators/',
 	BANNED = '/api/bans/',
-
 }
 
 export function getCookie(name: string) {
@@ -25,14 +24,12 @@ export function hasCookie(name: string) {
 }
 
 export function channelDateReviver(key: string, value: any) {
-	if (key === 'createdAt' || key === 'updatedAt')
-		return new Date(value);
+	if (key === 'createdAt' || key === 'updatedAt') return new Date(value);
 	return value;
 }
 
 export function channelContentDateReviver(key: string, value: any) {
-	if (key === 'createdAt' || key === 'updatedAt')
-		return new Date(value);
+	if (key === 'createdAt' || key === 'updatedAt') return new Date(value);
 	if (key === 'messages') {
 		value = value.map((each: any) => {
 			const { createdAt, ...others } = each;
@@ -46,8 +43,8 @@ export function loadPage(routeParam: number) {
 	goto(`/channel/${routeParam}`);
 }
 
-export const channelIcon: { [index: string]: string; } = {
-	PUBLIC: "fa fa-users",
-	PRIVATE: "fa fa-user-secret",
-	PROTECTED: "fa fa-lock fa-lg"
+export const channelIcon: { [index: string]: string } = {
+	PUBLIC: 'fa fa-users',
+	PRIVATE: 'fa fa-user-secret',
+	PROTECTED: 'fa fa-lock fa-lg',
 };
