@@ -16,20 +16,27 @@
 
 	directUserInStore.subscribe(() => {
 		interlocatorNames = get(directUserInStore).map((direct) => direct.userName);
-		if (users) users = users.filter((user) => !interlocatorNames.includes(user.nickname));
+		if (users)
+			users = users.filter(
+				(user) => !interlocatorNames.includes(user.nickname),
+			);
 	});
 
 	let input: string;
 	// Form Data
 	const formData = {
 		name: '',
-		password: undefined
+		password: undefined,
 	};
 
 	async function searchUser() {
-		users = await getRequestApi(BaseUrl.USERS + (input ? `name/?name=${input}` : ''));
+		users = await getRequestApi(
+			BaseUrl.USERS + (input ? `name/?name=${input}` : ''),
+		);
 		if (users) {
-			users = users.filter((user) => !interlocatorNames.includes(user.userName));
+			users = users.filter(
+				(user) => !interlocatorNames.includes(user.userName),
+			);
 		}
 	}
 
@@ -41,8 +48,9 @@
 
 		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
 			interlocatorId: userId,
-			interlocatorName: userName
+			interlocatorName: userName,
 		});
+		newDirect['userId'] = userId;
 		addNewDirect(newDirect);
 		loadPage(newDirect.id);
 		//TOOD: close modal
@@ -51,7 +59,8 @@
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
-	const cForm = 'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
+	const cForm =
+		'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const cUsers = 'rounded-md w-full max-h-96 p-4 overflow-y-auto';
 </script>
 
@@ -89,7 +98,10 @@
 									<div
 										class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 										<div class="flex items-center">
-											<Avatar src="{user.avatar}" width="w-6" rounded="rounded-md" />
+											<Avatar
+												src="{user.avatar}"
+												width="w-6"
+												rounded="rounded-md" />
 											<div class="ml-2">{user.nickname}</div>
 										</div>
 										<button

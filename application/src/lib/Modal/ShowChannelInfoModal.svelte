@@ -9,6 +9,7 @@
 		postRequestAuthApi,
 	} from '$lib/fetch';
 	import { onMount } from 'svelte';
+	import { activateProfile } from '$lib/store';
 
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
@@ -120,11 +121,12 @@
 		banned = banned.filter((b) => b.id !== user.id);
 	}
 
-	function showProfile(name: string): void {
-		if ($modalStore[0].response)
-			$modalStore[0].response(
-				new CustomEvent('profile', { bubbles: true, detail: name }),
-			);
+	function showProfile(id: number): void {
+		// if ($modalStore[0].response)
+		// 	$modalStore[0].response(
+		// 		new CustomEvent('profile', { bubbles: true, detail: name }),
+		// 	);
+		activateProfile(id);
 		modalStore.close();
 	}
 
@@ -227,7 +229,7 @@
 													<button
 														type="button"
 														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => showProfile(nickname)}"
+														on:click="{() => showProfile(id)}"
 														>프로필 보기</button>
 												</div>
 											</div>
@@ -266,7 +268,7 @@
 													<button
 														type="button"
 														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => showProfile(nickname)}"
+														on:click="{() => showProfile(id)}"
 														>프로필 보기</button>
 												</div>
 											</div>
@@ -298,7 +300,7 @@
 													<button
 														type="button"
 														class="btn btn-sm variant-filled hidden group-hover:block"
-														on:click="{() => showProfile(nickname)}"
+														on:click="{() => showProfile(id)}"
 														>프로필 보기</button>
 												</div>
 											</div>
@@ -437,7 +439,7 @@
 	}
 
 	.btn-sm {
-		font-size: calc(0.05rem + 0.025vw);
-		padding: calc(0.015rem + 0.025vw) calc(0.015rem + 0.1vw);
+		font-size: calc(0.5rem + 0.25vw);
+		padding: calc(0.15rem + 0.25vw) calc(0.15rem + 0.1vw);
 	}
 </style>

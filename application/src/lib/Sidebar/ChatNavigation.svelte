@@ -13,7 +13,7 @@
 	import { channelUserInStore, directUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import type { LeftSideBarChannel, LeftSideBarDirect } from '$lib/type';
-
+	
 	export let data: any;
 
 	let userChannels: LeftSideBarChannel[];
@@ -27,10 +27,12 @@
 		userDirects = get(directUserInStore);
 	});
 
-	const classOnline = 'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
-	const classOffline = 'w-1.5 h-1.5 bg-neutral-500 relative top-2.5 rounded-full';
+	const classOnline =
+		'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
+	const classOffline =
+		'w-1.5 h-1.5 bg-neutral-500 relative top-2.5 rounded-full';
 	const startDirectMessageModalComponent: ModalComponent = {
-		ref: StartDirectMessage
+		ref: StartDirectMessage,
 	};
 	let pointerEvent: MouseEvent | undefined;
 	let contextmenuComponent: ComponentType | undefined;
@@ -40,7 +42,7 @@
 	function addCoworkers(): void {
 		const modal: ModalSettings = {
 			type: 'component',
-			component: startDirectMessageModalComponent
+			component: startDirectMessageModalComponent,
 		};
 		modalStore.trigger(modal);
 	}
@@ -74,14 +76,24 @@
 				<ul>
 					{#each userChannels as { href, type, name }}
 						<li on:contextmenu|preventDefault="{handleRightClickedChannel}">
-							<a href="{href}" data-channel-name="{name}" class="{classesActive(href)}"
-								><i class="{channelIcon[type]} inline-block w-8" aria-hidden="true"></i>{name}</a>
+							<a
+								href="{href}"
+								data-channel-name="{name}"
+								class="{classesActive(href)}"
+								><i
+									class="{channelIcon[type]} inline-block w-8 no-pointer-event"
+									aria-hidden="true"></i
+								>{name}</a>
 						</li>
 					{/each}
 				</ul>
-				<button class="w-full mt-1" on:click|stopPropagation="{handleAddChannel}"
-					><i class="fa fa-plus-square text-left inline-block w-8" aria-hidden="true"></i>add
-					channels</button>
+				<button
+					class="w-full mt-1"
+					on:click|stopPropagation="{handleAddChannel}"
+					><i
+						class="fa fa-plus-square text-left inline-block w-8"
+						aria-hidden="true"></i
+					>add channels</button>
 			</nav>
 		</svelte:fragment>
 	</TreeViewItem>
@@ -90,26 +102,42 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each userDirects as userDirect}
+					{#each userDirects as { href, userId, avatar, userName, channelId}}
 						<li on:contextmenu|preventDefault="{handleRightClickedDM}">
-							<a href="{userDirect.href}" class="{classesActive(userDirect.href)}">
-								<div class="w-full grid grid-cols-[auto_1fr_auto]">
-									<Avatar src="{userDirect.avatar}" width="w-6" rounded="rounded-md" />
-									<div class="ml-2">{userDirect.userName}</div>
-									<div class="{classOnline}"></div>
+							<a
+								href="{href}"
+								data-user-id="{userId}"
+								class="{classesActive(href)}">
+								<div class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
+									<Avatar
+										src="{avatar}"
+										width="w-6"
+										rounded="rounded-md" />
+									<div class="ml-2 no-pointer-event">{userName}</div>
+									<div class="{classOnline} no-pointer-event"></div>
 								</div>
 							</a>
 						</li>
 					{/each}
 				</ul>
 				<button class="w-full mt-1" on:click="{addCoworkers}"
-					><i class="fa fa-plus-square text-left inline-block w-8" aria-hidden="true"></i>add
-					coworkers</button>
+					><i
+						class="fa fa-plus-square text-left inline-block w-8"
+						aria-hidden="true"></i
+					>add coworkers</button>
 			</nav>
 		</svelte:fragment>
 	</TreeViewItem>
 </TreeView>
 {#if contextmenuComponent !== undefined}
-	<svelte:component this="{contextmenuComponent}" pointerEvent="{pointerEvent}" />
+	<svelte:component
+		this="{contextmenuComponent}"
+		pointerEvent="{pointerEvent}" />
 {/if}
 <svelte:window on:click="{onPageClick}" />
+
+<style>
+	.no-pointer-event {
+		pointer-events: none;
+	}
+</style>

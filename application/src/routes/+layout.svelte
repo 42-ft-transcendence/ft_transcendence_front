@@ -10,22 +10,15 @@
 	import Navigation from '$lib/Sidebar/Navigation.svelte';
 	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { Modal } from '@skeletonlabs/skeleton';
-	import { channelUserInStore } from '$lib/store';
+	import { activateProfile } from '$lib/store';
 
 	export let data;
 
 	let register = false;
 	let sidebarLeftBtn = false;
-	let sidebarRightBtn = false;
-	let username: string;
 
-	function handleProfileEvent(e: any) {
-		sidebarRightBtn = true;
-		username = e.detail;
-	}
 	function handleMyProfile() {
-		sidebarRightBtn = true;
-		username = 'cgim'; // TODO fix username
+		activateProfile(-1); //TODO: 인자가 -1이면 사용자 자기 자신의 프로필을 불러오도록 구현
 	}
 </script>
 
@@ -34,7 +27,9 @@
 	<svelte:fragment slot="header">
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<button class="invisible sm:visible" on:click="{() => (sidebarLeftBtn = !sidebarLeftBtn)}">
+				<button
+					class="invisible sm:visible"
+					on:click="{() => (sidebarLeftBtn = !sidebarLeftBtn)}">
 					<i class="fa fa-bars fa-lg" aria-hidden="true"></i>
 				</button>
 			</svelte:fragment>
@@ -51,16 +46,11 @@
 		<Navigation sidebarLeftBtn="{sidebarLeftBtn}" data="{data}" />
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarRight">
-		<Profile
-			sidebarRightBtn="{sidebarRightBtn}"
-			username="{username}"
-			on:closeSidebarRight="{() => (sidebarRightBtn = false)}" />
+		<Profile />
 	</svelte:fragment>
 	<!-- (pageHeader) -->
 	<!-- Router Slot -->
-	<div on:profile="{handleProfileEvent}">
-		<slot />
-	</div>
+	<slot />
 	<!-- ---- / ---- -->
 	<!-- <svelte:fragment slot="pageFooter">Page Footer</svelte:fragment> -->
 	<!-- (footer) -->
