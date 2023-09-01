@@ -83,14 +83,12 @@
 	}
 
 	async function ban(userId: number) {
-		const channelId = parseInt($modalStore[0].meta.id);
+		const payload = {
+			userId: userId,
+			channelId: parseInt($modalStore[0].meta.id),
+		};
 		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /ban으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
-		//TODO: ban 자원에 해당하는 컨트롤러가 처리하는 게 적절하다. 수정하자.
-		const user = await patchRequestAuthApi(
-			BaseUrl.USERS + `ban/userId/${userId}/channelId/${channelId}`,
-			{},
-			{ channelId: channelId, userId: userId }, //TODO: 여기선 가드를 위한 사용자 정의 헤더도 중복이 되나?
-		);
+		const user = await postRequestAuthApi(BaseUrl.BANNED, payload, payload); //TODO: 여기선 가드를 위한 사용자 정의 헤더도 중복이 되나?
 		participants = participants.filter((p) => p.id !== user.id);
 		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
 		banned = [...banned, user];
@@ -98,11 +96,14 @@
 
 	async function kick(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
+		const payload = {
+			userId: userId,
+			channelId: channelId,
+		};
 		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /kick으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
-		const user = await patchRequestAuthApi(
-			BaseUrl.USERS + `kick/userId/${userId}/channelId/${channelId}`,
-			{},
-			{ channelId: channelId, userId: userId },
+		const user = await deleteRequestAuthApi(
+			BaseUrl.PARTICIPANTS + `userId/${userId}/channelId/${channelId}`,
+			payload,
 		);
 		participants = participants.filter((p) => p.id !== user.id);
 		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
@@ -116,7 +117,7 @@
 	async function unban(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
 		const user = await deleteRequestAuthApi(
-			BaseUrl.BANNED + `unban/userId/${userId}/channelId/${channelId}`,
+			BaseUrl.BANNED + `userId/${userId}/channelId/${channelId}`,
 			{ channelId: channelId, userId: userId },
 		);
 		banned = banned.filter((b) => b.id !== user.id);
