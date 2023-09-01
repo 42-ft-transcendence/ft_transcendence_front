@@ -223,7 +223,7 @@
 													<div class="ml-2">{nickname}</div>
 												</div>
 												<div class="flex item-center">
-													{#if $blockeeStore.length > 0 && !$blockeeStore.some(b => b.id === id)}
+													{#if id !== $userIdStore && !$blockeeStore.some((b) => b.id === id)}
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
@@ -268,7 +268,7 @@
 															class="btn btn-sm variant-filled hidden group-hover:block"
 															on:click="{() => mute(id)}">음소거</button>
 													{/if}
-													{#if $blockeeStore.length > 0 && !$blockeeStore.some(b => b.id === id)}
+													{#if id !== $userIdStore && !$blockeeStore.some((b) => b.id === id)}
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"

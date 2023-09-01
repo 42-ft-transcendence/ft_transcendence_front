@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { BaseUrl, block, loadPage } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
-	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
+	import {
+		addNewDirect,
+		blockeeStore,
+		directUserInStore,
+		userIdStore,
+	} from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { get } from 'svelte/store';
@@ -105,12 +110,12 @@
 											<div class="ml-2">{user.nickname}</div>
 										</div>
 										<div class="flex items-center">
-											{#if $blockeeStore.length > 0 && !$blockeeStore.some(b => b.id === user.id)}
+											{#if user.id !== $userIdStore && !$blockeeStore.some((b) => b.id === user.id)}
 												<button
 													type="button"
 													class="btn btn-sm variant-filled hidden group-hover:block"
 													on:click="{() => block(user.id)}">차단</button>
-											{/if}		
+											{/if}
 											<button
 												type="button"
 												class="btn btn-sm variant-filled hidden group-hover:block"
