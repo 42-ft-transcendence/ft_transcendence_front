@@ -2,7 +2,7 @@
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import {
 		BaseUrl,
-		channelDateReviver,
+		dateReviver,
 		channelIcon,
 		loadPage,
 	} from '$lib/common';
@@ -55,7 +55,7 @@
 		});
 		const dateChannel = JSON.parse(
 			JSON.stringify(newChannel),
-			channelDateReviver,
+			dateReviver,
 		);
 		addNewChannel(dateChannel);
 		loadPage(dateChannel.id);

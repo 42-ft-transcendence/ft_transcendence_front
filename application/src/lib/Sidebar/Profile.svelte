@@ -1,25 +1,33 @@
 <script lang="ts">
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import {
+	activateProfile,
+		blockeeStore,
 		deactivateProfile,
 		profileButtonStore,
-		profileInfoStore,
+		profileIdStore,
+		userIdStore,
 	} from '$lib/store';
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, unblock } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { UserProfile } from '$lib/type';
+	import { get } from 'svelte/store';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
+	let blockList: UserProfile[];
 
 	profileButtonStore.subscribe(() => {
 		sidebarRightBtn = $profileButtonStore;
 	});
-	profileInfoStore.subscribe(async () => {
-		profile = await getRequestApi(
-			BaseUrl.USERS +
-				($profileInfoStore !== -1 ? $profileInfoStore : 'oneself'),
-		);
+	profileIdStore.subscribe(async () => {
+		if ($profileIdStore === -1) return;
+		profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
+		if ($profileIdStore !== $userIdStore)
+			blockList = [];
+	});
+	blockeeStore.subscribe(() => {
+		blockList = $blockeeStore;
 	});
 </script>
 
@@ -46,4 +54,40 @@
 	<div class="p-2.5">
 		<div class="font-bold text-lg">대전 기록</div>
 	</div>
+	{#if $userIdStore === $profileIdStore}
+		<div class="p-2.5">
+			<div class="font-bold text-lg">차단 목록</div>
+				<ul>
+					{#each blockList as blockee, i}
+					{#if i !== 0}
+						<hr />
+					{/if}
+						<li>
+							<div
+								class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
+								<div class="flex items-center">
+									<Avatar
+										src="{blockee.avatar}"
+										width="w-6"
+										rounded="rounded-md" />
+									<div class="ml-2">{blockee.nickname}</div>
+								</div>
+								<div class="flex item-center">
+									<button
+										type="button"
+										class="btn btn-sm variant-filled hidden group-hover:block"
+										on:click="{() => unblock(blockee.id)}"
+										>차단 해제</button>
+									<button
+										type="button"
+										class="btn btn-sm variant-filled hidden group-hover:block"
+										on:click="{() => activateProfile(blockee.id)}"
+										>프로필 보기</button>
+								</div>
+							</div>
+						</li>
+					{/each}
+				</ul>
+		</div>
+	{/if}
 </div>

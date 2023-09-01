@@ -20,14 +20,10 @@
 		console.log('remove item...');
 	}
 
-	function seeProfile() {
-		activateProfile(userId);
-	}
-
 	let menuItems = [
 		{
 			name: 'see profile',
-			onClick: seeProfile,
+			onClick: () => activateProfile(userId),
 			displayText: '프로필 보기',
 			class: '',
 		},

@@ -4,12 +4,15 @@ import type {
 	LeftSideBarDirect,
 	UserChannel,
 	UserDirectChannel,
+	UserProfile,
 } from './type';
 
 export const channelUserInStore = writable(Array<LeftSideBarChannel>());
 export const directUserInStore = writable(Array<LeftSideBarDirect>());
 export const profileButtonStore = writable(false);
-export const profileInfoStore = writable(-1);
+export const profileIdStore = writable(-1);
+export const blockeeStore = writable(Array<UserProfile>());
+export const userIdStore = writable(-1);
 
 export function addNewChannel(newChannel: UserChannel) {
 	const added: LeftSideBarChannel = {
@@ -45,15 +48,23 @@ export function addNewDirect(newDirect: UserDirectChannel) {
 
 export function removeDirect(channelId: number) {
 	directUserInStore.update((directs) =>
-		directs.filter((c) => c.channelId != channelId),
+		directs.filter((c) => c.channelId !== channelId),
 	);
 }
 
 export function activateProfile(userId: number) {
 	profileButtonStore.update(() => true);
-	profileInfoStore.update(() => userId);
+	profileIdStore.update(() => userId);
 }
 
 export function deactivateProfile() {
 	profileButtonStore.update(() => false);
+}
+
+export function addBlockee(blockee: UserProfile) {
+	blockeeStore.update((store) => {store.push(blockee); return store;})
+}
+
+export function removeBlockee(blockee: UserProfile) {
+	blockeeStore.update((store) => store.filter(u => u.id !== blockee.id));
 }

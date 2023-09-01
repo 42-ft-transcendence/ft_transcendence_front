@@ -39,6 +39,10 @@ export interface UserProfile {
 	updatedAt: string; //TODO: string? Date?
 }
 
+export interface Blockee {
+	blockee: UserProfile;
+}
+
 export enum ChannelType {
 	PUBLIC = 'PUBLIC',
 	PRIVATE = 'PRIVATE',

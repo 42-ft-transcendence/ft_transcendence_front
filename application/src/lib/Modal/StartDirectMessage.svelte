@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { BaseUrl, loadPage } from '$lib/common';
+	import { BaseUrl, block, loadPage } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
-	import { addNewDirect, directUserInStore } from '$lib/store';
+	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { get } from 'svelte/store';
@@ -104,12 +104,20 @@
 												rounded="rounded-md" />
 											<div class="ml-2">{user.nickname}</div>
 										</div>
-										<button
-											type="button"
-											class="btn btn-sm variant-filled hidden group-hover:block"
-											data-user-id="{user.id}"
-											data-user-name="{user.nickname}"
-											on:click="{startDM}">대화 시작</button>
+										<div class="flex items-center">
+											{#if $blockeeStore.length > 0 && !$blockeeStore.some(b => b.id === user.id)}
+												<button
+													type="button"
+													class="btn btn-sm variant-filled hidden group-hover:block"
+													on:click="{() => block(user.id)}">차단</button>
+											{/if}		
+											<button
+												type="button"
+												class="btn btn-sm variant-filled hidden group-hover:block"
+												data-user-id="{user.id}"
+												data-user-name="{user.nickname}"
+												on:click="{startDM}">대화 시작</button>
+										</div>
 									</div>
 								</li>
 							{/each}

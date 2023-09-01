@@ -105,9 +105,9 @@
 		const modal: ModalSettings = {
 			type: 'component',
 			component: showChannelInfoModalComponent,
-			response: (r) => {
-				if (r !== false) elemChat?.dispatchEvent(r);
-			},
+			// response: (r) => {
+			// 	if (r !== false) elemChat?.dispatchEvent(r);
+			// },
 			meta: {
 				id: channelData.id,
 				title: channelData.name,

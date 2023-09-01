@@ -2,7 +2,7 @@
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import {
 		BaseUrl,
-		channelDateReviver,
+		dateReviver,
 		channelIcon,
 		loadPage,
 	} from '$lib/common';
@@ -26,7 +26,7 @@
 			const newChannel = await postRequestApi(BaseUrl.CHANNELS, formData);
 			const dateChannel = JSON.parse(
 				JSON.stringify(newChannel),
-				channelDateReviver,
+				dateReviver,
 			);
 			modalStore.close();
 			addNewChannel(dateChannel);

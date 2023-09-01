@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, block } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -9,7 +9,8 @@
 		postRequestAuthApi,
 	} from '$lib/fetch';
 	import { onMount } from 'svelte';
-	import { activateProfile } from '$lib/store';
+	import { activateProfile, blockeeStore, userIdStore } from '$lib/store';
+	import { get } from 'svelte/store';
 
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
@@ -122,10 +123,6 @@
 	}
 
 	function showProfile(id: number): void {
-		// if ($modalStore[0].response)
-		// 	$modalStore[0].response(
-		// 		new CustomEvent('profile', { bubbles: true, detail: name }),
-		// 	);
 		activateProfile(id);
 		modalStore.close();
 	}
@@ -226,6 +223,12 @@
 													<div class="ml-2">{nickname}</div>
 												</div>
 												<div class="flex item-center">
+													{#if $blockeeStore.length > 0 && !$blockeeStore.some(b => b.id === id)}
+														<button
+															type="button"
+															class="btn btn-sm variant-filled hidden group-hover:block"
+															on:click="{() => block(id)}">차단</button>
+													{/if}
 													<button
 														type="button"
 														class="btn btn-sm variant-filled hidden group-hover:block"
@@ -264,6 +267,12 @@
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
 															on:click="{() => mute(id)}">음소거</button>
+													{/if}
+													{#if $blockeeStore.length > 0 && !$blockeeStore.some(b => b.id === id)}
+														<button
+															type="button"
+															class="btn btn-sm variant-filled hidden group-hover:block"
+															on:click="{() => block(id)}">차단</button>
 													{/if}
 													<button
 														type="button"
