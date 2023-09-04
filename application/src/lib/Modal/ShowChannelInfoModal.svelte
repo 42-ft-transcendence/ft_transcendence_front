@@ -10,7 +10,8 @@
 	} from '$lib/fetch';
 	import { onMount } from 'svelte';
 	import { activateProfile, blockeeStore, userIdStore } from '$lib/store';
-	import { get } from 'svelte/store';
+	import { ChannelType } from '$lib/type';
+	import { goto } from '$app/navigation';
 
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
@@ -151,6 +152,13 @@
 		normalParticipants = [...normalParticipants, removed];
 	}
 
+	function dispatchBlock(id: number) {
+		block(id);
+		if ($modalStore[0].meta.type === ChannelType.ONETOONE) {
+			modalStore.close();
+			goto('http://localhost:8080/');
+		}
+	}
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
@@ -228,7 +236,7 @@
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => block(id)}">차단</button>
+															on:click="{() => dispatchBlock(id)}">차단</button>
 													{/if}
 													<button
 														type="button"
@@ -255,7 +263,7 @@
 													<div class="ml-2">{nickname}</div>
 												</div>
 												<div class="flex item-center">
-													{#if content.isAdmin}
+													{#if content.isAdmin && $modalStore[0].meta.type !== ChannelType.ONETOONE}
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
@@ -273,7 +281,7 @@
 														<button
 															type="button"
 															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => block(id)}">차단</button>
+															on:click="{() => dispatchBlock(id)}">차단</button>
 													{/if}
 													<button
 														type="button"
