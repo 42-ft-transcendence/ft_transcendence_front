@@ -1,14 +1,9 @@
 <script lang="ts">
-	import { BaseUrl, block, loadPage } from '$lib/common';
-	import { getRequestApi, postRequestApi } from '$lib/fetch';
-	import {
-		addNewDirect,
-		blockeeStore,
-		directUserInStore,
-		userIdStore,
-	} from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
+	import { BaseUrl, block, loadPage } from '$lib/common';
+	import { getRequestApi, postRequestApi } from '$lib/fetch';
+	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
 
 	// Props
@@ -40,7 +35,7 @@
 		);
 		if (users) {
 			users = users.filter(
-				(user) => !interlocatorNames.includes(user.userName),
+				(user) => !interlocatorNames.includes(user.nickname),
 			);
 		}
 	}
@@ -110,18 +105,18 @@
 											<div class="ml-2">{user.nickname}</div>
 										</div>
 										<div class="flex items-center">
-											{#if user.id !== $userIdStore && !$blockeeStore.some((b) => b.id === user.id)}
+											{#if user.id !== $userIdStore && !$blockeeStore.some(b => b.id === user.id)}
 												<button
 													type="button"
 													class="btn btn-sm variant-filled hidden group-hover:block"
 													on:click="{() => block(user.id)}">차단</button>
-											{/if}
-											<button
-												type="button"
-												class="btn btn-sm variant-filled hidden group-hover:block"
-												data-user-id="{user.id}"
-												data-user-name="{user.nickname}"
-												on:click="{startDM}">대화 시작</button>
+												<button
+													type="button"
+													class="btn btn-sm variant-filled hidden group-hover:block"
+													data-user-id="{user.id}"
+													data-user-name="{user.nickname}"
+													on:click="{startDM}">대화 시작</button>
+											{/if}		
 										</div>
 									</div>
 								</li>
