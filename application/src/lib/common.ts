@@ -1,7 +1,7 @@
 import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
 import { deleteRequestApi, postRequestApi } from './fetch';
-import { addBlockee, blockeeStore, removeBlockee } from './store';
+import { addBlockee, blockeeStore, removeBlockee, removeDirect } from './store';
 
 export const JWT_COOKIE_KEY = 'JsonWebToken';
 
@@ -48,8 +48,10 @@ export function loadPage(routeParam: number) {
 }
 
 export async function block(blockeeId: number) {
-	const blockee = await postRequestApi(BaseUrl.BLOCKED, {blockeeId: blockeeId});
-	addBlockee(blockee.blockee);
+	const blocked = await postRequestApi(BaseUrl.BLOCKED, {blockeeId: blockeeId});
+	addBlockee(blocked.blockee);
+	if (blocked.channelId)
+		removeDirect(blocked.channelId);
 }
 
 export async function unblock(blockeeId: number) {
