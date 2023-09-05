@@ -9,6 +9,7 @@
 	import { addNewChannel, channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
+	import { ChannelType } from '$lib/type';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -62,10 +63,23 @@
 		//TODO: close modal
 	}
 
-	function onPromptKeydown(event: KeyboardEvent): void {
+	async function joinProtectedChannel(channelId: number) {
+		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
+			channelId: channelId, channelPassword: formData.password
+		});
+		const dateChannel = JSON.parse(
+			JSON.stringify(newChannel),
+			dateReviver,
+		);
+		addNewChannel(dateChannel);
+		loadPage(dateChannel.id);
+		formData.password = undefined;
+	}
+
+	function onPromptKeydown(event: KeyboardEvent, channelId: number): void {
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault();
-			joinChannel(event);
+			joinProtectedChannel(channelId);
 		}
 	}
 
@@ -108,7 +122,7 @@
 									<hr />
 								{/if}
 								<li>
-									{#if channel.type !== 2}
+									{#if channel.type !== ChannelType.PROTECTED}
 										<div
 											class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
@@ -142,12 +156,12 @@
 												name="protected"
 												placeholder="Enter password..."
 												bind:value="{formData.password}"
-												on:keypress="{onPromptKeydown}" />
+												on:keypress="{(e) => onPromptKeydown(e, channel.id)}" />
 											<button
 												type="button"
 												class="btn btn-sm variant-filled ml-2 hidden group-hover:block"
 												data-channel-id="{channel.id}"
-												on:click="{joinChannel}">참여</button>
+												on:click="{() => joinProtectedChannel(channel.id)}">참여</button>
 										</div>
 									{/if}
 								</li>
