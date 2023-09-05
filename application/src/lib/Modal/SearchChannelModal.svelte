@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import {
-		BaseUrl,
-		dateReviver,
-		channelIcon,
-		loadPage,
-	} from '$lib/common';
+	import { BaseUrl, dateReviver, channelIcon, loadPage } from '$lib/common';
 	import { addNewChannel, channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
@@ -15,15 +10,15 @@
 	/** Exposes parent props to this component. */
 	export let parent: any;
 
-	let channels: any[] | undefined;
+	let searchResult: any[] | undefined;
 
-	let userChannelNames: string[];
+	let userChannelIds: number[];
 
 	channelUserInStore.subscribe(() => {
-		userChannelNames = get(channelUserInStore).map((channel) => channel.name);
-		if (channels)
-			channels = channels.filter(
-				(channel) => !userChannelNames.includes(channel.name),
+		userChannelIds = get(channelUserInStore).map((channel) => channel.id);
+		if (searchResult)
+			searchResult = searchResult.filter(
+				(channel) => !userChannelIds.includes(channel.id),
 			);
 	});
 
@@ -35,15 +30,15 @@
 	};
 
 	async function searchChannel() {
-		channels = await getRequestApi(
+		searchResult = await getRequestApi(
 			BaseUrl.CHANNELS +
 				(input ? `name/?type=GROUP&partialName=${input}` : '?type=GROUP'),
 		);
-		if (channels) {
-			channels = channels.filter(
-				(channel) => !userChannelNames.includes(channel.name),
+		if (searchResult)
+			searchResult = searchResult.filter(
+				(channel) => !userChannelIds.includes(channel.id),
 			);
-		}
+		input = undefined;
 	}
 
 	async function joinChannel(event: MouseEvent | KeyboardEvent) {
@@ -54,10 +49,7 @@
 		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
 			channelId: channelId,
 		});
-		const dateChannel = JSON.parse(
-			JSON.stringify(newChannel),
-			dateReviver,
-		);
+		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
 		addNewChannel(dateChannel);
 		loadPage(dateChannel.id);
 		//TODO: close modal
@@ -65,12 +57,10 @@
 
 	async function joinProtectedChannel(channelId: number) {
 		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
-			channelId: channelId, channelPassword: formData.password
+			channelId: channelId,
+			channelPassword: formData.password,
 		});
-		const dateChannel = JSON.parse(
-			JSON.stringify(newChannel),
-			dateReviver,
-		);
+		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
 		addNewChannel(dateChannel);
 		loadPage(dateChannel.id);
 		formData.password = undefined;
@@ -109,15 +99,15 @@
 						on:click="{searchChannel}">Search</button>
 				</div>
 			</label>
-			{#if channels === undefined}
+			{#if searchResult === undefined}
 				<div class="text-center {cChannels}">채널을 검색하세요</div>
-			{:else if channels.length === 0}
+			{:else if searchResult.length === 0}
 				<div class="text-center {cChannels}">결과 없음</div>
 			{:else}
 				<div class="{cChannels}">
 					<nav class="">
 						<ul>
-							{#each channels as channel, i}
+							{#each searchResult as channel, i}
 								{#if i !== 0}
 									<hr />
 								{/if}
@@ -161,7 +151,8 @@
 												type="button"
 												class="btn btn-sm variant-filled ml-2 hidden group-hover:block"
 												data-channel-id="{channel.id}"
-												on:click="{() => joinProtectedChannel(channel.id)}">참여</button>
+												on:click="{() => joinProtectedChannel(channel.id)}"
+												>참여</button>
 										</div>
 									{/if}
 								</li>
