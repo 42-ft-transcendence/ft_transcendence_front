@@ -1,4 +1,5 @@
 export interface LeftSideBarChannel {
+	id: number;
 	href: string;
 	name: string;
 	type: string;

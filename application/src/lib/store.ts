@@ -16,6 +16,7 @@ export const userIdStore = writable(-1);
 
 export function addNewChannel(newChannel: UserChannel) {
 	const added: LeftSideBarChannel = {
+		id: newChannel.id,
 		name: newChannel.name,
 		type: newChannel.type,
 		href: `/channel/${newChannel.id}`,
@@ -26,9 +27,9 @@ export function addNewChannel(newChannel: UserChannel) {
 	});
 }
 
-export function removeChannel(channelName: string) {
+export function removeChannel(channelId: number) {
 	channelUserInStore.update((channels) =>
-		channels.filter((c) => c.name != channelName),
+		channels.filter((c) => c.id != channelId),
 	);
 }
 
@@ -62,7 +63,7 @@ export function deactivateProfile() {
 }
 
 export function addBlockee(blockee: UserProfile) {
-	blockeeStore.update((store) => {store.push(blockee); return store;})
+	blockeeStore.update((store) => { store.push(blockee); return store; });
 }
 
 export function removeBlockee(blockee: UserProfile) {

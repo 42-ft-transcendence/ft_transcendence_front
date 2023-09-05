@@ -7,7 +7,7 @@
 
 	export let pointerEvent: MouseEvent;
 
-	let selectedChannelName: string | undefined;
+	let channelId: number;
 
 	const contextmenu = new ContextMenu();
 	$: {
@@ -15,7 +15,7 @@
 		contextmenu.pos.x = contextmenu.pos.x;
 		contextmenu.pos.y = contextmenu.pos.y;
 		if (pointerEvent.target instanceof HTMLElement)
-			selectedChannelName = pointerEvent.target.dataset.channelName;
+			channelId = parseInt(pointerEvent.target.dataset.channelId as string);
 	}
 	async function leaveChannel() {
 		//1. 현재 사용자가 현재 채널에서 일반 사용자인지, 관리자인지 소유자인지 구분
@@ -34,10 +34,12 @@
 		 * 일반 사용자
 		 * 1. participant 모델에서 JWT 사용자, 현재 채널에 대한 데이터를 제거
 		 */
-		const channel = await deleteRequestApi(BaseUrl.PARTICIPANTS + `channelName/${selectedChannelName}`);
-		removeChannel(channel.name);
+		console.log(channelId);
+		const channel = await deleteRequestApi(
+			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
+		);
+		removeChannel(parseInt(channel.id));
 		goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
-		
 	}
 	let menuItems = [
 		{

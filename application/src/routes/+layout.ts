@@ -19,6 +19,7 @@ export async function load() {
 	if (hasCookie(JWT_COOKIE_KEY)) {
 		channels = (await getRequestApi(BaseUrl.CHANNELS + 'channelsUserIn')).map(
 			(channel: any) => ({
+				id: channel.id,
 				name: channel.name,
 				type: channel.type,
 				href: `/channel/${channel.id}`,

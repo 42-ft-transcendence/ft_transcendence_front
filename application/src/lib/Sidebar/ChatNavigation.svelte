@@ -13,7 +13,7 @@
 	import { channelUserInStore, directUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import type { LeftSideBarChannel, LeftSideBarDirect } from '$lib/type';
-	
+
 	export let data: any;
 
 	let userChannels: LeftSideBarChannel[];
@@ -74,11 +74,11 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each userChannels as { href, type, name }}
+					{#each userChannels as { id, href, type, name }}
 						<li on:contextmenu|preventDefault="{handleRightClickedChannel}">
 							<a
 								href="{href}"
-								data-channel-name="{name}"
+								data-channel-id="{id}"
 								class="{classesActive(href)}"
 								><i
 									class="{channelIcon[type]} inline-block w-8 no-pointer-event"
@@ -102,17 +102,15 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each userDirects as { href, userId, avatar, userName, channelId}}
+					{#each userDirects as { href, userId, avatar, userName, channelId }}
 						<li on:contextmenu|preventDefault="{handleRightClickedDM}">
 							<a
 								href="{href}"
 								data-user-id="{userId}"
 								class="{classesActive(href)}">
-								<div class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
-									<Avatar
-										src="{avatar}"
-										width="w-6"
-										rounded="rounded-md" />
+								<div
+									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
+									<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
 									<div class="ml-2 no-pointer-event">{userName}</div>
 									<div class="{classOnline} no-pointer-event"></div>
 								</div>
