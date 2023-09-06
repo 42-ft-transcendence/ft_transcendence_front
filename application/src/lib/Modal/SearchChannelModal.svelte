@@ -1,45 +1,83 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { JWT_COOKIE_KEY, channelIcon } from '$lib/common';
-	import { getCookie } from '../common';
+	import { BaseUrl, dateReviver, channelIcon, loadPage } from '$lib/common';
+	import { addNewChannel, channelUserInStore } from '$lib/store';
+	import { get } from 'svelte/store';
+	import { getRequestApi, postRequestApi } from '$lib/fetch';
+	import { ChannelType } from '$lib/type';
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
-	let channels: any[] | undefined;
+
+	let searchResult: any[] | undefined;
+
+	let userChannelIds: number[];
+
+	channelUserInStore.subscribe(() => {
+		userChannelIds = get(channelUserInStore).map((channel) => channel.id);
+		if (searchResult)
+			searchResult = searchResult.filter(
+				(channel) => !userChannelIds.includes(channel.id),
+			);
+	});
 
 	let input: string | undefined;
 	// Form Data
 	const formData = {
 		name: '',
-		password: undefined
+		password: undefined,
 	};
 
 	async function searchChannel() {
-		const url =
-			input && input.length > 0
-				? `/api/channels/name/?type=GROUP&name=${input}`
-				: '/api/channels/?type=GROUP';
-		const response = await fetch(url, {
-			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
-		});
-		channels = await response.json();
+		searchResult = await getRequestApi(
+			BaseUrl.CHANNELS +
+				(input ? `name/?type=GROUP&partialName=${input}` : '?type=GROUP'),
+		);
+		if (searchResult)
+			searchResult = searchResult.filter(
+				(channel) => !userChannelIds.includes(channel.id),
+			);
+		input = undefined;
 	}
-	function joinChannel() {
+
+	async function joinChannel(event: MouseEvent | KeyboardEvent) {
 		// TODO fuc joinChannel
-		console.log('joinChannel');
+		const button = event.target as HTMLButtonElement;
+		const channelId = parseInt(button.dataset.channelId as string);
+
+		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
+			channelId: channelId,
+		});
+		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
+		addNewChannel(dateChannel);
+		loadPage(dateChannel.id);
+		//TODO: close modal
 	}
-	function onPromptKeydown(event: KeyboardEvent): void {
+
+	async function joinProtectedChannel(channelId: number) {
+		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
+			channelId: channelId,
+			channelPassword: formData.password,
+		});
+		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
+		addNewChannel(dateChannel);
+		loadPage(dateChannel.id);
+		formData.password = undefined;
+	}
+
+	function onPromptKeydown(event: KeyboardEvent, channelId: number): void {
 		if (['Enter'].includes(event.code)) {
 			event.preventDefault();
-			joinChannel();
+			joinProtectedChannel(channelId);
 		}
 	}
 
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
-	const cForm = 'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
+	const cForm =
+		'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const cChannels = 'rounded-md w-full max-h-96 p-4 overflow-y-auto';
 </script>
 
@@ -61,31 +99,34 @@
 						on:click="{searchChannel}">Search</button>
 				</div>
 			</label>
-			{#if channels === undefined}
+			{#if searchResult === undefined}
 				<div class="text-center {cChannels}">채널을 검색하세요</div>
-			{:else if channels.length === 0}
+			{:else if searchResult.length === 0}
 				<div class="text-center {cChannels}">결과 없음</div>
 			{:else}
 				<div class="{cChannels}">
 					<nav class="">
 						<ul>
-							{#each channels as channel, i}
+							{#each searchResult as channel, i}
 								{#if i !== 0}
 									<hr />
 								{/if}
 								<li>
-									{#if channel.type !== 2}
+									{#if channel.type !== ChannelType.PROTECTED}
 										<div
 											class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
 												<i
-													class="{channelIcon[channel.type]} inline-block w-8 mr-1"
+													class="{channelIcon[
+														channel.type
+													]} inline-block w-8 mr-1"
 													aria-hidden="true"></i
 												>{channel.name}
 											</div>
 											<button
 												type="button"
 												class="btn btn-sm variant-filled hidden group-hover:block"
+												data-channel-id="{channel.id}"
 												on:click="{joinChannel}">참여</button>
 										</div>
 									{:else}
@@ -93,7 +134,9 @@
 											class="group w-full grid grid-cols-[1fr_auto_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 											<div class="flex items-center">
 												<i
-													class="{channelIcon[channel.type]} inline-block w-8 mr-1"
+													class="{channelIcon[
+														channel.type
+													]} inline-block w-8 mr-1"
 													aria-hidden="true"></i
 												>{channel.name}
 											</div>
@@ -103,11 +146,13 @@
 												name="protected"
 												placeholder="Enter password..."
 												bind:value="{formData.password}"
-												on:keypress="{onPromptKeydown}" />
+												on:keypress="{(e) => onPromptKeydown(e, channel.id)}" />
 											<button
 												type="button"
 												class="btn btn-sm variant-filled ml-2 hidden group-hover:block"
-												on:click="{joinChannel}">참여</button>
+												data-channel-id="{channel.id}"
+												on:click="{() => joinProtectedChannel(channel.id)}"
+												>참여</button>
 										</div>
 									{/if}
 								</li>

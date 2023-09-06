@@ -1,42 +1,61 @@
-import { JWT_COOKIE_KEY, getCookie, hasCookie } from "$lib/common";
 import { redirect } from "@sveltejs/kit";
+import { BaseUrl, JWT_COOKIE_KEY, hasCookie } from '$lib/common';
+import { getRequestApi } from '$lib/fetch';
+import { blockeeStore, channelUserInStore, directUserInStore, profileIdStore, userIdStore } from '$lib/store';
+import type {
+	Blockee,
+	LeftSideBarChannel,
+	LeftSideBarDirect,
+} from '$lib/type';
+import { get, readable } from 'svelte/store';
 
 export const ssr = false;
 
-interface UserChannel {
-    name: string,
-    type: string,
-    id: number,
-}
-
-const ONE_TO_ONE = 'ONETOONE';
-
 export async function load({ url }) {
-    let channels: UserChannel[];
-    let directs: UserChannel[];
-    //TODO: let friends
-    let register = true;
+	let channels: LeftSideBarChannel[];
+	let directs: LeftSideBarDirect[];
+	//TODO: let friends
+	let blockList: Blockee[];
+	let register = true;
 
-    if (hasCookie(JWT_COOKIE_KEY)) {
-        const userChannels: UserChannel[] = (await (await fetch('/api/channels/ofCurrentUser', {
-            headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
-        })).json()).map((channel: UserChannel) => ({ name: channel.name, type: channel.type, href: `/channel/${channel.id}` }));
-        channels = userChannels.filter(c => c.type !== ONE_TO_ONE);
-        directs = userChannels.filter(c => c.type === ONE_TO_ONE);
-        console.log(userChannels);
-    } else {
-        channels = [];
-        directs = [];
-        register = false;
-        if (url.pathname !== '/login') throw redirect(307, "/login");
-    }
-    return {
-        chat: [
-            { title: "Channel", list: channels },
-            { title: "DM", list: directs },
-            { title: "Friends", list: [] }
-        ],
-        game: {},
-        register: register,
-    };
+	if (hasCookie(JWT_COOKIE_KEY)) {
+		channels = (await getRequestApi(BaseUrl.CHANNELS + 'channelsUserIn')).map(
+			(channel: any) => ({
+				id: channel.id,
+				name: channel.name,
+				type: channel.type,
+				href: `/channel/${channel.id}`,
+			}),
+		);
+		directs = (await getRequestApi(BaseUrl.CHANNELS + 'directsUserIn')).map(
+			(direct: any) => ({
+				href: `/channel/${direct.channelId}`,
+				channelId: direct.channelId,
+				userId: direct.userId,
+				userName: direct.userName,
+				avatar: direct.avatar,
+			}),
+		);
+		blockList = await getRequestApi(BaseUrl.BLOCKED);
+	} else {
+		//TODO: JWT 쿠키가 없다면 사이드바, 상단바를 감추고 로그인하도록 구현
+		channels = [];
+		directs = [];
+		blockList = [];
+		register = false;
+		if (url.pathname !== '/login') throw redirect(307, "/login");
+	}
+	channelUserInStore.set(channels);
+	directUserInStore.set(directs);
+	blockeeStore.set(blockList.map(each => each.blockee));
+	userIdStore.set(get(readable((await getRequestApi(BaseUrl.USERS + 'oneself')).id)));
+	return {
+		chat: [
+			{ title: 'Channel', list: channels },
+			{ title: 'DM', list: directs },
+			{ title: 'Friends', list: [] },
+		],
+		game: {},
+		register: register,
+	};
 }

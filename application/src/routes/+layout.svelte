@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
 	// The ordering of these imports is critical to your app working properly
 	import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
 	// If you have source.organizeImports set to true in VSCode, then it will auto change this ordering
@@ -10,21 +10,16 @@
 	import Navigation from '$lib/Sidebar/Navigation.svelte';
 	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { Modal } from '@skeletonlabs/skeleton';
-	
+	import { activateProfile, userIdStore } from '$lib/store';
+	import { get } from 'svelte/store';
+
 	export let data;
 	let register = data.register;
 	let sidebarLeftBtn = false;
-	let sidebarRightBtn = false;
-	let username:string;
-
-	function handleProfileEvent(e:any){
-		sidebarRightBtn = true;
-		username = e.detail;
-	}
-	function handleMyProfile(){
-		sidebarRightBtn = true;
-		username = 'cgim' // TODO fix username
-	}
+	//TODO: 인자가 -1이면 사용자 자기 자신의 프로필을 불러오도록 구현했었지만, 현재 사용자가 로그인할 시 현재 사용자의 id를 스토어에 저장해 활용할 것이므로, 이를 활용하도록 하자.
+	// function handleMyProfile() {
+	// 	activateProfile(-1); 
+	// }
 </script>
 
 <Modal />
@@ -59,9 +54,7 @@
 	</svelte:fragment>
 	<!-- (pageHeader) -->
 	<!-- Router Slot -->
-	<div class="h-full" on:profile={handleProfileEvent}>
 	<slot />
-	</div>
 	<!-- ---- / ---- -->
 	<!-- <svelte:fragment slot="pageFooter">Page Footer</svelte:fragment> -->
 	<!-- (footer) -->

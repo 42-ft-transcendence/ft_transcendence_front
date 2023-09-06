@@ -1,21 +1,23 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
+	import { BaseUrl } from '$lib/common';
+	import { deleteRequestApi } from '$lib/fetch';
+	import { removeChannel } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
 
-	let selectedChannelName: string | undefined;
+	let channelId: number;
 
 	const contextmenu = new ContextMenu();
 	$: {
 		contextmenu.rightClickContextMenu(pointerEvent);
 		contextmenu.pos.x = contextmenu.pos.x;
 		contextmenu.pos.y = contextmenu.pos.y;
-		console.log(pointerEvent.target);
 		if (pointerEvent.target instanceof HTMLElement)
-			selectedChannelName = pointerEvent.target.dataset.channelName;
+			channelId = parseInt(pointerEvent.target.dataset.channelId as string);
 	}
-	function leaveChannel() {
-		console.log(selectedChannelName);
+	async function leaveChannel() {
 		//1. 현재 사용자가 현재 채널에서 일반 사용자인지, 관리자인지 소유자인지 구분
 		/**
 		 * 채널 소유자
@@ -32,34 +34,43 @@
 		 * 일반 사용자
 		 * 1. participant 모델에서 JWT 사용자, 현재 채널에 대한 데이터를 제거
 		 */
+		console.log(channelId);
+		const channel = await deleteRequestApi(
+			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
+		);
+		removeChannel(parseInt(channel.id));
+		goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
 	}
 	let menuItems = [
 		{
 			name: 'leave channel',
 			onClick: leaveChannel,
 			displayText: '채널 나가기',
-			class: ''
-		}
+			class: '',
+		},
 	];
 </script>
 
 <nav
 	use:contextmenu.getContextMenuDimension
 	class="bg-tertiary-100-800-token shadow-2xl border border-surface-500/30 z-50 rounded-lg"
-	style="position: absolute; top:{contextmenu.pos.y}px; left:{contextmenu.pos.x}px">
+	style="position: absolute; top:{contextmenu.pos.y}px; left:{contextmenu.pos
+		.x}px">
 	<div class="navbar" id="navbar">
 		<ul>
 			{#each menuItems as item, i}
 				<li>
 					<button
-						class="text-left w-full p-2 hover:bg-surface-300 {menuItems.length == 1
+						class="text-left w-full p-2 hover:bg-surface-300 {menuItems.length ==
+						1
 							? 'rounded-lg'
 							: i == 0
 							? 'rounded-t-lg'
 							: menuItems.length - 1 == i
 							? 'rounded-b-lg'
 							: ''}"
-						on:click="{item.onClick}"><i class="{item.class}"></i>{item.displayText}</button>
+						on:click="{item.onClick}"
+						><i class="{item.class}"></i>{item.displayText}</button>
 				</li>
 				{#if menuItems.length !== i + 1}
 					<hr />

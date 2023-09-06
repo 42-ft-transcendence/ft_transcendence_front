@@ -1,35 +1,66 @@
 <script lang="ts">
-	import { JWT_COOKIE_KEY, getCookie } from '$lib/common';
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
+	import { BaseUrl, block, loadPage } from '$lib/common';
+	import { getRequestApi, postRequestApi } from '$lib/fetch';
+	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
+	import { get } from 'svelte/store';
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
+
 	let users: any[] | undefined;
+
+	let interlocatorNames: string[];
+
+	directUserInStore.subscribe(() => {
+		interlocatorNames = get(directUserInStore).map((direct) => direct.userName);
+		if (users)
+			users = users.filter(
+				(user) => !interlocatorNames.includes(user.nickname),
+			);
+	});
 
 	let input: string;
 	// Form Data
 	const formData = {
 		name: '',
-		password: undefined
+		password: undefined,
 	};
+
 	async function searchUser() {
-		const url = input && input.length > 0 ? `/api/users/name?name=${input}` : '/api/users/';
-		const response = await fetch(url, {
-			headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` }
-		});
-		users = await response.json();
+		users = await getRequestApi(
+			BaseUrl.USERS + (input ? `name/?name=${input}` : ''),
+		);
+		if (users) {
+			users = users.filter(
+				(user) => !interlocatorNames.includes(user.nickname),
+			);
+		}
 	}
-	function startDM() {
-		// TODO fuc startDM
-		console.log('start a direct messsage');
+
+	async function startDM(event: MouseEvent) {
+		// TODO fuc joinChannel
+		const button = event.target as HTMLButtonElement;
+		const userId = parseInt(button.dataset.userId as string);
+		const userName = button.dataset.userName;
+
+		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+			interlocatorId: userId,
+			interlocatorName: userName,
+		});
+		newDirect['userId'] = userId;
+		addNewDirect(newDirect);
+		loadPage(newDirect.id);
+		//TOOD: close modal
 	}
 
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
-	const cForm = 'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
+	const cForm =
+		'flex flex-col border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const cUsers = 'rounded-md w-full max-h-96 p-4 overflow-y-auto';
 </script>
 
@@ -67,13 +98,26 @@
 									<div
 										class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
 										<div class="flex items-center">
-											<Avatar src="{user.avatar}" width="w-6" rounded="rounded-md" />
+											<Avatar
+												src="{user.avatar}"
+												width="w-6"
+												rounded="rounded-md" />
 											<div class="ml-2">{user.nickname}</div>
 										</div>
-										<button
-											type="button"
-											class="btn btn-sm variant-filled hidden group-hover:block"
-											on:click="{startDM}">대화 시작</button>
+										<div class="flex items-center">
+											{#if user.id !== $userIdStore && !$blockeeStore.some(b => b.id === user.id)}
+												<button
+													type="button"
+													class="btn btn-sm variant-filled hidden group-hover:block"
+													on:click="{() => block(user.id)}">차단</button>
+												<button
+													type="button"
+													class="btn btn-sm variant-filled hidden group-hover:block"
+													data-user-id="{user.id}"
+													data-user-name="{user.nickname}"
+													on:click="{startDM}">대화 시작</button>
+											{/if}		
+										</div>
 									</div>
 								</li>
 							{/each}
