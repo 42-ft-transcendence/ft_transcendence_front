@@ -37,7 +37,7 @@
 	let pointerEvent: MouseEvent | undefined;
 	let contextmenuComponent: ComponentType | undefined;
 	$: classesActive = (href: string) =>
-		$page.url.pathname.startsWith(href) ? 'bg-primary-active-token' : '';
+		$page.url.pathname === href ? 'bg-primary-active-token' : '';
 
 	function addCoworkers(): void {
 		const modal: ModalSettings = {
@@ -107,6 +107,7 @@
 							<a
 								href="{href}"
 								data-user-id="{userId}"
+								data-channel-id="{channelId}"
 								class="{classesActive(href)}">
 								<div
 									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
