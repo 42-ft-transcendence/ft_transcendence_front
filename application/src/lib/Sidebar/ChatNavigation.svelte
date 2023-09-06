@@ -10,9 +10,17 @@
 	import { page } from '$app/stores';
 	import { channelIcon } from '$lib/common';
 	import StartDirectMessage from '$lib/Modal/StartDirectMessage.svelte';
-	import { channelUserInStore, directUserInStore, followeeStore } from '$lib/store';
+	import {
+		channelUserInStore,
+		directUserInStore,
+		followeeStore,
+	} from '$lib/store';
 	import { get } from 'svelte/store';
-	import type { LeftSideBarChannel, LeftSideBarDirect, UserProfile } from '$lib/type';
+	import type {
+		LeftSideBarChannel,
+		LeftSideBarDirect,
+		UserProfile,
+	} from '$lib/type';
 	import SearchFollowModal from '$lib/Modal/SearchFollowModal.svelte';
 	import FollowContextMenu from '$lib/ContextMenu/FollowContextMenu.svelte';
 
@@ -21,7 +29,7 @@
 	let userChannels: LeftSideBarChannel[];
 	let userDirects: LeftSideBarDirect[];
 	let userFollowees: UserProfile[];
-	
+
 	channelUserInStore.subscribe(() => {
 		userChannels = get(channelUserInStore);
 	});
@@ -157,10 +165,16 @@
 				<ul>
 					{#each userFollowees as followee}
 						<li on:contextmenu|preventDefault="{handleFollowRightClick}">
-							<a data-user-id="{followee.id}" data-user-name="{followee.nickname}">//TODO: a태그?
+							<a
+								data-user-id="{followee.id}"
+								data-user-name="{followee.nickname}"
+								>//TODO: a태그?
 								<div
 									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
-									<Avatar src="{followee.avatar}" width="w-6" rounded="rounded-md" />
+									<Avatar
+										src="{followee.avatar}"
+										width="w-6"
+										rounded="rounded-md" />
 									<div class="ml-2 no-pointer-event">{followee.nickname}</div>
 									<div class="{classOnline} no-pointer-event"></div>
 								</div>

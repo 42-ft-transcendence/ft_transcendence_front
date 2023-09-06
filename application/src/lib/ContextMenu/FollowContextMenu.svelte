@@ -31,8 +31,7 @@
 			interlocatorId: userId,
 			interlocatorName: userName,
 		});
-		console.log(newDirect);
-		newDirect['userId'] = userId;
+		newDirect.userId = userId;
 		addNewDirect(newDirect);
 		loadPage(newDirect.id);
 		//TOOD: close modal
