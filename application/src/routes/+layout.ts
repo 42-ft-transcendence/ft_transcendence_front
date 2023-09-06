@@ -1,3 +1,4 @@
+import { redirect } from "@sveltejs/kit";
 import { BaseUrl, JWT_COOKIE_KEY, hasCookie } from '$lib/common';
 import { getRequestApi } from '$lib/fetch';
 import { blockeeStore, channelUserInStore, directUserInStore, profileIdStore, userIdStore } from '$lib/store';
@@ -10,11 +11,12 @@ import { get, readable } from 'svelte/store';
 
 export const ssr = false;
 
-export async function load() {
+export async function load({ url }) {
 	let channels: LeftSideBarChannel[];
 	let directs: LeftSideBarDirect[];
 	//TODO: let friends
 	let blockList: Blockee[];
+	let register = true;
 
 	if (hasCookie(JWT_COOKIE_KEY)) {
 		channels = (await getRequestApi(BaseUrl.CHANNELS + 'channelsUserIn')).map(
@@ -40,6 +42,8 @@ export async function load() {
 		channels = [];
 		directs = [];
 		blockList = [];
+		register = false;
+		if (url.pathname !== '/login') throw redirect(307, "/login");
 	}
 	channelUserInStore.set(channels);
 	directUserInStore.set(directs);
@@ -52,5 +56,6 @@ export async function load() {
 			{ title: 'Friends', list: [] },
 		],
 		game: {},
+		register: register,
 	};
 }
