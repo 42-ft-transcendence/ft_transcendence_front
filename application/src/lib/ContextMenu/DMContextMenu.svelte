@@ -1,9 +1,13 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { activateProfile } from '$lib/store';
+	import { BaseUrl } from '$lib/common';
+	import { deleteRequestApi } from '$lib/fetch';
+	import { activateProfile, removeChannel, removeDirect } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
-	let userId: number;
+	let userId: number;//TODO: 안쓰면 지우기
+	let channelId: number;
 
 	const contextmenu = new ContextMenu();
 	$: {
@@ -13,11 +17,16 @@
 		console.log(pointerEvent.target);
 		if (pointerEvent.target instanceof HTMLElement) {	
 			userId = parseInt(pointerEvent.target.dataset.userId as string);
+			channelId = parseInt(pointerEvent.target.dataset.channelId as string);
 		}
 	}
 
-	function leaveDM() {
-		console.log('remove item...');
+	async function leaveDM() {
+		const channel = await deleteRequestApi(
+			BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
+		);
+		removeDirect(parseInt(channel.id));
+		goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
 	}
 
 	let menuItems = [
