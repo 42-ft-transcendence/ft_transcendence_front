@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block } from '$lib/common';
+	import { BaseUrl, block, showProfile } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -122,11 +122,6 @@
 			{ channelId: channelId, userId: userId },
 		);
 		banned = banned.filter((b) => b.id !== user.id);
-	}
-
-	function showProfile(id: number): void {
-		activateProfile(id);
-		modalStore.close();
 	}
 
 	async function addAdministrator(id: number) {

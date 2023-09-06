@@ -13,6 +13,7 @@ export const profileButtonStore = writable(false);
 export const profileIdStore = writable(-1);
 export const blockeeStore = writable(Array<UserProfile>());
 export const userIdStore = writable(-1);
+export const followeeStore = writable(Array<UserProfile>());
 
 export function addNewChannel(newChannel: UserChannel) {
 	const added: LeftSideBarChannel = {
@@ -68,4 +69,12 @@ export function addBlockee(blockee: UserProfile) {
 
 export function removeBlockee(blockee: UserProfile) {
 	blockeeStore.update((store) => store.filter(u => u.id !== blockee.id));
+}
+
+export function addFollowee(followee: UserProfile) {
+	followeeStore.update((store) => { store.push(followee); return store; });
+}
+
+export function removeFollowee(followee: UserProfile) {
+	followeeStore.update((store) => store.filter(u => u.id !== followee.id));
 }

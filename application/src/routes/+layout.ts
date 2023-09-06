@@ -1,9 +1,10 @@
 import { redirect } from "@sveltejs/kit";
 import { BaseUrl, JWT_COOKIE_KEY, hasCookie } from '$lib/common';
 import { getRequestApi } from '$lib/fetch';
-import { blockeeStore, channelUserInStore, directUserInStore, profileIdStore, userIdStore } from '$lib/store';
+import { blockeeStore, channelUserInStore, directUserInStore, followeeStore, userIdStore } from '$lib/store';
 import type {
 	Blockee,
+	Followee,
 	LeftSideBarChannel,
 	LeftSideBarDirect,
 } from '$lib/type';
@@ -14,8 +15,8 @@ export const ssr = false;
 export async function load({ url }) {
 	let channels: LeftSideBarChannel[];
 	let directs: LeftSideBarDirect[];
-	//TODO: let friends
-	let blockList: Blockee[];
+	let followees: Followee[];
+	let blockees: Blockee[];
 	let register = true;
 
 	if (hasCookie(JWT_COOKIE_KEY)) {
@@ -36,24 +37,28 @@ export async function load({ url }) {
 				avatar: direct.avatar,
 			}),
 		);
-		blockList = await getRequestApi(BaseUrl.BLOCKED);
+		blockees = await getRequestApi(BaseUrl.BLOCKED);
+		followees = await getRequestApi(BaseUrl.FOLLOWS);
+		console.log(followees);
 	} else {
 		//TODO: JWT 쿠키가 없다면 사이드바, 상단바를 감추고 로그인하도록 구현
 		channels = [];
 		directs = [];
-		blockList = [];
+		blockees = [];
+		followees = [];
 		register = false;
 		if (url.pathname !== '/login') throw redirect(307, "/login");
 	}
 	channelUserInStore.set(channels);
 	directUserInStore.set(directs);
-	blockeeStore.set(blockList.map(each => each.blockee));
+	blockeeStore.set(blockees.map(each => each.blockee));
+	followeeStore.set(followees.map(each => each.followee));
 	userIdStore.set(get(readable((await getRequestApi(BaseUrl.USERS + 'oneself')).id)));
 	return {
 		chat: [
 			{ title: 'Channel', list: channels },
 			{ title: 'DM', list: directs },
-			{ title: 'Friends', list: [] },
+			{ title: 'Follow', list: followees },
 		],
 		game: {},
 		register: register,

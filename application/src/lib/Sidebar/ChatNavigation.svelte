@@ -10,15 +10,18 @@
 	import { page } from '$app/stores';
 	import { channelIcon } from '$lib/common';
 	import StartDirectMessage from '$lib/Modal/StartDirectMessage.svelte';
-	import { channelUserInStore, directUserInStore } from '$lib/store';
+	import { channelUserInStore, directUserInStore, followeeStore } from '$lib/store';
 	import { get } from 'svelte/store';
-	import type { LeftSideBarChannel, LeftSideBarDirect } from '$lib/type';
+	import type { LeftSideBarChannel, LeftSideBarDirect, UserProfile } from '$lib/type';
+	import SearchFollowModal from '$lib/Modal/SearchFollowModal.svelte';
+	import FollowContextMenu from '$lib/ContextMenu/FollowContextMenu.svelte';
 
 	export let data: any;
 
 	let userChannels: LeftSideBarChannel[];
 	let userDirects: LeftSideBarDirect[];
-
+	let userFollowees: UserProfile[];
+	
 	channelUserInStore.subscribe(() => {
 		userChannels = get(channelUserInStore);
 	});
@@ -27,12 +30,19 @@
 		userDirects = get(directUserInStore);
 	});
 
+	followeeStore.subscribe(() => {
+		userFollowees = get(followeeStore);
+	});
+
 	const classOnline =
 		'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
 	const classOffline =
 		'w-1.5 h-1.5 bg-neutral-500 relative top-2.5 rounded-full';
 	const startDirectMessageModalComponent: ModalComponent = {
 		ref: StartDirectMessage,
+	};
+	const searchFollowModalComponent: ModalComponent = {
+		ref: SearchFollowModal,
 	};
 	let pointerEvent: MouseEvent | undefined;
 	let contextmenuComponent: ComponentType | undefined;
@@ -43,6 +53,14 @@
 		const modal: ModalSettings = {
 			type: 'component',
 			component: startDirectMessageModalComponent,
+		};
+		modalStore.trigger(modal);
+	}
+
+	function addFollowees(): void {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: searchFollowModalComponent,
 		};
 		modalStore.trigger(modal);
 	}
@@ -59,6 +77,11 @@
 
 	function handleRightClickedDM(e: MouseEvent) {
 		contextmenuComponent = DmContextMenu;
+		pointerEvent = e;
+	}
+
+	function handleFollowRightClick(e: MouseEvent) {
+		contextmenuComponent = FollowContextMenu;
 		pointerEvent = e;
 	}
 
@@ -97,7 +120,7 @@
 			</nav>
 		</svelte:fragment>
 	</TreeViewItem>
-	<TreeViewItem open="{true}">
+	<TreeViewItem>
 		<span class="font-bold text-xl">{data.chat[1].title}</span>
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
@@ -120,6 +143,32 @@
 					{/each}
 				</ul>
 				<button class="w-full mt-1" on:click="{addCoworkers}"
+					><i
+						class="fa fa-plus-square text-left inline-block w-8"
+						aria-hidden="true"></i
+					>add coworkers</button>
+			</nav>
+		</svelte:fragment>
+	</TreeViewItem>
+	<TreeViewItem>
+		<span class="font-bold text-xl">{data.chat[2].title}</span>
+		<svelte:fragment slot="children">
+			<nav class="list-nav pr-2 pt-2">
+				<ul>
+					{#each userFollowees as followee}
+						<li on:contextmenu|preventDefault="{handleFollowRightClick}">
+							<a data-user-id="{followee.id}" data-user-name="{followee.nickname}">//TODO: a태그?
+								<div
+									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
+									<Avatar src="{followee.avatar}" width="w-6" rounded="rounded-md" />
+									<div class="ml-2 no-pointer-event">{followee.nickname}</div>
+									<div class="{classOnline} no-pointer-event"></div>
+								</div>
+							</a>
+						</li>
+					{/each}
+				</ul>
+				<button class="w-full mt-1" on:click="{addFollowees}"
 					><i
 						class="fa fa-plus-square text-left inline-block w-8"
 						aria-hidden="true"></i
