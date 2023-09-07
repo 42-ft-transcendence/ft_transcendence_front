@@ -1,4 +1,4 @@
-import { getCookie, JWT_COOKIE_KEY } from './common';
+import { getCookie, JWT_DB_KEY } from './common';
 
 export async function getRequestApi(url: string) {
 	return await requestGetDelete('GET', url);
@@ -39,7 +39,7 @@ export async function deleteRequestAuthApi(url: string, targetInfo: any) {
 async function requestGetDelete(method: string, url: string) {
 	const response = await fetch(url, {
 		method: method,
-		headers: { Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}` },
+		headers: { Authorization: `Bearer ${getCookie(JWT_DB_KEY)}` },
 	});
 	return await response.json();
 }
@@ -50,7 +50,7 @@ async function requestPostPatch(method: string, url: string, payload: any) {
 		mode: 'same-origin',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`,
+			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
 		},
 		body: JSON.stringify(payload),
 	});
@@ -65,7 +65,7 @@ async function requestGetDeleteAuth(
 	const response = await fetch(url, {
 		method: method,
 		headers: {
-			Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`,
+			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
 			'Transcendence-Authorization-Channel-Id': `${targetInfo.channelId}`,
 			'Transcendence-Authorization-User-Id': `${targetInfo.userId}`,
 		},
@@ -84,7 +84,7 @@ async function requestPostPatchAuth(
 		mode: 'same-origin',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${getCookie(JWT_COOKIE_KEY)}`,
+			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
 			'Transcendence-Authorization-Channel-Id': `${targetInfo.channelId}`,
 			'Transcendence-Authorization-User-Id': `${targetInfo.userId}`,
 		},

@@ -1,10 +1,19 @@
 import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
 import { deleteRequestApi, postRequestApi } from './fetch';
-import { activateProfile, addBlockee, addFollowee, blockeeStore, removeBlockee, removeDirect, removeFollowee } from './store';
+import {
+	activateProfile,
+	addBlockee,
+	addFollowee,
+	blockeeStore,
+	removeBlockee,
+	removeDirect,
+	removeFollowee,
+} from './store';
 import { modalStore } from '@skeletonlabs/skeleton';
 
-export const JWT_COOKIE_KEY = 'JsonWebToken';
+export const JWT_DB_KEY = 'JWTDatabase';
+export const JWT_OAUTH_KEY = 'JWTOAuth';
 
 export const enum BaseUrl {
 	USERS = '/api/users/',
@@ -50,10 +59,11 @@ export function loadPage(routeParam: number) {
 }
 
 export async function block(blockeeId: number) {
-	const blocked = await postRequestApi(BaseUrl.BLOCKED, {blockeeId: blockeeId});
+	const blocked = await postRequestApi(BaseUrl.BLOCKED, {
+		blockeeId: blockeeId,
+	});
 	addBlockee(blocked.blockee);
-	if (blocked.channelId)
-		removeDirect(blocked.channelId);
+	if (blocked.channelId) removeDirect(blocked.channelId);
 }
 
 export async function unblock(blockeeId: number) {
@@ -62,7 +72,7 @@ export async function unblock(blockeeId: number) {
 }
 
 export function isblocked(userId: number) {
-	return get(blockeeStore).some(b => b.id === userId);
+	return get(blockeeStore).some((b) => b.id === userId);
 }
 
 export function showProfile(id: number): void {
@@ -71,7 +81,9 @@ export function showProfile(id: number): void {
 }
 
 export async function follow(followeeId: number) {
-	const followee = await postRequestApi(BaseUrl.FOLLOWS, {followeeId: followeeId});
+	const followee = await postRequestApi(BaseUrl.FOLLOWS, {
+		followeeId: followeeId,
+	});
 	addFollowee(followee.followee);
 }
 
