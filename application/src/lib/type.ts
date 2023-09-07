@@ -44,6 +44,10 @@ export interface Blockee {
 	blockee: UserProfile;
 }
 
+export interface Followee {
+	followee: UserProfile;
+}
+
 export enum ChannelType {
 	PUBLIC = 'PUBLIC',
 	PRIVATE = 'PRIVATE',

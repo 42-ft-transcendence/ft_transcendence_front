@@ -1,7 +1,8 @@
 import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
 import { deleteRequestApi, postRequestApi } from './fetch';
-import { addBlockee, blockeeStore, removeBlockee, removeDirect } from './store';
+import { activateProfile, addBlockee, addFollowee, blockeeStore, removeBlockee, removeDirect, removeFollowee } from './store';
+import { modalStore } from '@skeletonlabs/skeleton';
 
 export const JWT_COOKIE_KEY = 'JsonWebToken';
 
@@ -12,6 +13,7 @@ export const enum BaseUrl {
 	ADMINISTRATORS = '/api/administrators/',
 	BANNED = '/api/bans/',
 	BLOCKED = '/api/blocks/',
+	FOLLOWS = '/api/follows/',
 }
 
 export function getCookie(name: string) {
@@ -62,6 +64,22 @@ export async function unblock(blockeeId: number) {
 export function isblocked(userId: number) {
 	return get(blockeeStore).some(b => b.id === userId);
 }
+
+export function showProfile(id: number): void {
+	activateProfile(id);
+	modalStore.close();
+}
+
+export async function follow(followeeId: number) {
+	const followee = await postRequestApi(BaseUrl.FOLLOWS, {followeeId: followeeId});
+	addFollowee(followee.followee);
+}
+
+export async function unfollow(followeeId: number) {
+	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
+	removeFollowee(followee.followee);
+}
+
 export const channelIcon: { [index: string]: string } = {
 	PUBLIC: 'fa fa-users',
 	PRIVATE: 'fa fa-user-secret',
