@@ -11,7 +11,8 @@
 	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { Modal } from '@skeletonlabs/skeleton';
 	import { activateProfile, userIdStore } from '$lib/store';
-	import { get } from 'svelte/store';
+	import { JWT_COOKIE_KEY, getCookie, hasCookie, socket } from '$lib/common';
+
 
 	export let data;
 	let register = data.register;
@@ -20,6 +21,10 @@
 	// function handleMyProfile() {
 	// 	activateProfile(-1); 
 	// }
+	if (hasCookie(JWT_COOKIE_KEY)){
+		socket.auth.token = `${getCookie(JWT_COOKIE_KEY)}`;
+		socket.connect();
+	}
 </script>
 
 <Modal />
@@ -49,7 +54,7 @@
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarRight">
 		{#if register}
-		<Profile {sidebarRightBtn} {username} on:closeSidebarRight={()=>sidebarRightBtn=false}/>
+		<Profile />
 		{/if}
 	</svelte:fragment>
 	<!-- (pageHeader) -->

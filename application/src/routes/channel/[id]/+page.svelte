@@ -8,7 +8,9 @@
 		type ModalSettings,
 	} from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-
+	import { socket } from '$lib/common.js';
+	import { page } from '$app/stores';
+	import { userIdStore } from '$lib/store';
 	export let data;
 	console.log(data); //TODO: remove
 
@@ -36,21 +38,28 @@
 		blocked = $blockeeStore.map((b) => b.id);
 	})
 
+	socket.on('new Message', (newMessage) => {
+		if (newMessage.senderId == $userIdStore) // TODO: isMine 수정으로 인해 머지할 때 삭제
+			newMessage.isMine = true;
+		newMessage.createdAt = new Date(newMessage.createdAt);
+		channelData.messages = [...channelData.messages, newMessage];
+	});
 	onMount(() => {
 		elemPage = document.querySelector('#page');
 		elemChat = document.querySelector('.chat');
 	});
 
+	// console.log(socket);
 	function addMessage(): void {
 		// TODO modify newMessage
 		if (currentMessage === '') return;
 		const newMessage = {
 			content: currentMessage,
-			createdAt: new Date(),
-			sender: { nickname: 'Jane', avatar: 'Jane_avatar' },
+			channelId: Number($page.params.id),
+			senderId: $userIdStore,
 		};
 		// Append the new message to the message feed
-		channelData.messages = [...channelData.messages, newMessage];
+		socket.emit('new Message', newMessage);
 		// Clear the textarea message and dataFlag
 		currentMessage = '';
 		dateFlag = [-1, -1, -1];

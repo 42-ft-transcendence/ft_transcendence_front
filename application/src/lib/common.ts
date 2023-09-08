@@ -2,8 +2,11 @@ import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
 import { deleteRequestApi, postRequestApi } from './fetch';
 import { addBlockee, blockeeStore, removeBlockee, removeDirect } from './store';
+import { io } from 'socket.io-client';
 
 export const JWT_COOKIE_KEY = 'JsonWebToken';
+
+export const socket = io({ auth: { token:''}, autoConnect: false}); //connect manually
 
 export const enum BaseUrl {
 	USERS = '/api/users/',
