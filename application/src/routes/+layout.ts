@@ -1,14 +1,19 @@
-import { redirect } from "@sveltejs/kit";
-import { BaseUrl, JWT_COOKIE_KEY, hasCookie } from '$lib/common';
+import { BaseUrl, JWT_DB_KEY, JWT_OAUTH_KEY, hasCookie } from '$lib/common';
 import { getRequestApi } from '$lib/fetch';
-import { blockeeStore, channelUserInStore, directUserInStore, followeeStore, userIdStore } from '$lib/store';
+import {
+	blockeeStore,
+	channelUserInStore,
+	directUserInStore,
+	followeeStore,
+	userIdStore,
+} from '$lib/store';
 import type {
 	Blockee,
 	Followee,
 	LeftSideBarChannel,
 	LeftSideBarDirect,
 } from '$lib/type';
-import { get, readable } from 'svelte/store';
+import { goto } from '$app/navigation';
 
 export const ssr = false;
 
@@ -17,9 +22,10 @@ export async function load({ url }) {
 	let directs: LeftSideBarDirect[];
 	let followees: Followee[];
 	let blockees: Blockee[];
+	let userId: number;
 	let register = true;
 
-	if (hasCookie(JWT_COOKIE_KEY)) {
+	if (hasCookie(JWT_DB_KEY)) {
 		channels = (await getRequestApi(BaseUrl.CHANNELS + 'channelsUserIn')).map(
 			(channel: any) => ({
 				id: channel.id,
@@ -39,6 +45,7 @@ export async function load({ url }) {
 		);
 		blockees = await getRequestApi(BaseUrl.BLOCKED);
 		followees = await getRequestApi(BaseUrl.FOLLOWS);
+		userId = (await getRequestApi(BaseUrl.USERS + 'oneself')).id;
 		console.log(followees);
 	} else {
 		//TODO: JWT 쿠키가 없다면 사이드바, 상단바를 감추고 로그인하도록 구현
@@ -46,14 +53,18 @@ export async function load({ url }) {
 		directs = [];
 		blockees = [];
 		followees = [];
+		userId = -1;
 		register = false;
-		if (url.pathname !== '/login') throw redirect(307, "/login");
+		if (!hasCookie(JWT_OAUTH_KEY) && url.pathname !== '/login')
+			goto('/login');
+		if (hasCookie(JWT_OAUTH_KEY) && url.pathname !== '/signup')
+			goto('/signup');
 	}
 	channelUserInStore.set(channels);
 	directUserInStore.set(directs);
-	blockeeStore.set(blockees.map(each => each.blockee));
-	followeeStore.set(followees.map(each => each.followee));
-	userIdStore.set(get(readable((await getRequestApi(BaseUrl.USERS + 'oneself')).id)));
+	blockeeStore.set(blockees.map((each) => each.blockee));
+	followeeStore.set(followees.map((each) => each.followee));
+	userIdStore.set(userId);
 	return {
 		chat: [
 			{ title: 'Channel', list: channels },

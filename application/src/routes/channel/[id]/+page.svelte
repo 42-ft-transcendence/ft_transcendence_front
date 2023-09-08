@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ShowChannelInfoModal from '$lib/Modal/ShowChannelInfoModal.svelte';
-	import { blockeeStore } from '$lib/store';
+	import { blockeeStore, userIdStore } from '$lib/store';
 	import {
 		Avatar,
 		modalStore,
@@ -164,7 +164,7 @@
 						</div>
 					{/if}
 				{/if}
-				{#if bubble.isMine}
+				{#if bubble.sender.id === $userIdStore}
 					<div class="grid grid-cols-[1fr_auto] gap-2">
 						<div class="card p-4 variant-soft-primary rounded-tr-none space-y-2">
 							<header class="flex justify-between items-center">
