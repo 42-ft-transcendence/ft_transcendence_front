@@ -41,20 +41,21 @@
 		files = undefined;
 	}
 
-	async function setDefault() {
-		fetch(BaseUrl.USERS + 'defaultAvatar', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
-			},
-			body: JSON.stringify({}),
-		}).then((value: Response) => {
-			goto('/');
+	async function fetchSignupApi(url: string, payload: any, isDefaultAvatar: boolean) {
+		let headers: HeadersInit = { Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}` };
+		if (isDefaultAvatar) headers[`${'Content-Type'}`] = 'application/json';
+		fetch(url, { method: 'POST', headers: headers, body: payload })
+		.then((value: Response) => {
+			if (value.ok) goto('/');
+			// else throw Error('에러 발생!!!');
 		}).catch((reason: any) => {
-			//TODO: 409 에러 처리
-			goto('.');
-		})
+			//TOOD: 409 예외에 대한 내용을 사용자에게 보여주기
+			goto('/signup');
+		});
+	}
+
+	async function setDefault() {
+		fetchSignupApi(BaseUrl.USERS + 'defaultAvatar', JSON.stringify({}), false);
 	}
 
 	async function handleSubmit() {
@@ -63,34 +64,9 @@
 			const formData = new FormData();
 			if (nickname) formData.append('nickname', nickname);
 			formData.append('avatar', avatar);
-			fetch(BaseUrl.USERS + 'customAvatar', {
-				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`
-				},
-				body: formData,
-			}).then((value: Response) => {
-				if (value.ok) goto('/');
-				// else throw Error('에러 발생!!!');
-			}).catch((reason: any) => {
-				//TOOD: 예외에 대한 내용을 사용자에게 보여주기
-				goto('/signup');
-			});
-		} else {
-			fetch(BaseUrl.USERS + 'defaultAvatar', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
-				},
-				body: JSON.stringify({ nickname: nickname === '' ? undefined : nickname }),
-			}).then((value: Response) => {
-				goto('/');
-			}).catch((reason: any) => {
-				//TODO: 예외에 대한 내용을 사용자에게 보여주기
-				goto('.');
-			});
-		}
+			fetchSignupApi(BaseUrl.USERS + 'customAvatar', formData, false);
+		} else
+			fetchSignupApi(BaseUrl.USERS + 'defaultAvatar', JSON.stringify({ nickname: nickname === '' ? undefined : nickname }), true);
 	}
 	function filterKey(e: Event & { target: HTMLTextAreaElement }): void {
 		userInput.nickname = userInput.nickname.replace(regExp, '');
