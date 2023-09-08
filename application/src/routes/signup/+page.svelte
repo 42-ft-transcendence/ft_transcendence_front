@@ -4,7 +4,7 @@
 	import { Avatar, FileDropzone } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
-	interface FormData {
+	interface UserInput {
 		nickname: string;
 		avatar: File | undefined;
 	};
@@ -13,7 +13,7 @@
 		'border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const regExp = /[, ]/g;
 	
-	const formData: FormData = { nickname: '', avatar: undefined };
+	const userInput: UserInput = { nickname: '', avatar: undefined };
 	
 	let preview: string | undefined;
 	let elemInput: HTMLInputElement;
@@ -27,51 +27,84 @@
 		const fileReader = new FileReader();
 		if (!(files && files[0] !== null)) return;
 		fileReader.readAsDataURL(files[0]);
-		formData.avatar = files[0];
+		userInput.avatar = files[0];
 		fileReader.onload = (data) => {
 			if (data.target && typeof data.target.result === 'string')
 				preview = data.target.result;
 		};
 	}
+
 	function resetFile(): void {
 		elemInput.value = '';
 		preview = '';
-		formData.avatar = undefined;
+		userInput.avatar = undefined;
 		files = undefined;
 	}
+
 	async function postRequestApiSignup(url: string, payload: any, contentType: string) {
 		await fetch(url, {
 			method: 'POST',
 			headers: {
-				'Content-Type': contentType,
+				// 'Content-Type': contentType,
 				Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
 			},
-			body: JSON.stringify(payload),
+			body: payload,
 		});
 	}
-	async function setDefault() {
-		// create user in database
-		await postRequestApiSignup(BaseUrl.USERS + 'defaultAvatar', {}, 'application/json');
-		// delete JWTOauth cookie -> do this in nestjs interceptor
-		//TODO: handling 409 conflict exception -> print error message on screen;
-		// redirect to '/'
-		goto('/');
-	}
-	async function handleSubmit() {
-		// create user in database
-		const { nickname, avatar } = formData;
-		if (formData.avatar)
-			await postRequestApiSignup(BaseUrl.USERS + 'customAvatar', { nickname: nickname === '' ? undefined : nickname, avatar: avatar }, 'multipart/form-data');
-		else
-			await postRequestApiSignup(BaseUrl.USERS + 'defaultAvatar', { nickname: nickname === '' ? undefined : nickname }, 'application/json');
-		// delete JWTOauth cookie -> do this in nestjs interceptor
 
-		// redirect to '/'
-		// TODO: fetch 성공시 redirect to / else 다시 입력
-		goto('/');
+	async function setDefault() {
+		postRequestApiSignup(BaseUrl.USERS + 'defaultAvatar', JSON.stringify({}), 'application/json');
+		fetch(BaseUrl.USERS + 'defaultAvatar', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
+			},
+			body: JSON.stringify({}),
+		}).then((value: Response) => {
+			goto('/');
+		}).catch((reason: any) => {
+			//TODO: 409 에러 처리
+			goto('.');
+		})
+	}
+
+	async function handleSubmit() {
+		const { nickname, avatar } = userInput;
+		if (avatar) {
+			const formData = new FormData();
+			if (nickname) formData.append('nickname', nickname);
+			formData.append('avatar', avatar);
+			fetch(BaseUrl.USERS + 'customAvatar', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`
+				},
+				body: formData,
+			}).then((value: Response) => {
+				goto('/');
+			}).catch((reason: any) => {
+				//TOOD: 예외에 대한 내용을 사용자에게 보여주기
+				goto('.');
+			});
+		} else {
+			fetch(BaseUrl.USERS + 'defaultAvatar', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
+				},
+				body: JSON.stringify({ nickname: nickname === '' ? undefined : nickname }),
+			}).then((value: Response) => {
+				goto('/');
+			}).catch((reason: any) => {
+				//TODO: 예외에 대한 내용을 사용자에게 보여주기
+				goto('.');
+			});
+		}
 	}
 	function filterKey(e: Event & { target: HTMLTextAreaElement }): void {
-		formData.nickname = formData.nickname.replace(regExp, '');
+		userInput.nickname = userInput.nickname.replace(regExp, '');
 	}
 </script>
 
@@ -89,7 +122,7 @@
 					<input
 						class="input pl-2 py-1"
 						type="text"
-						bind:value="{formData.nickname}"
+						bind:value="{userInput.nickname}"
 						maxlength="10"
 						placeholder="Enter name..." />
 				</label>
