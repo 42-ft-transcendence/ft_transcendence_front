@@ -41,19 +41,7 @@
 		files = undefined;
 	}
 
-	async function postRequestApiSignup(url: string, payload: any, contentType: string) {
-		await fetch(url, {
-			method: 'POST',
-			headers: {
-				// 'Content-Type': contentType,
-				Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
-			},
-			body: payload,
-		});
-	}
-
 	async function setDefault() {
-		postRequestApiSignup(BaseUrl.USERS + 'defaultAvatar', JSON.stringify({}), 'application/json');
 		fetch(BaseUrl.USERS + 'defaultAvatar', {
 			method: 'POST',
 			headers: {
@@ -82,10 +70,11 @@
 				},
 				body: formData,
 			}).then((value: Response) => {
-				goto('/');
+				if (value.ok) goto('/');
+				// else throw Error('에러 발생!!!');
 			}).catch((reason: any) => {
 				//TOOD: 예외에 대한 내용을 사용자에게 보여주기
-				goto('.');
+				goto('/signup');
 			});
 		} else {
 			fetch(BaseUrl.USERS + 'defaultAvatar', {
