@@ -1,8 +1,6 @@
 import {
 	BaseUrl,
-	JWT_COOKIE_KEY,
 	channelContentDateReviver,
-	getCookie,
 } from '$lib/common';
 import { getRequestApi } from '$lib/fetch.js';
 
