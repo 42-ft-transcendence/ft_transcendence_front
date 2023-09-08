@@ -14,5 +14,10 @@ export default defineConfig({
 				rewrite: (path) => path.replace(/^\/api/, ''),
 			},
 		},
+		fs: {
+			allow: [
+				'/application/avatar-upload/'
+			]
+		}
 	},
 });
