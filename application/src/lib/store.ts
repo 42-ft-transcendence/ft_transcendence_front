@@ -14,6 +14,7 @@ export const profileIdStore = writable(-1);
 export const blockeeStore = writable(Array<UserProfile>());
 export const userIdStore = writable(-1);
 export const followeeStore = writable(Array<UserProfile>());
+export const twoFactorAuthStore = writable(false);
 
 export function addNewChannel(newChannel: UserChannel) {
 	const added: LeftSideBarChannel = {

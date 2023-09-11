@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { Avatar } from '@skeletonlabs/skeleton';
+	import { Avatar, modalStore, type ModalSettings, type ModalComponent } from '@skeletonlabs/skeleton';
 	import {
 	activateProfile,
 		blockeeStore,
 		deactivateProfile,
 		profileButtonStore,
 		profileIdStore,
+		twoFactorAuthStore,
 		userIdStore,
 	} from '$lib/store';
 	import { BaseUrl, unblock } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { UserProfile } from '$lib/type';
-	import { get } from 'svelte/store';
+	import EnableTwoFactorSearchModal from '$lib/Modal/EnableTwoFactorSearchModal.svelte';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
@@ -29,6 +30,22 @@
 	blockeeStore.subscribe(() => {
 		blockList = $blockeeStore;
 	});
+
+	const enableTwoFactorAuthModalComponent: ModalComponent = {
+		ref: EnableTwoFactorSearchModal,
+	};
+	
+	async function enableTwoFactorAuth() {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: enableTwoFactorAuthModalComponent,
+		};
+		modalStore.trigger(modal);
+	}
+
+	async function disableTwoFactorAuth() {
+
+	}
 </script>
 
 <div
@@ -36,8 +53,14 @@
 		? 'border-l border-surface-500/30 sm:w-64'
 		: ''} ">
 	<div class="grid grid-cols-[1fr_auto] p-2.5 border-y border-surface-500/30">
-		<div class="flex items-center">
+		<div class="flex flex-col items-center">
 			<div class="font-bold text-lg">{profile?.nickname}</div>
+			{#if profile?.id === $userIdStore && !$twoFactorAuthStore}
+				<button on:click="{enableTwoFactorAuth}" class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs">2FA 설정하기</button>
+			{/if}
+			{#if profile?.id === $userIdStore && $twoFactorAuthStore}
+				<button on:click="{disableTwoFactorAuth}" class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs">2FA 해제하기</button>
+			{/if}
 		</div>
 		<button
 			class="p-2 rounded-md hover:bg-surface-200-700-token"
@@ -47,8 +70,10 @@
 	<div class="flex flex-col items-center p-2.5 border-b border-surface-500/30">
 		<Avatar src="{profile?.avatar}" width="w-44" />
 		<div class="p-2.5 flex justify-around">
-			<button type="button" class="btn variant-filled">DM</button>
-			<button type="button" class="btn variant-filled">GAME</button>
+			{#if profile?.id !== $userIdStore}
+				<button type="button" class="btn variant-filled">DM</button>
+				<button type="button" class="btn variant-filled">GAME</button>
+			{/if}
 		</div>
 	</div>
 	<div class="p-2.5">
