@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { Avatar, modalStore, type ModalSettings, type ModalComponent } from '@skeletonlabs/skeleton';
 	import {
-	activateProfile,
+		Avatar,
+		modalStore,
+		type ModalSettings,
+		type ModalComponent,
+	} from '@skeletonlabs/skeleton';
+	import {
+		activateProfile,
 		blockeeStore,
 		deactivateProfile,
 		profileButtonStore,
@@ -12,11 +17,12 @@
 	import { BaseUrl, unblock } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { UserProfile } from '$lib/type';
-	import EnableTwoFactorSearchModal from '$lib/Modal/EnableTwoFactorSearchModal.svelte';
+	import SwitchTwoFactorSearchModal from '$lib/Modal/SwitchTwoFactorSearchModal.svelte';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
 	let blockList: UserProfile[];
+	let isAuthenticated: boolean;
 
 	profileButtonStore.subscribe(() => {
 		sidebarRightBtn = $profileButtonStore;
@@ -24,27 +30,25 @@
 	profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
 		profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
-		if ($profileIdStore !== $userIdStore)
-			blockList = [];
+		if ($profileIdStore !== $userIdStore) blockList = [];
 	});
 	blockeeStore.subscribe(() => {
 		blockList = $blockeeStore;
 	});
+	twoFactorAuthStore.subscribe(() => {
+		isAuthenticated = $twoFactorAuthStore;
+	});
 
-	const enableTwoFactorAuthModalComponent: ModalComponent = {
-		ref: EnableTwoFactorSearchModal,
+	const switchTwoFactorAuthModalComponent: ModalComponent = {
+		ref: SwitchTwoFactorSearchModal,
 	};
-	
-	async function enableTwoFactorAuth() {
+
+	async function switchTwoFactorAuth() {
 		const modal: ModalSettings = {
 			type: 'component',
-			component: enableTwoFactorAuthModalComponent,
+			component: switchTwoFactorAuthModalComponent,
 		};
 		modalStore.trigger(modal);
-	}
-
-	async function disableTwoFactorAuth() {
-
 	}
 </script>
 
@@ -53,13 +57,19 @@
 		? 'border-l border-surface-500/30 sm:w-64'
 		: ''} ">
 	<div class="grid grid-cols-[1fr_auto] p-2.5 border-y border-surface-500/30">
-		<div class="flex flex-col items-center">
+		<div class="gap-y-2 flex flex-col items-center">
 			<div class="font-bold text-lg">{profile?.nickname}</div>
 			{#if profile?.id === $userIdStore && !$twoFactorAuthStore}
-				<button on:click="{enableTwoFactorAuth}" class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs">2FA 설정하기</button>
+				<button
+					on:click="{switchTwoFactorAuth}"
+					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
+					>2FA 설정하기</button>
 			{/if}
 			{#if profile?.id === $userIdStore && $twoFactorAuthStore}
-				<button on:click="{disableTwoFactorAuth}" class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs">2FA 해제하기</button>
+				<button
+					on:click="{switchTwoFactorAuth}"
+					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
+					>2FA 해제하기</button>
 			{/if}
 		</div>
 		<button
@@ -82,37 +92,36 @@
 	{#if $userIdStore === $profileIdStore}
 		<div class="p-2.5">
 			<div class="font-bold text-lg">차단 목록</div>
-				<ul>
-					{#each blockList as blockee, i}
+			<ul>
+				{#each blockList as blockee, i}
 					{#if i !== 0}
 						<hr />
 					{/if}
-						<li>
-							<div
-								class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
-								<div class="flex items-center">
-									<Avatar
-										src="{blockee.avatar}"
-										width="w-6"
-										rounded="rounded-md" />
-									<div class="ml-2">{blockee.nickname}</div>
-								</div>
-								<div class="flex item-center">
-									<button
-										type="button"
-										class="btn btn-sm variant-filled hidden group-hover:block"
-										on:click="{() => unblock(blockee.id)}"
-										>차단 해제</button>
-									<button
-										type="button"
-										class="btn btn-sm variant-filled hidden group-hover:block"
-										on:click="{() => activateProfile(blockee.id)}"
-										>프로필 보기</button>
-								</div>
+					<li>
+						<div
+							class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
+							<div class="flex items-center">
+								<Avatar
+									src="{blockee.avatar}"
+									width="w-6"
+									rounded="rounded-md" />
+								<div class="ml-2">{blockee.nickname}</div>
 							</div>
-						</li>
-					{/each}
-				</ul>
+							<div class="flex item-center">
+								<button
+									type="button"
+									class="btn btn-sm variant-filled hidden group-hover:block"
+									on:click="{() => unblock(blockee.id)}">차단 해제</button>
+								<button
+									type="button"
+									class="btn btn-sm variant-filled hidden group-hover:block"
+									on:click="{() => activateProfile(blockee.id)}"
+									>프로필 보기</button>
+							</div>
+						</div>
+					</li>
+				{/each}
+			</ul>
 		</div>
 	{/if}
 </div>
