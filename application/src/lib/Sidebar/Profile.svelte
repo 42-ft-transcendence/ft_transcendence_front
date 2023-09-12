@@ -17,7 +17,8 @@
 	import { BaseUrl, unblock } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { UserProfile } from '$lib/type';
-	import SwitchTwoFactorSearchModal from '$lib/Modal/SwitchTwoFactorSearchModal.svelte';
+	import Enable2FaModal from '$lib/Modal/Enable2FAModal.svelte';
+	import Disable2FaModal from '$lib/Modal/Disable2FAModal.svelte';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
@@ -39,14 +40,26 @@
 		isAuthenticated = $twoFactorAuthStore;
 	});
 
-	const switchTwoFactorAuthModalComponent: ModalComponent = {
-		ref: SwitchTwoFactorSearchModal,
+	const enable2FAModalComponent: ModalComponent = {
+		ref: Enable2FaModal,
 	};
 
-	async function switchTwoFactorAuth() {
+	async function enableTwoFactorAuth() {
 		const modal: ModalSettings = {
 			type: 'component',
-			component: switchTwoFactorAuthModalComponent,
+			component: enable2FAModalComponent,
+		};
+		modalStore.trigger(modal);
+	}
+
+	const disableTwoFactorAuthModalComponent: ModalComponent = {
+		ref: Disable2FaModal,
+	};
+	
+	async function disableTwoFactorAuth() {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: disableTwoFactorAuthModalComponent,
 		};
 		modalStore.trigger(modal);
 	}
@@ -61,13 +74,13 @@
 			<div class="font-bold text-lg">{profile?.nickname}</div>
 			{#if profile?.id === $userIdStore && !$twoFactorAuthStore}
 				<button
-					on:click="{switchTwoFactorAuth}"
+					on:click="{enableTwoFactorAuth}"
 					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
 					>2FA 설정하기</button>
 			{/if}
 			{#if profile?.id === $userIdStore && $twoFactorAuthStore}
 				<button
-					on:click="{switchTwoFactorAuth}"
+					on:click="{disableTwoFactorAuth}"
 					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
 					>2FA 해제하기</button>
 			{/if}
