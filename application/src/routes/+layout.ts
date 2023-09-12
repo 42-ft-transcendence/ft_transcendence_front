@@ -16,59 +16,61 @@ import type {
 	UserProfile,
 } from '$lib/type';
 import { goto } from '$app/navigation';
+import { get } from 'svelte/store';
 
 export const ssr = false;
 
 export async function load({ url }) {
-	let channels: LeftSideBarChannel[] = [];
-	let directs: LeftSideBarDirect[] = [];
-	let followees: Followee[] = [];
-	let blockees: Blockee[] = [];
-	let userId = -1;
-	let flag2FA = false;
-	let register = false;
-
-	if (hasCookie(JWT_DB_KEY)) {
-		const { refresh } = await getRequestApi(BaseUrl.USERS + 'twoFactorSetting');
-
-		if (refresh && url.pathname !== '/validate') goto('/validate');
-		else {
-			channels = (await getRequestApi(BaseUrl.CHANNELS + 'channelsUserIn')).map(
-				(channel: any) => ({
-					id: channel.id,
-					name: channel.name,
-					type: channel.type,
-					href: `/channel/${channel.id}`,
-				}),
-			);
-			directs = (await getRequestApi(BaseUrl.CHANNELS + 'directsUserIn')).map(
-				(direct: any) => ({
-					href: `/channel/${direct.channelId}`,
-					channelId: direct.channelId,
-					userId: direct.userId,
-					userName: direct.userName,
-					avatar: direct.avatar,
-				}),
-			);
-			blockees = await getRequestApi(BaseUrl.BLOCKED);
-			followees = await getRequestApi(BaseUrl.FOLLOWS);
-			const user: UserProfile = await getRequestApi(BaseUrl.USERS + 'oneself');
-			userId = user.id;
-			flag2FA = user.is2FAEnabled;
-			register = true;
-		}
-	} else {
-		if (!hasCookie(JWT_OAUTH_KEY) && url.pathname !== '/login') goto('/login');
-		if (hasCookie(JWT_OAUTH_KEY) && url.pathname !== '/signup') goto('/signup');
+	if (['/login', '/signup', '/validate'].includes(url.pathname)) {
+		return generateReturnValueFallBack([], [], [], false);
 	}
 
-	channelUserInStore.set(channels);
-	directUserInStore.set(directs);
-	blockeeStore.set(blockees.map((each) => each.blockee));
-	followeeStore.set(followees.map((each) => each.followee));
-	userIdStore.set(userId);
-	twoFactorAuthStore.set(flag2FA);
+	// before inserting user data into database
+	if (!hasCookie(JWT_OAUTH_KEY) && !hasCookie(JWT_DB_KEY)) await goto('/login');
+	else if (hasCookie(JWT_OAUTH_KEY)) await goto('/signup');
+	// after insertion but not two factor authenticated
+	// else {
+		const { refresh } = await getRequestApi(BaseUrl.USERS + 'twoFactorSetting');
+		if (refresh) await goto('/validate');
+		// after insertion and two factor authenticated
+		channelUserInStore.set(
+			(await getRequestApi(BaseUrl.CHANNELS + 'channelsUserIn')).map(
+				(channel: any) => ({ ...channel, href: `/channel/${channel.id}` }),
+			),
+		);
+		directUserInStore.set(
+			(await getRequestApi(BaseUrl.CHANNELS + 'directsUserIn')).map(
+				(direct: any) => ({ ...direct, href: `/channel/${direct.channelId}` }),
+			),
+		);
+		blockeeStore.set(
+			(await getRequestApi(BaseUrl.BLOCKED)).map((each: Blockee) => each.blockee),
+		);
+		followeeStore.set(
+			(await getRequestApi(BaseUrl.FOLLOWS)).map(
+				(each: Followee) => each.followee,
+			),
+		);
 
+		const user: UserProfile = await getRequestApi(BaseUrl.USERS + 'oneself');
+		userIdStore.set(user.id);
+		twoFactorAuthStore.set(user.is2FAEnabled);
+
+		return generateReturnValueFallBack(
+			get(channelUserInStore),
+			get(directUserInStore),
+			get(followeeStore),
+			true,
+		);
+	// }
+}
+
+function generateReturnValueFallBack(
+	channels: LeftSideBarChannel[],
+	directs: LeftSideBarDirect[],
+	followees: UserProfile[],
+	authenticated: boolean,
+) {
 	return {
 		chat: [
 			{ title: 'Channel', list: channels },
@@ -76,6 +78,6 @@ export async function load({ url }) {
 			{ title: 'Follow', list: followees },
 		],
 		game: {},
-		register: register,
+		authenticated: authenticated,
 	};
 }
