@@ -5,14 +5,15 @@
 	import '@skeletonlabs/skeleton/styles/skeleton.css';
 	// Most of your app wide CSS should be put in this file
 	import '../app.postcss';
-	import { AppBar, AppShell, Toast } from '@skeletonlabs/skeleton';
+	import { AppBar, AppShell, Toast, toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/Sidebar/Navigation.svelte';
 	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { Modal } from '@skeletonlabs/skeleton';
-	import { activateProfile, userIdStore } from '$lib/store';
+	import { activateProfile, channelUserInStore, userIdStore } from '$lib/store';
 	import { JWT_COOKIE_KEY, getCookie, hasCookie, socket } from '$lib/common';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 
 	export let data;
@@ -36,6 +37,19 @@
 		socket.auth.token = `${getCookie(JWT_COOKIE_KEY)}`;
 		socket.connect();
 	}
+	socket.on('kick User', (payload) => {
+		const t: ToastSettings = {
+			message: `관리자에 의해 ${payload.channelName}채널에서 내보내졌습니다.`,
+			background: 'variant-filled-tertiary',
+			hideDismiss: true,
+			timeout: 10000,
+		}
+		toastStore.trigger(t);
+		$channelUserInStore = $channelUserInStore.filter((channel) => channel.id !== payload.channelId);
+		if ($page.url.pathname !== '/channel/' + payload.channelId)
+			return;
+		goto('/');
+	})
 </script>
 
 <Modal />

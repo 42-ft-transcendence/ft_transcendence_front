@@ -106,6 +106,7 @@
 			BaseUrl.PARTICIPANTS + `userId/${userId}/channelId/${channelId}`,
 			payload,
 		);
+		socket.emit('kick User', {channelId: channelId, targetId: userId, channelName:$modalStore[0].meta.title});
 		participants = participants.filter((p) => p.id !== user.id);
 		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
 	}

@@ -56,6 +56,11 @@
 			hideDismiss: true,
 			timeout: 5000,
 		}
+		toastStore.trigger(t);
+	});
+
+	socket.on('leave Channel', () => {
+		channelData._count.participants -= 1;
 	});
 
 	onMount(() => {
@@ -63,16 +68,13 @@
 		elemChat = document.querySelector('.chat');
 	});
 
-	// console.log(socket);
 	function addMessage(): void {
-		// TODO modify newMessage
 		if (currentMessage === '') return;
 		const newMessage = {
 			content: currentMessage,
 			channelId: Number($page.params.id),
 			senderId: $userIdStore,
 		};
-		// Append the new message to the message feed
 		socket.emit('new Message', newMessage, (cb:any)=>{
 			if (cb.errorMessage){
 				const t: ToastSettings = {
