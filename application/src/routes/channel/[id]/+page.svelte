@@ -6,6 +6,8 @@
 		modalStore,
 		type ModalComponent,
 		type ModalSettings,
+		toastStore,
+		type ToastSettings,
 	} from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { socket } from '$lib/common.js';
@@ -44,6 +46,18 @@
 		newMessage.createdAt = new Date(newMessage.createdAt);
 		channelData.messages = [...channelData.messages, newMessage];
 	});
+
+	socket.on('mute User', (payload) => {
+		if (Number($page.params.id) !== payload.channelId)
+			return;
+		const t: ToastSettings = {
+			message: '관리자에 의해 음소거 되었습니다.',
+			background: 'variant-filled-tertiary',
+			hideDismiss: true,
+			timeout: 5000,
+		}
+	});
+
 	onMount(() => {
 		elemPage = document.querySelector('#page');
 		elemChat = document.querySelector('.chat');
@@ -59,7 +73,17 @@
 			senderId: $userIdStore,
 		};
 		// Append the new message to the message feed
-		socket.emit('new Message', newMessage);
+		socket.emit('new Message', newMessage, (cb:any)=>{
+			if (cb.errorMessage){
+				const t: ToastSettings = {
+					message: cb.errorMessage,
+					background: 'variant-filled-warning',
+					hideDismiss: true,
+					timeout: 5000,
+				}
+				toastStore.trigger(t);
+			}
+		});
 		// Clear the textarea message and dataFlag
 		currentMessage = '';
 		dateFlag = [-1, -1, -1];

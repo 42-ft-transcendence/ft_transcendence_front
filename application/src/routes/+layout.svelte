@@ -5,7 +5,7 @@
 	import '@skeletonlabs/skeleton/styles/skeleton.css';
 	// Most of your app wide CSS should be put in this file
 	import '../app.postcss';
-	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
+	import { AppBar, AppShell, Toast } from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/Sidebar/Navigation.svelte';
 	import Profile from '$lib/Sidebar/Profile.svelte';
@@ -39,6 +39,7 @@
 </script>
 
 <Modal />
+<Toast />
 <AppShell>
 	<svelte:fragment slot="header">
 		<AppBar>

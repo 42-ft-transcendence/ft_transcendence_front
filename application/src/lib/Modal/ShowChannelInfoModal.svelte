@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block } from '$lib/common';
+	import { BaseUrl, block, socket } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -112,7 +112,8 @@
 
 	function mute(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
-		//TODO: implement using socket.io
+		socket.emit('mute User', {channelId: channelId, targetId: userId});
+		// TODO: 필요한 경우 guard로부터 오는 에러 핸들링
 	}
 
 	async function unban(userId: number) {
