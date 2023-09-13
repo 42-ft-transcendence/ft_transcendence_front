@@ -5,6 +5,7 @@ import {
 	activateProfile,
 	addBlockee,
 	addFollowee,
+	addNewDirect,
 	blockeeStore,
 	removeBlockee,
 	removeDirect,
@@ -74,6 +75,17 @@ export async function unblock(blockeeId: number) {
 
 export function isblocked(userId: number) {
 	return get(blockeeStore).some((b) => b.id === userId);
+}
+
+export async function sendMessage(userId: number, userName: string) {
+	const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+		interlocatorId: userId,
+		interlocatorName: userName,
+	});
+	newDirect.userId = userId;
+	addNewDirect(newDirect);
+	loadPage(newDirect.id);
+	//TOOD: close modal
 }
 
 export function showProfile(id: number): void {

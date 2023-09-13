@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl, loadPage, unfollow } from '$lib/common';
-	import { postRequestApi } from '$lib/fetch';
-	import { activateProfile, addNewDirect } from '$lib/store';
+	import { sendMessage, unfollow } from '$lib/common';
+	import { activateProfile } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
 	let userId: number;
@@ -26,21 +25,10 @@
 		await goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
 	}
 
-	async function sendMessage() {
-		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
-			interlocatorId: userId,
-			interlocatorName: userName,
-		});
-		newDirect.userId = userId;
-		addNewDirect(newDirect);
-		loadPage(newDirect.id);
-		//TOOD: close modal
-	}
-
 	let menuItems = [
 		{
 			name: 'send message',
-			onClick: sendMessage,
+			onClick: () => sendMessage(userId, userName),
 			displayText: '메시지 보내기',
 			class: '',
 		},

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, loadPage } from '$lib/common';
+	import { BaseUrl, block, loadPage, sendMessage } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
@@ -44,15 +44,9 @@
 		// TODO fuc joinChannel
 		const button = event.target as HTMLButtonElement;
 		const userId = parseInt(button.dataset.userId as string);
-		const userName = button.dataset.userName;
+		const userName = button.dataset.userName as string;
 
-		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
-			interlocatorId: userId,
-			interlocatorName: userName,
-		});
-		newDirect['userId'] = userId;
-		addNewDirect(newDirect);
-		loadPage(newDirect.id);
+		sendMessage(userId, userName);
 		//TOOD: close modal
 	}
 
