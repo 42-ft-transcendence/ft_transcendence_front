@@ -55,8 +55,8 @@ export function channelContentDateReviver(key: string, value: any) {
 	return value;
 }
 
-export function loadPage(routeParam: number) {
-	goto(`/channel/${routeParam}`);
+export async function loadPage(routeParam: number) {
+	await goto(`/channel/${routeParam}`);
 }
 
 export async function block(blockeeId: number) {

@@ -45,12 +45,12 @@
 		let headers: HeadersInit = { Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}` };
 		if (isDefaultAvatar) headers[`${'Content-Type'}`] = 'application/json';
 		fetch(url, { method: 'POST', headers: headers, body: payload })
-		.then((value: Response) => {
-			if (value.ok) goto('/');
+		.then(async (value: Response) => {
+			if (value.ok) await goto('/');
 			// else throw Error('에러 발생!!!');
-		}).catch((reason: any) => {
+		}).catch(async (reason: any) => {
 			//TOOD: 409 예외에 대한 내용을 사용자에게 보여주기
-			goto('/signup');
+			await goto('/signup');
 		});
 	}
 
