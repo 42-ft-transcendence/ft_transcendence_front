@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
-	import { removeChannel } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
 
@@ -34,12 +32,10 @@
 		 * 일반 사용자
 		 * 1. participant 모델에서 JWT 사용자, 현재 채널에 대한 데이터를 제거
 		 */
-		console.log(channelId);
 		const channel = await deleteRequestApi(
 			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
 		);
-		removeChannel(parseInt(channel.id));
-		goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
+		socket.emit('leave Channel', {channelId:channelId});
 	}
 	let menuItems = [
 		{

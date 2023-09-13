@@ -37,6 +37,7 @@
 		socket.auth.token = `${getCookie(JWT_COOKIE_KEY)}`;
 		socket.connect();
 	}
+
 	socket.on('kick User', (payload) => {
 		const t: ToastSettings = {
 			message: `관리자에 의해 ${payload.channelName}채널에서 내보내졌습니다.`,
@@ -49,7 +50,14 @@
 		if ($page.url.pathname !== '/channel/' + payload.channelId)
 			return;
 		goto('/');
-	})
+	});
+
+	socket.on('leave Channel', (payload) =>{
+		$channelUserInStore = $channelUserInStore.filter((channel) => channel.id !== payload.channelId);
+		if ($page.url.pathname !== '/channel/' + payload.channelId)
+			return;
+		goto('/');
+	});
 </script>
 
 <Modal />
