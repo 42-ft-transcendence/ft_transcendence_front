@@ -1,10 +1,21 @@
 import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
 import { deleteRequestApi, postRequestApi } from './fetch';
-import { addBlockee, blockeeStore, removeBlockee, removeDirect } from './store';
 import { io } from 'socket.io-client';
+import {
+	activateProfile,
+	addBlockee,
+	addFollowee,
+	addNewDirect,
+	blockeeStore,
+	removeBlockee,
+	removeDirect,
+	removeFollowee,
+} from './store';
+import { modalStore } from '@skeletonlabs/skeleton';
 
-export const JWT_COOKIE_KEY = 'JsonWebToken';
+export const JWT_DB_KEY = 'JWTDatabase';
+export const JWT_OAUTH_KEY = 'JWTOAuth';
 
 export const socket = io({ auth: { token:''}, autoConnect: false}); //connect manually
 
@@ -15,6 +26,8 @@ export const enum BaseUrl {
 	ADMINISTRATORS = '/api/administrators/',
 	BANNED = '/api/bans/',
 	BLOCKED = '/api/blocks/',
+	FOLLOWS = '/api/follows/',
+	AUTH = '/api/auth/'
 }
 
 export function getCookie(name: string) {
@@ -46,15 +59,16 @@ export function channelContentDateReviver(key: string, value: any) {
 	return value;
 }
 
-export function loadPage(routeParam: number) {
-	goto(`/channel/${routeParam}`);
+export async function loadPage(routeParam: number) {
+	await goto(`/channel/${routeParam}`);
 }
 
 export async function block(blockeeId: number) {
-	const blocked = await postRequestApi(BaseUrl.BLOCKED, {blockeeId: blockeeId});
+	const blocked = await postRequestApi(BaseUrl.BLOCKED, {
+		blockeeId: blockeeId,
+	});
 	addBlockee(blocked.blockee);
-	if (blocked.channelId)
-		removeDirect(blocked.channelId);
+	if (blocked.channelId) removeDirect(blocked.channelId);
 }
 
 export async function unblock(blockeeId: number) {
@@ -63,8 +77,37 @@ export async function unblock(blockeeId: number) {
 }
 
 export function isblocked(userId: number) {
-	return get(blockeeStore).some(b => b.id === userId);
+	return get(blockeeStore).some((b) => b.id === userId);
 }
+
+export async function sendMessage(userId: number, userName: string) {
+	const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+		interlocatorId: userId,
+		interlocatorName: userName,
+	});
+	newDirect.userId = userId;
+	addNewDirect(newDirect);
+	loadPage(newDirect.id);
+	//TOOD: close modal
+}
+
+export function showProfile(id: number): void {
+	activateProfile(id);
+	modalStore.close();
+}
+
+export async function follow(followeeId: number) {
+	const followee = await postRequestApi(BaseUrl.FOLLOWS, {
+		followeeId: followeeId,
+	});
+	addFollowee(followee.followee);
+}
+
+export async function unfollow(followeeId: number) {
+	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
+	removeFollowee(followee.followee);
+}
+
 export const channelIcon: { [index: string]: string } = {
 	PUBLIC: 'fa fa-users',
 	PRIVATE: 'fa fa-user-secret',

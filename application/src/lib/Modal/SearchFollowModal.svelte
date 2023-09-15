@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, loadPage, socket } from '$lib/common';
+	import { BaseUrl, block, follow, loadPage, showProfile } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
-	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
+	import { addNewDirect, blockeeStore, directUserInStore, followeeStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
 
 	// Props
@@ -12,21 +12,22 @@
 
 	let users: any[] | undefined;
 
-	let interlocatorNames: string[];
+	let followeeIds: number[];
 
-	directUserInStore.subscribe(() => {
-		interlocatorNames = get(directUserInStore).map((direct) => direct.userName);
+	followeeStore.subscribe(() => {
+		followeeIds = get(followeeStore).map((followee) => followee.id);
+		console.log(`followeeIds: ${followeeIds}`);
 		if (users)
 			users = users.filter(
-				(user) => !interlocatorNames.includes(user.nickname),
+				(user) => !followeeIds.includes(user.id),
 			);
 	});
 
 	let input: string;
+
 	// Form Data
 	const formData = {
 		name: '',
-		password: undefined,
 	};
 
 	async function searchUser() {
@@ -35,25 +36,9 @@
 		);
 		if (users) {
 			users = users.filter(
-				(user) => !interlocatorNames.includes(user.nickname),
+				(user) => !followeeIds.includes(user.id),
 			);
 		}
-	}
-
-	async function startDM(event: MouseEvent) {
-		// TODO fuc joinChannel
-		const button = event.target as HTMLButtonElement;
-		const userId = parseInt(button.dataset.userId as string);
-		const userName = button.dataset.userName as string;
-
-		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
-			interlocatorId: userId,
-			interlocatorName: userName,
-		});
-		modalStore.close();
-		newDirect['userId'] = userId;
-		socket.emit('join DMChannel', newDirect); //TODO: 다이렉트 메시지 공용 함수 자체에 포함시키기
-		loadPage(newDirect.id);
 	}
 
 	// Base Classes
@@ -66,7 +51,7 @@
 
 {#if $modalStore[0]}
 	<div class="{cBase}">
-		<header class="{cHeader}">Start a DirectMessage</header>
+		<header class="{cHeader}">Follow Your Friends</header>
 		<form class="modal-form {cForm}">
 			<label class="label">
 				<span class="font-bold">유저 이름</span>
@@ -105,18 +90,17 @@
 											<div class="ml-2">{user.nickname}</div>
 										</div>
 										<div class="flex items-center">
-											{#if user.id !== $userIdStore && !$blockeeStore.some(b => b.id === user.id)}
+											{#if user.id !== $userIdStore && !$followeeStore.some(f => f.id === user.id)}
 												<button
 													type="button"
 													class="btn btn-sm variant-filled hidden group-hover:block"
-													on:click="{() => block(user.id)}">차단</button>
-												<button
-													type="button"
-													class="btn btn-sm variant-filled hidden group-hover:block"
-													data-user-id="{user.id}"
-													data-user-name="{user.nickname}"
-													on:click="{startDM}">대화 시작</button>
-											{/if}		
+													on:click="{() => follow(user.id)}">팔로우</button>
+											{/if}
+											<button
+												type="button"
+												class="btn btn-sm variant-filled hidden group-hover:block"
+												on:click="{() => showProfile(user.id)}"
+											>프로필 보기</button>
 										</div>
 									</div>
 								</li>

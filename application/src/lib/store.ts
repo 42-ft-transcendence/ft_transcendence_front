@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import type {
 	LeftSideBarChannel,
 	LeftSideBarDirect,
@@ -13,6 +13,8 @@ export const profileButtonStore = writable(false);
 export const profileIdStore = writable(-1);
 export const blockeeStore = writable(Array<UserProfile>());
 export const userIdStore = writable(-1);
+export const followeeStore = writable(Array<UserProfile>());
+export const twoFactorAuthStore = writable(false);
 
 export function addNewChannel(newChannel: UserChannel) {
 	const added: LeftSideBarChannel = {
@@ -21,10 +23,11 @@ export function addNewChannel(newChannel: UserChannel) {
 		type: newChannel.type,
 		href: `/channel/${newChannel.id}`,
 	};
-	channelUserInStore.update((channels) => {
-		channels.push(added);
-		return channels;
-	});
+	if (get(channelUserInStore).every((c) => c.id !== added.id))
+		channelUserInStore.update((channels) => {
+			channels.push(added);
+			return channels;
+		});
 }
 
 export function removeChannel(channelId: number) {
@@ -35,16 +38,17 @@ export function removeChannel(channelId: number) {
 
 export function addNewDirect(newDirect: UserDirectChannel) {
 	const added: LeftSideBarDirect = {
-		userId: newDirect.userId,
+		href: `/channel/${newDirect.id}`,
 		channelId: newDirect.id,
+		userId: newDirect.userId,
 		userName: newDirect.userName,
 		avatar: newDirect.avatar,
-		href: `/channel/${newDirect.id}`,
 	};
-	directUserInStore.update((directs) => {
-		directs.push(added);
-		return directs;
-	});
+	if (get(directUserInStore).every((d) => d.channelId !== added.channelId))
+		directUserInStore.update((directs) => {
+			directs.push(added);
+			return directs;
+		});
 }
 
 export function removeDirect(channelId: number) {
@@ -63,9 +67,19 @@ export function deactivateProfile() {
 }
 
 export function addBlockee(blockee: UserProfile) {
-	blockeeStore.update((store) => { store.push(blockee); return store; });
+	if (get(blockeeStore).every((b) => b.id !== blockee.id))
+		blockeeStore.update((store) => { store.push(blockee); return store; });
 }
 
 export function removeBlockee(blockee: UserProfile) {
 	blockeeStore.update((store) => store.filter(u => u.id !== blockee.id));
+}
+
+export function addFollowee(followee: UserProfile) {
+	if (get(followeeStore).every((f) => f.id !== followee.id))
+		followeeStore.update((store) => { store.push(followee); return store; });
+}
+
+export function removeFollowee(followee: UserProfile) {
+	followeeStore.update((store) => store.filter(u => u.id !== followee.id));
 }

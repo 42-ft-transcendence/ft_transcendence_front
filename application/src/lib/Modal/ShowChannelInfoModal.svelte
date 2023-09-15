@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, socket } from '$lib/common';
+	import { BaseUrl, block, socket, showProfile } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -126,11 +126,6 @@
 		banned = banned.filter((b) => b.id !== user.id);
 	}
 
-	function showProfile(id: number): void {
-		activateProfile(id);
-		modalStore.close();
-	}
-
 	async function addAdministrator(id: number) {
 		const channelId = $modalStore[0].meta.id;
 		const payload = { channelId: channelId, userId: id };
@@ -154,11 +149,11 @@
 		normalParticipants = [...normalParticipants, removed];
 	}
 
-	function dispatchBlock(id: number) {
+	async function dispatchBlock(id: number) {
 		block(id);
 		if ($modalStore[0].meta.type === ChannelType.ONETOONE) {
 			modalStore.close();
-			goto('http://localhost:8080/');
+			await goto('http://localhost:8080/');
 		}
 	}
 	// Base Classes

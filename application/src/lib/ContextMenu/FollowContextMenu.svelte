@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl, socket } from '$lib/common';
-	import { deleteRequestApi } from '$lib/fetch';
-	import { activateProfile, removeChannel, removeDirect } from '$lib/store';
+	import { sendMessage, unfollow } from '$lib/common';
+	import { activateProfile } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
-	let userId: number; //TODO: 안쓰면 지우기
-	let channelId: number;
+	let userId: number;
+	let userName: string;
 
 	const contextmenu = new ContextMenu();
 	$: {
@@ -17,18 +16,22 @@
 		console.log(pointerEvent.target);
 		if (pointerEvent.target instanceof HTMLElement) {
 			userId = parseInt(pointerEvent.target.dataset.userId as string);
-			channelId = parseInt(pointerEvent.target.dataset.channelId as string);
+			userName = pointerEvent.target.dataset.userName as string;
 		}
 	}
 
-	async function leaveDM() {
-		const channel = await deleteRequestApi(
-			BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
-		);
-		socket.emit('leave DMChannel', {channelId:channelId})
+	async function doUnfollow() {
+		unfollow(userId);
+		await goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
 	}
 
 	let menuItems = [
+		{
+			name: 'send message',
+			onClick: () => sendMessage(userId, userName),
+			displayText: '메시지 보내기',
+			class: '',
+		},
 		{
 			name: 'see profile',
 			onClick: () => activateProfile(userId),
@@ -36,9 +39,9 @@
 			class: '',
 		},
 		{
-			name: 'leave dm',
-			onClick: leaveDM,
-			displayText: '대화 닫기',
+			name: 'unfollow',
+			onClick: doUnfollow,
+			displayText: '팔로우 끊기',
 			class: '',
 		},
 	];
