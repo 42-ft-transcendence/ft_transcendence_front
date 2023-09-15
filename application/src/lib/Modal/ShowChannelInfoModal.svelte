@@ -106,14 +106,18 @@
 			BaseUrl.PARTICIPANTS + `userId/${userId}/channelId/${channelId}`,
 			payload,
 		);
-		socket.emit('kick User', {channelId: channelId, targetId: userId, channelName:$modalStore[0].meta.title});
+		socket.emit('kick User', {
+			channelId: channelId,
+			targetId: userId,
+			channelName: $modalStore[0].meta.title,
+		});
 		participants = participants.filter((p) => p.id !== user.id);
 		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
 	}
 
 	function mute(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
-		socket.emit('mute User', {channelId: channelId, targetId: userId});
+		socket.emit('mute User', { channelId: channelId, targetId: userId });
 		// TODO: 필요한 경우 guard로부터 오는 에러 핸들링
 	}
 
@@ -150,10 +154,10 @@
 	}
 
 	async function dispatchBlock(id: number) {
-		block(id);
+		await block(id);
 		if ($modalStore[0].meta.type === ChannelType.ONETOONE) {
 			modalStore.close();
-			await goto('http://localhost:8080/');
+			await goto('/');
 		}
 	}
 	// Base Classes

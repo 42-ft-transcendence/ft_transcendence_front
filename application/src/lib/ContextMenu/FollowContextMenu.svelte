@@ -22,7 +22,7 @@
 
 	async function doUnfollow() {
 		unfollow(userId);
-		await goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
+		await goto('/');
 	}
 
 	let menuItems = [
