@@ -1,26 +1,29 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { BaseUrl, JWT_OAUTH_KEY, getCookie } from '$lib/common';
-	import { Avatar, FileDropzone } from '@skeletonlabs/skeleton';
+	import { BaseUrl, JWT_OAUTH_KEY, getCookie, hasCookie } from '$lib/common';
+	import { Avatar, FileDropzone, toastStore } from '@skeletonlabs/skeleton';
+	import { error } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 
 	interface UserInput {
 		nickname: string;
 		avatar: File | undefined;
-	};
+	}
 
 	const cForm =
 		'border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const regExp = /[, ]/g;
-	
+
 	const userInput: UserInput = { nickname: '', avatar: undefined };
-	
+
 	let preview: string | undefined;
 	let elemInput: HTMLInputElement;
 	let files: FileList | undefined;
-	
-	onMount(() => {
-		elemInput = document.querySelector('.dropzone-input') as HTMLInputElement; // FileDropzone component안에 dropzone-input 존재 null 안됨.
+
+	onMount(async () => {
+		if (!hasCookie(JWT_OAUTH_KEY)) await goto('/login');
+		else
+			elemInput = document.querySelector('.dropzone-input') as HTMLInputElement; // FileDropzone component안에 dropzone-input 존재 null 안됨.
 	});
 
 	function onChangeHandler(e: Event): void {
@@ -41,21 +44,38 @@
 		files = undefined;
 	}
 
-	async function fetchSignupApi(url: string, payload: any, isDefaultAvatar: boolean) {
-		let headers: HeadersInit = { Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}` };
+	async function fetchSignupApi(
+		url: string,
+		payload: any,
+		isDefaultAvatar: boolean,
+	) {
+		let headers: HeadersInit = {
+			Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
+		};
 		if (isDefaultAvatar) headers[`${'Content-Type'}`] = 'application/json';
-		fetch(url, { method: 'POST', headers: headers, body: payload })
-		.then(async (value: Response) => {
-			if (value.ok) await goto('/');
-			// else throw Error('에러 발생!!!');
-		}).catch(async (reason: any) => {
-			//TOOD: 409 예외에 대한 내용을 사용자에게 보여주기
-			await goto('/signup');
+		const result = await fetch(url, {
+			method: 'POST',
+			headers: headers,
+			body: payload,
 		});
+		if (result.ok) await goto('/');
+		else {
+			toastStore.trigger({
+				message: '중복된 닉네임을 사용할 수 없습니다.',
+				background: 'variant-filled-warning',
+				hideDismiss: true,
+				timeout: 2000,
+			});
+			await goto('/signup');
+		}
 	}
 
 	async function setDefault() {
-		fetchSignupApi(BaseUrl.USERS + 'defaultAvatar', JSON.stringify({}), false);
+		await fetchSignupApi(
+			BaseUrl.USERS + 'defaultAvatar',
+			JSON.stringify({}),
+			false,
+		);
 	}
 
 	async function handleSubmit() {
@@ -64,9 +84,13 @@
 			const formData = new FormData();
 			if (nickname) formData.append('nickname', nickname);
 			formData.append('avatar', avatar);
-			fetchSignupApi(BaseUrl.USERS + 'customAvatar', formData, false);
+			await fetchSignupApi(BaseUrl.USERS + 'customAvatar', formData, false);
 		} else
-			fetchSignupApi(BaseUrl.USERS + 'defaultAvatar', JSON.stringify({ nickname: nickname === '' ? undefined : nickname }), true);
+			await fetchSignupApi(
+				BaseUrl.USERS + 'defaultAvatar',
+				JSON.stringify({ nickname: nickname === '' ? undefined : nickname }),
+				true,
+			);
 	}
 	function filterKey(e: Event & { target: HTMLTextAreaElement }): void {
 		userInput.nickname = userInput.nickname.replace(regExp, '');

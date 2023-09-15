@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, JWT_DB_KEY, hasCookie } from '$lib/common';
 	import { postRequestApi } from '$lib/fetch';
+	import { onMount } from 'svelte';
 
 	let codeInput: string;
+
+	onMount(async () => {
+		if (!hasCookie(JWT_DB_KEY)) await goto('/login');
+	});
 
 	async function authenticate() {
 		await postRequestApi(BaseUrl.AUTH + 'otp/authenticate', {
@@ -11,9 +16,6 @@
 		});
 		await goto('/');
 	}
-	// Base Classes
-	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
-	const cHeader = 'text-2xl font-bold';
 </script>
 
 <section class="bg-ct-blue-600 min-h-screen grid place-items-center">
