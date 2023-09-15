@@ -1,6 +1,7 @@
 import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
 import { deleteRequestApi, postRequestApi } from './fetch';
+import { io } from 'socket.io-client';
 import {
 	activateProfile,
 	addBlockee,
@@ -15,6 +16,8 @@ import { modalStore } from '@skeletonlabs/skeleton';
 
 export const JWT_DB_KEY = 'JWTDatabase';
 export const JWT_OAUTH_KEY = 'JWTOAuth';
+
+export const socket = io({ auth: { token:''}, autoConnect: false}); //connect manually
 
 export const enum BaseUrl {
 	USERS = '/api/users/',

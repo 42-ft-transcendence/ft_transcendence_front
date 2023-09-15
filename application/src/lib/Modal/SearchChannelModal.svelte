@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl, dateReviver, channelIcon, loadPage } from '$lib/common';
+	import { BaseUrl, dateReviver, channelIcon, loadPage, socket } from '$lib/common';
 	import { addNewChannel, channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
@@ -49,10 +49,10 @@
 		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
 			channelId: channelId,
 		});
+		modalStore.close();
 		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
-		addNewChannel(dateChannel);
+		socket.emit('join Channel', dateChannel);
 		loadPage(dateChannel.id);
-		//TODO: close modal
 	}
 
 	async function joinProtectedChannel(channelId: number) {
@@ -61,8 +61,10 @@
 			channelPassword: formData.password,
 		});
 		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
-		addNewChannel(dateChannel);
+		modalStore.close();
+		socket.emit('join Channel', dateChannel);
 		loadPage(dateChannel.id);
+		// 실패시 아래의 코드를 통해 기존에 남아있는 비밀번호 초기화
 		formData.password = undefined;
 	}
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
 	import { activateProfile, removeChannel, removeDirect } from '$lib/store';
 
@@ -25,8 +25,7 @@
 		const channel = await deleteRequestApi(
 			BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
 		);
-		removeDirect(parseInt(channel.id));
-		await goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
+		socket.emit('leave DMChannel', {channelId:channelId})
 	}
 
 	let menuItems = [
