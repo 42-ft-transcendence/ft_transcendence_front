@@ -10,7 +10,7 @@
 	import Navigation from '$lib/Sidebar/Navigation.svelte';
 	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { Modal } from '@skeletonlabs/skeleton';
-	import { activateProfile, channelUserInStore, userIdStore } from '$lib/store';
+	import { activateProfile, addNewChannel, channelUserInStore, userIdStore } from '$lib/store';
 	import { JWT_COOKIE_KEY, getCookie, hasCookie, socket } from '$lib/common';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -52,7 +52,11 @@
 		goto('/');
 	});
 
-	socket.on('leave Channel', (payload) =>{
+	socket.on('join Channel', (payload) => {
+		addNewChannel(payload);
+	});
+
+	socket.on('leave Channel', (payload) => {
 		$channelUserInStore = $channelUserInStore.filter((channel) => channel.id !== payload.channelId);
 		if ($page.url.pathname !== '/channel/' + payload.channelId)
 			return;
