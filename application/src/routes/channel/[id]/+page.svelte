@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ShowChannelInfoModal from '$lib/Modal/ShowChannelInfoModal.svelte';
-	import { blockeeStore, userIdStore } from '$lib/store';
+	import { onMount } from 'svelte';
 	import {
 		Avatar,
 		modalStore,
@@ -9,10 +8,11 @@
 		toastStore,
 		type ToastSettings,
 	} from '@skeletonlabs/skeleton';
-	import { onMount } from 'svelte';
+	import ShowChannelInfoModal from '$lib/Modal/ShowChannelInfoModal.svelte';
+	import { blockeeStore, userIdStore } from '$lib/store';
 	import { socket } from '$lib/common.js';
 	import { page } from '$app/stores';
-	import { userIdStore } from '$lib/store';
+
 	export let data;
 	console.log(data); //TODO: remove
 

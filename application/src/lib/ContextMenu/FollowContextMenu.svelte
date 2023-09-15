@@ -28,7 +28,7 @@
 	let menuItems = [
 		{
 			name: 'send message',
-			onClick: () => sendMessage(userId, userName),
+			onClick: async () => await sendMessage(userId, userName),
 			displayText: '메시지 보내기',
 			class: '',
 		},

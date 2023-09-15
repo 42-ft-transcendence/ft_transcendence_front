@@ -5,6 +5,7 @@
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
+	import { sendMessage } from '../common';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -46,14 +47,7 @@
 		const userId = parseInt(button.dataset.userId as string);
 		const userName = button.dataset.userName as string;
 
-		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
-			interlocatorId: userId,
-			interlocatorName: userName,
-		});
-		modalStore.close();
-		newDirect['userId'] = userId;
-		socket.emit('join DMChannel', newDirect); //TODO: 다이렉트 메시지 공용 함수 자체에 포함시키기
-		loadPage(newDirect.id);
+		await sendMessage(userId, userName);
 	}
 
 	// Base Classes

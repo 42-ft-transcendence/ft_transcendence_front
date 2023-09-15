@@ -94,7 +94,7 @@
 		<Avatar src="{profile?.avatar}" width="w-44" />
 		<div class="p-2.5 flex justify-around">
 			{#if profile?.id !== $userIdStore}
-				<button type="button" on:click="{() => sendMessage(profile?.id, profile?.nickname)}" class="btn variant-filled">DM</button>
+				<button type="button" on:click="{async () => await sendMessage(profile?.id, profile?.nickname)}" class="btn variant-filled">DM</button>
 				<button type="button" class="btn variant-filled">GAME</button>
 			{/if}
 		</div>
