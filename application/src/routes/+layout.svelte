@@ -5,72 +5,93 @@
 	import '@skeletonlabs/skeleton/styles/skeleton.css';
 	// Most of your app wide CSS should be put in this file
 	import '../app.postcss';
-	import { AppBar, AppShell, Toast, toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+	import {
+		AppBar,
+		AppShell,
+		Toast,
+		toastStore,
+		type ToastSettings,
+	} from '@skeletonlabs/skeleton';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/Sidebar/Navigation.svelte';
 	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { Modal } from '@skeletonlabs/skeleton';
-	import { activateProfile, addNewChannel, addNewDirect, channelUserInStore, directUserInStore, userIdStore } from '$lib/store';
+	import {
+		activateProfile,
+		addNewChannel,
+		addNewDirect,
+		channelUserInStore,
+		directUserInStore,
+		userIdStore,
+	} from '$lib/store';
 	import { getCookie, hasCookie, socket } from '$lib/common';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { JWT_DB_KEY } from '../lib/common';
 
-
 	export let data;
 	$: authenticated = data.authenticated;
 	let sidebarLeftBtn = false;
 	let preChanRoom: string | undefined = undefined; // default '/' ?
-	$:{
-		if (preChanRoom && preChanRoom.includes('/channel') || $page.url.pathname.includes('/game')){
+	$: {
+		if (
+			(preChanRoom && preChanRoom.includes('/channel')) ||
+			$page.url.pathname.includes('/game')
+		) {
 			socket.emit('leave Room', preChanRoom);
 		}
 		preChanRoom = $page.url.pathname;
-		if ($page.url.pathname.includes('/channel') || $page.url.pathname.includes('/game')){
+		if (
+			$page.url.pathname.includes('/channel') ||
+			$page.url.pathname.includes('/game')
+		) {
 			socket.emit('join Room', $page.url.pathname);
 		}
 	}
 	//TODO: 인자가 -1이면 사용자 자기 자신의 프로필을 불러오도록 구현했었지만, 현재 사용자가 로그인할 시 현재 사용자의 id를 스토어에 저장해 활용할 것이므로, 이를 활용하도록 하자.
 
-	if (hasCookie(JWT_DB_KEY)){
+	if (hasCookie(JWT_DB_KEY)) {
 		socket.auth.token = `${getCookie(JWT_DB_KEY)}`;
 		socket.connect();
 	}
 
-	socket.on('kick User', (payload) => {
+	socket.on('kick User', async (payload) => {
 		const t: ToastSettings = {
 			message: `관리자에 의해 ${payload.channelName}채널에서 내보내졌습니다.`,
 			background: 'variant-filled-tertiary',
 			hideDismiss: true,
 			timeout: 10000,
-		}
+		};
 		toastStore.trigger(t);
-		$channelUserInStore = $channelUserInStore.filter((channel) => channel.id !== payload.channelId);
-		if ($page.url.pathname !== '/channel/' + payload.channelId)
-			return;
-		goto('/');
+		$channelUserInStore = $channelUserInStore.filter(
+			(channel) => channel.id !== payload.channelId,
+		);
+		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
+		await goto('/');
 	});
 
 	socket.on('join Channel', (payload) => {
 		addNewChannel(payload);
 	});
 
-	socket.on('leave Channel', (payload) => {
-		$channelUserInStore = $channelUserInStore.filter((channel) => channel.id !== payload.channelId);
-		if ($page.url.pathname !== '/channel/' + payload.channelId)
-			return;
-		goto('/');
+	socket.on('leave Channel', async (payload) => {
+		$channelUserInStore = $channelUserInStore.filter(
+			(channel) => channel.id !== payload.channelId,
+		);
+		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
+		await goto('/');
 	});
 
 	socket.on('join DMChannel', (payload) => {
 		addNewDirect(payload);
 	});
 
-	socket.on('leave DMChannel', (payload) => {
-		$directUserInStore = $directUserInStore.filter((DMChannel) => DMChannel.channelId !== payload.channelId);
-		if ($page.url.pathname !== '/channel/' + payload.channelId)
-			return;
-		goto('/');
+	socket.on('leave DMChannel', async (payload) => {
+		$directUserInStore = $directUserInStore.filter(
+			(DMChannel) => DMChannel.channelId !== payload.channelId,
+		);
+		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
+		await goto('/');
 	});
 </script>
 
