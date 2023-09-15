@@ -31,6 +31,8 @@ export interface UserDirectChannel {
 export interface UserProfile {
 	id: number;
 	fourtyTwoId: number; //TODO: 제거하기
+	otpSecret?: string; //TODO: 제거하기
+	is2FAEnabled: boolean;	
 	avatar: string;
 	nickname: string;
 	winCount: number;

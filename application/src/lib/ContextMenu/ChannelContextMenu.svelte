@@ -39,7 +39,7 @@
 			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
 		);
 		removeChannel(parseInt(channel.id));
-		goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
+		await goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
 	}
 	let menuItems = [
 		{

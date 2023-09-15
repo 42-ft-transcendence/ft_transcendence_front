@@ -5,6 +5,7 @@ import {
 	activateProfile,
 	addBlockee,
 	addFollowee,
+	addNewDirect,
 	blockeeStore,
 	removeBlockee,
 	removeDirect,
@@ -23,6 +24,7 @@ export const enum BaseUrl {
 	BANNED = '/api/bans/',
 	BLOCKED = '/api/blocks/',
 	FOLLOWS = '/api/follows/',
+	AUTH = '/api/auth/'
 }
 
 export function getCookie(name: string) {
@@ -54,8 +56,8 @@ export function channelContentDateReviver(key: string, value: any) {
 	return value;
 }
 
-export function loadPage(routeParam: number) {
-	goto(`/channel/${routeParam}`);
+export async function loadPage(routeParam: number) {
+	await goto(`/channel/${routeParam}`);
 }
 
 export async function block(blockeeId: number) {
@@ -73,6 +75,17 @@ export async function unblock(blockeeId: number) {
 
 export function isblocked(userId: number) {
 	return get(blockeeStore).some((b) => b.id === userId);
+}
+
+export async function sendMessage(userId: number, userName: string) {
+	const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+		interlocatorId: userId,
+		interlocatorName: userName,
+	});
+	newDirect.userId = userId;
+	addNewDirect(newDirect);
+	loadPage(newDirect.id);
+	//TOOD: close modal
 }
 
 export function showProfile(id: number): void {

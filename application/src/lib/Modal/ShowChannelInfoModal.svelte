@@ -147,11 +147,11 @@
 		normalParticipants = [...normalParticipants, removed];
 	}
 
-	function dispatchBlock(id: number) {
+	async function dispatchBlock(id: number) {
 		block(id);
 		if ($modalStore[0].meta.type === ChannelType.ONETOONE) {
 			modalStore.close();
-			goto('http://localhost:8080/');
+			await goto('http://localhost:8080/');
 		}
 	}
 	// Base Classes

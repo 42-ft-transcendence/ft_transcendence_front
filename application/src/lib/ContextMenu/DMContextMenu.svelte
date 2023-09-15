@@ -6,7 +6,7 @@
 	import { activateProfile, removeChannel, removeDirect } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
-	let userId: number;//TODO: 안쓰면 지우기
+	let userId: number; //TODO: 안쓰면 지우기
 	let channelId: number;
 
 	const contextmenu = new ContextMenu();
@@ -15,7 +15,7 @@
 		contextmenu.pos.x = contextmenu.pos.x;
 		contextmenu.pos.y = contextmenu.pos.y;
 		console.log(pointerEvent.target);
-		if (pointerEvent.target instanceof HTMLElement) {	
+		if (pointerEvent.target instanceof HTMLElement) {
 			userId = parseInt(pointerEvent.target.dataset.userId as string);
 			channelId = parseInt(pointerEvent.target.dataset.channelId as string);
 		}
@@ -26,7 +26,7 @@
 			BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
 		);
 		removeDirect(parseInt(channel.id));
-		goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
+		await goto('http://localhost:8080/'); //TODO: 루트 페이지 경로 .env로 활용?
 	}
 
 	let menuItems = [
