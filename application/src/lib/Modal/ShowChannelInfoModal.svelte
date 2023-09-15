@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, showProfile } from '$lib/common';
+	import { BaseUrl, block, socket, showProfile } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -106,13 +106,15 @@
 			BaseUrl.PARTICIPANTS + `userId/${userId}/channelId/${channelId}`,
 			payload,
 		);
+		socket.emit('kick User', {channelId: channelId, targetId: userId, channelName:$modalStore[0].meta.title});
 		participants = participants.filter((p) => p.id !== user.id);
 		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
 	}
 
 	function mute(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
-		//TODO: implement using socket.io
+		socket.emit('mute User', {channelId: channelId, targetId: userId});
+		// TODO: 필요한 경우 guard로부터 오는 에러 핸들링
 	}
 
 	async function unban(userId: number) {

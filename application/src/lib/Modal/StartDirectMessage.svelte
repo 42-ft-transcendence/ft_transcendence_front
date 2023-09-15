@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, loadPage, sendMessage } from '$lib/common';
+	import { BaseUrl, block, loadPage, socket } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
@@ -46,8 +46,14 @@
 		const userId = parseInt(button.dataset.userId as string);
 		const userName = button.dataset.userName as string;
 
-		sendMessage(userId, userName);
-		//TOOD: close modal
+		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+			interlocatorId: userId,
+			interlocatorName: userName,
+		});
+		modalStore.close();
+		newDirect['userId'] = userId;
+		socket.emit('join DMChannel', newDirect); //TODO: 다이렉트 메시지 공용 함수 자체에 포함시키기
+		loadPage(newDirect.id);
 	}
 
 	// Base Classes
