@@ -87,7 +87,7 @@ export async function sendMessage(userId: number, userName: string) {
 	});
 	newDirect.userId = userId;
 	addNewDirect(newDirect);
-	socket.emit('join DMChannel', newDirect);
+	socket.emit('create DMChannel', newDirect);
 	loadPage(newDirect.id);
 	//TOOD: close modal
 }

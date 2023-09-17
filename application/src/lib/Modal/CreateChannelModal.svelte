@@ -29,7 +29,7 @@
 			dateReviver,
 		);
 		modalStore.close();
-		socket.emit('join Channel', dateChannel);
+		socket.emit('create Channel', dateChannel);
 		loadPage(dateChannel.id);
 	}
 

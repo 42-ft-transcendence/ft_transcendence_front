@@ -70,11 +70,11 @@
 		await goto('/');
 	});
 
-	socket.on('join Channel', (payload) => {
+	socket.on('create Channel', (payload) => {
 		addNewChannel(payload);
 	});
 
-	socket.on('leave Channel', async (payload) => {
+	socket.on('remove Channel', async (payload) => {
 		$channelUserInStore = $channelUserInStore.filter(
 			(channel) => channel.id !== payload.channelId,
 		);
@@ -82,11 +82,11 @@
 		await goto('/');
 	});
 
-	socket.on('join DMChannel', (payload) => {
+	socket.on('create DMChannel', (payload) => {
 		addNewDirect(payload);
 	});
 
-	socket.on('leave DMChannel', async (payload) => {
+	socket.on('remove DMChannel', async (payload) => {
 		$directUserInStore = $directUserInStore.filter(
 			(DMChannel) => DMChannel.channelId !== payload.channelId,
 		);
