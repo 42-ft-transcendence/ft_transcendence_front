@@ -4,6 +4,7 @@
 		modalStore,
 		type ModalSettings,
 		type ModalComponent,
+		toastStore,
 	} from '@skeletonlabs/skeleton';
 	import {
 		activateProfile,
@@ -30,8 +31,17 @@
 	});
 	profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
-		profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
-		if ($profileIdStore !== $userIdStore) blockList = [];
+		try {
+			profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
+			if ($profileIdStore !== $userIdStore) blockList = [];
+		} catch (error: any) {
+			toastStore.trigger({
+				message: error.message,
+				background: 'variant-filled-warning',
+				hideDismiss: true,
+				timeout: 2000,
+			})
+		}
 	});
 	blockeeStore.subscribe(() => {
 		blockList = $blockeeStore;

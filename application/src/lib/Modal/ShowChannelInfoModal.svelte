@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { TabGroup, Tab, modalStore } from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab, modalStore, toastStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl, block, socket, showProfile } from '$lib/common';
 	import {
@@ -12,6 +12,7 @@
 	import { activateProfile, blockeeStore, userIdStore } from '$lib/store';
 	import { ChannelType } from '$lib/type';
 	import { goto } from '$app/navigation';
+	import type { HttpError } from '@sveltejs/kit';
 
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
@@ -65,17 +66,25 @@
 
 	onMount(async () => {
 		adminSwitch = localStorage.getItem('adminSwitch') === 'true';
-
-		content = await getRequestApi(
-			BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`,
-		);
-		participants = content.participants.map((p) => p.user);
-		administrators = content.administrators.map((a) => a.user);
-		banned = content.bans.map((b) => b.user);
-
-		normalParticipants = participants.filter(
-			(p) => !administrators.some((a) => a.nickname === p.nickname),
-		);
+		try {
+			content = await getRequestApi(
+				BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`,
+			);
+			participants = content.participants.map((p) => p.user);
+			administrators = content.administrators.map((a) => a.user);
+			banned = content.bans.map((b) => b.user);
+	
+			normalParticipants = participants.filter(
+				(p) => !administrators.some((a) => a.nickname === p.nickname),
+			);
+		} catch (error: any) {
+			toastStore.trigger({
+				message: `${error.message} 다시 시도해주세요.`,
+				background: 'variant-filled-warning',
+				hideDismiss: true,
+				timeout: 2000,
+			})
+		}
 	});
 
 	function toggleAdminSwitch() {
