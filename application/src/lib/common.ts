@@ -65,7 +65,7 @@ export async function loadPage(routeParam: number) {
 
 export async function block(blockeeId: number) {
 	const blocked = await postRequestApi(BaseUrl.BLOCKED, {
-		blockeeId: -1,
+		blockeeId: blockeeId,
 	});
 	addBlockee(blocked.blockee);
 	if (blocked.channelId) removeDirect(blocked.channelId);

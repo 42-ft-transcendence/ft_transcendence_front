@@ -1,4 +1,8 @@
 import { getCookie, JWT_DB_KEY } from './common';
+function getErrorMessage(messages: Array<string>)
+{
+	return messages.find((msg) => !!msg);
+}
 
 export async function getRequestApi(url: string) {
 	const response = await requestGetDelete('GET', url);
@@ -19,8 +23,10 @@ export async function deleteRequestApi(url: string) {
 export async function postRequestApi(url: string, payload: any) {
 	const response = await requestPostPatch('POST', url, payload);
 	const data = await response.json();
+	// console.log(typeof data.message[0]); string
+	// console.log((data.message).length); ok!
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 
