@@ -33,20 +33,12 @@
 		 * 일반 사용자
 		 * 1. participant 모델에서 JWT 사용자, 현재 채널에 대한 데이터를 제거
 		 */
-		try {
-			const channel = await deleteRequestApi(
-				BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
-			);
-			socket.emit('leave Channel', {channelId:channelId});
-		} catch (error: any) {
-			toastStore.trigger({
-				message: error.message,
-				background: 'variant-filled-warning',
-				hideDismiss: true,
-				timeout: 2000,
-			})
-		}
+		const channel = await deleteRequestApi(
+			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
+		);
+		socket.emit('leave Channel', {channelId:channelId});
 	}
+	
 	let menuItems = [
 		{
 			name: 'leave channel',

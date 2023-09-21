@@ -65,24 +65,15 @@ export async function loadPage(routeParam: number) {
 
 export async function block(blockeeId: number) {
 	const blocked = await postRequestApi(BaseUrl.BLOCKED, {
-		blockeeId: blockeeId,
+		blockeeId: -1,
 	});
 	addBlockee(blocked.blockee);
 	if (blocked.channelId) removeDirect(blocked.channelId);
 }
 
 export async function unblock(blockeeId: number) {
-	try {
-		const blockee = await deleteRequestApi(BaseUrl.BLOCKED + `${blockeeId}`);
-		removeBlockee(blockee.blockee);
-	} catch (error: any) {
-		toastStore.trigger({
-			message: error.message,
-			background: 'variant-filled-warning',
-			hideDismiss: true,
-			timeout: 2000,
-		})
-	}
+	const blockee = await deleteRequestApi(BaseUrl.BLOCKED + `${blockeeId}`);
+	removeBlockee(blockee.blockee);
 }
 
 export function isblocked(userId: number) {
@@ -94,7 +85,7 @@ export async function sendMessage(userId: number, userName: string) {
 		interlocatorId: userId,
 		interlocatorName: userName,
 	});
-	newDirect.userId = userId;
+	// newDirect.userId = userId;
 	addNewDirect(newDirect);
 	socket.emit('join DMChannel', newDirect);
 	loadPage(newDirect.id);
@@ -114,17 +105,8 @@ export async function follow(followeeId: number) {
 }
 
 export async function unfollow(followeeId: number) {
-	try {
-		const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
-		removeFollowee(followee.followee);
-	} catch (error: any) {
-		toastStore.trigger({
-			message: error.message,
-			background: 'variant-filled-warning',
-			hideDismiss: true,
-			timeout: 2000,
-		})
-	}
+	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
+	removeFollowee(followee.followee);
 }
 
 export const channelIcon: { [index: string]: string } = {

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { TabGroup, Tab, modalStore, toastStore } from '@skeletonlabs/skeleton';
+	import {
+		TabGroup,
+		Tab,
+		modalStore,
+		toastStore,
+	} from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl, block, socket, showProfile } from '$lib/common';
 	import {
@@ -66,25 +71,16 @@
 
 	onMount(async () => {
 		adminSwitch = localStorage.getItem('adminSwitch') === 'true';
-		try {
-			content = await getRequestApi(
-				BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`,
-			);
-			participants = content.participants.map((p) => p.user);
-			administrators = content.administrators.map((a) => a.user);
-			banned = content.bans.map((b) => b.user);
-	
-			normalParticipants = participants.filter(
-				(p) => !administrators.some((a) => a.nickname === p.nickname),
-			);
-		} catch (error: any) {
-			toastStore.trigger({
-				message: `${error.message} 다시 시도해주세요.`,
-				background: 'variant-filled-warning',
-				hideDismiss: true,
-				timeout: 2000,
-			})
-		}
+		content = await getRequestApi(
+			BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`,
+		);
+		participants = content.participants.map((p) => p.user);
+		administrators = content.administrators.map((a) => a.user);
+		banned = content.bans.map((b) => b.user);
+
+		normalParticipants = participants.filter(
+			(p) => !administrators.some((a) => a.nickname === p.nickname),
+		);
 	});
 
 	function toggleAdminSwitch() {
