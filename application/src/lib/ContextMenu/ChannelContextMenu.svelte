@@ -2,6 +2,7 @@
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
 	import { BaseUrl, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
+	import { toastStore } from '@skeletonlabs/skeleton';
 
 	export let pointerEvent: MouseEvent;
 
@@ -32,10 +33,19 @@
 		 * 일반 사용자
 		 * 1. participant 모델에서 JWT 사용자, 현재 채널에 대한 데이터를 제거
 		 */
-		const channel = await deleteRequestApi(
-			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
-		);
-		socket.emit('leave Channel', {channelId:channelId});
+		try {
+			const channel = await deleteRequestApi(
+				BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
+			);
+			socket.emit('leave Channel', {channelId:channelId});
+		} catch (error: any) {
+			toastStore.trigger({
+				message: error.message,
+				background: 'variant-filled-warning',
+				hideDismiss: true,
+				timeout: 2000,
+			})
+		}
 	}
 	let menuItems = [
 		{

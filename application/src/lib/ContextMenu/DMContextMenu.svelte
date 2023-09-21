@@ -4,6 +4,7 @@
 	import { BaseUrl, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
 	import { activateProfile, removeChannel, removeDirect } from '$lib/store';
+	import { toastStore } from '@skeletonlabs/skeleton';
 
 	export let pointerEvent: MouseEvent;
 	let userId: number; //TODO: 안쓰면 지우기
@@ -22,10 +23,19 @@
 	}
 
 	async function leaveDM() {
-		const channel = await deleteRequestApi(
-			BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
-		);
-		socket.emit('leave DMChannel', {channelId:channelId})
+		try {
+			const channel = await deleteRequestApi(
+				BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
+			);
+			socket.emit('leave DMChannel', {channelId:channelId})
+		} catch (error: any) {
+			toastStore.trigger({
+				message: error.message,
+				background: 'variant-filled-warning',
+				hideDismiss: true,
+				timeout: 2000,
+			})
+		}
 	}
 
 	let menuItems = [

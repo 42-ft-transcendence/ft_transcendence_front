@@ -12,7 +12,7 @@ import {
 	removeDirect,
 	removeFollowee,
 } from './store';
-import { modalStore } from '@skeletonlabs/skeleton';
+import { modalStore, toastStore } from '@skeletonlabs/skeleton';
 
 export const JWT_DB_KEY = 'JWTDatabase';
 export const JWT_OAUTH_KEY = 'JWTOAuth';
@@ -72,8 +72,17 @@ export async function block(blockeeId: number) {
 }
 
 export async function unblock(blockeeId: number) {
-	const blockee = await deleteRequestApi(BaseUrl.BLOCKED + `${blockeeId}`);
-	removeBlockee(blockee.blockee);
+	try {
+		const blockee = await deleteRequestApi(BaseUrl.BLOCKED + `${blockeeId}`);
+		removeBlockee(blockee.blockee);
+	} catch (error: any) {
+		toastStore.trigger({
+			message: error.message,
+			background: 'variant-filled-warning',
+			hideDismiss: true,
+			timeout: 2000,
+		})
+	}
 }
 
 export function isblocked(userId: number) {
@@ -105,8 +114,17 @@ export async function follow(followeeId: number) {
 }
 
 export async function unfollow(followeeId: number) {
-	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
-	removeFollowee(followee.followee);
+	try {
+		const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
+		removeFollowee(followee.followee);
+	} catch (error: any) {
+		toastStore.trigger({
+			message: error.message,
+			background: 'variant-filled-warning',
+			hideDismiss: true,
+			timeout: 2000,
+		})
+	}
 }
 
 export const channelIcon: { [index: string]: string } = {
