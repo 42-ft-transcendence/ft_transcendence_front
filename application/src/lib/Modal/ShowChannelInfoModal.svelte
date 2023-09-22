@@ -3,22 +3,19 @@
 		TabGroup,
 		Tab,
 		modalStore,
-		toastStore,
 	} from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl, block, socket, showProfile } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
-		patchRequestAuthApi,
 		postRequestAuthApi,
 	} from '$lib/fetch';
 	import { onMount } from 'svelte';
-	import { activateProfile, blockeeStore, userIdStore } from '$lib/store';
+	import { blockeeStore, userIdStore } from '$lib/store';
 	import { ChannelType } from '$lib/type';
 	import { goto } from '$app/navigation';
-	import type { HttpError } from '@sveltejs/kit';
-
+	
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
 	type User = {
@@ -94,6 +91,7 @@
 			channelId: parseInt($modalStore[0].meta.id),
 		};
 		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /ban으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
+		//TODO: socket.io로 밴 처리하기
 		const user = await postRequestAuthApi(BaseUrl.BANNED, payload, payload); //TODO: 여기선 가드를 위한 사용자 정의 헤더도 중복이 되나?
 		participants = participants.filter((p) => p.id !== user.id);
 		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);

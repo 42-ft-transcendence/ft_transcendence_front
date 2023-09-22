@@ -2,7 +2,6 @@
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
 	import { BaseUrl, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
-	import { toastStore } from '@skeletonlabs/skeleton';
 
 	export let pointerEvent: MouseEvent;
 

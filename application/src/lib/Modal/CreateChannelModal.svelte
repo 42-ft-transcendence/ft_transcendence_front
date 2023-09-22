@@ -6,8 +6,8 @@
 		channelIcon,
 		loadPage,
 		socket,
+		printOrRethrow,
 	} from '$lib/common';
-	import { addNewChannel } from '$lib/store';
 	import { postRequestApi } from '$lib/fetch';
 
 	// Props
@@ -23,14 +23,18 @@
 	//TODO: 409 conflict error handling
 	async function onFormSubmit() {
 		//TODO check channel is a unique name?
-		const newChannel = await postRequestApi(BaseUrl.CHANNELS, formData);
-		const dateChannel = JSON.parse(
-			JSON.stringify(newChannel),
-			dateReviver,
-		);
-		modalStore.close();
-		socket.emit('join Channel', dateChannel);
-		loadPage(dateChannel.id);
+		try {
+			const newChannel = await postRequestApi(BaseUrl.CHANNELS, formData);
+			const dateChannel = JSON.parse(
+				JSON.stringify(newChannel),
+				dateReviver,
+			);
+			modalStore.close();
+			socket.emit('join Channel', dateChannel);
+			loadPage(dateChannel.id);
+		} catch (error: any) {
+			printOrRethrow(error);
+		}
 	}
 
 	const channelTypes = [

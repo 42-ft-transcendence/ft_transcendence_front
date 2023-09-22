@@ -1,14 +1,21 @@
 import { getCookie, JWT_DB_KEY } from './common';
-function getErrorMessage(messages: Array<string>)
+
+function getErrorMessage(messages: any)
 {
-	return messages.find((msg) => !!msg);
+	if (typeof messages === 'object') {
+		return (messages as Array<string>).find(e => !!e);
+	} else if (typeof messages === 'string') {
+		if (!messages) messages = undefined;
+		return messages;
+	}
+	return undefined;
 }
 
 export async function getRequestApi(url: string) {
 	const response = await requestGetDelete('GET', url);
 	const data = await response.json();
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 
@@ -16,7 +23,7 @@ export async function deleteRequestApi(url: string) {
 	const response = await requestGetDelete('DELETE', url);
 	const data = await response.json();
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 
@@ -34,7 +41,7 @@ export async function patchRequestApi(url: string, payload: any) {
 	const response = await requestPostPatch('PATCH', url, payload);
 	const data = await response.json();
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 
@@ -46,7 +53,7 @@ export async function postRequestAuthApi(
 	const response = await requestPostPatchAuth('POST', url, payload, targetInfo);
 	const data = await response.json();
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 
@@ -63,7 +70,7 @@ export async function patchRequestAuthApi(
 	);
 	const data = await response.json();
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 
@@ -71,7 +78,7 @@ export async function deleteRequestAuthApi(url: string, targetInfo: any) {
 	const response = await requestGetDeleteAuth('DELETE', url, targetInfo);
 	const data = await response.json();
 	if (!response.ok)
-		throw new Error(data.message);
+		throw new Error(getErrorMessage(data.message));
 	return data;
 }
 

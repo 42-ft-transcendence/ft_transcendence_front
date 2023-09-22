@@ -109,6 +109,19 @@ export async function unfollow(followeeId: number) {
 	removeFollowee(followee.followee);
 }
 
+export function printOrRethrow(error: any) {
+	if (error.message) {
+		toastStore.trigger({
+			message: error.message,
+			background: 'variant-filled-warning',
+			hideDismiss: true,
+			timeout: 2000,
+		});
+	} else {
+		throw error;
+	}
+}
+
 export const channelIcon: { [index: string]: string } = {
 	PUBLIC: 'fa fa-users',
 	PRIVATE: 'fa fa-user-secret',

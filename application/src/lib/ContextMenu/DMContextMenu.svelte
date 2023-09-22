@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl, socket } from '$lib/common';
+	import { BaseUrl, printOrRethrow, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
-	import { activateProfile, removeChannel, removeDirect } from '$lib/store';
-	import { toastStore } from '@skeletonlabs/skeleton';
+	import { activateProfile } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
 	let userId: number; //TODO: 안쓰면 지우기
@@ -29,12 +27,7 @@
 			);
 			socket.emit('leave DMChannel', {channelId:channelId})
 		} catch (error: any) {
-			toastStore.trigger({
-				message: error.message,
-				background: 'variant-filled-warning',
-				hideDismiss: true,
-				timeout: 2000,
-			})
+			printOrRethrow(error);
 		}
 	}
 

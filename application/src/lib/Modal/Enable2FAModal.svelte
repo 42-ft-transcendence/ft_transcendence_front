@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { modalStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl } from '$lib/common';
+	import { modalStore, toastStore } from '@skeletonlabs/skeleton';
+	import { BaseUrl, printOrRethrow } from '$lib/common';
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
 	import { postRequestApi } from '$lib/fetch';
 	import { twoFactorAuthStore } from '$lib/store';
+	import { goto } from '$app/navigation';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -21,19 +22,26 @@
 			.then((url: string) => {
 				qrURL = url;
 			})
-			.catch((err: any) => {
-				//TODO: svelte notification과 같은 기능으로 사용자에게 오류 내용을 알리기
-				console.error(err);
+			.catch(() => {
+				toastStore.trigger({
+					message: 'QR Code 생성에 실패했습니다. 다시 시도해주세요.',
+					background: 'variant-filled-warning',
+					hideDismiss: true,
+					timeout: 2000,
+				});
 			});
 	});
 
 	async function enable2FA() {
-		const response = await postRequestApi(
-			BaseUrl.AUTH + 'otp/enable',
-			{ otpCode: codeInput },
-		);
-		twoFactorAuthStore.update((store) => true);
-		modalStore.close();
+		try {
+			await postRequestApi(
+				BaseUrl.AUTH + 'otp/enable', { otpCode: codeInput },
+			);
+			twoFactorAuthStore.update(() => true);
+			modalStore.close();
+		} catch (error: any) {
+			printOrRethrow(error);
+		}
 	}
 </script>
 
