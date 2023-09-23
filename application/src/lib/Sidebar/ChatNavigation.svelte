@@ -26,13 +26,8 @@
 
 	export let data: any;
 
-	let userChannels: LeftSideBarChannel[];
 	$: userDirects = subscribeDirectUsers();
 	$: userFollowees = subscribeFolloweeUsers();
-
-	channelUserInStore.subscribe(() => {
-		userChannels = get(channelUserInStore);
-	});
 
 	socket.on('change followeeState', (payload) => {
 		changeUserState(userDirects, payload);
@@ -135,7 +130,7 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each userChannels as { id, href, type, name }}
+					{#each $channelUserInStore as { id, href, type, name }}
 						<li on:contextmenu|preventDefault="{handleRightClickedChannel}">
 							<a
 								href="{href}"
