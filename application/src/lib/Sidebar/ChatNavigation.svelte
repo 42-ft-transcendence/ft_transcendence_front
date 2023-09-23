@@ -165,10 +165,10 @@
 				<ul>
 					{#each userFollowees as followee}
 						<li on:contextmenu|preventDefault="{handleFollowRightClick}">
-							<a
+							<div class="list-option"
 								data-user-id="{followee.id}"
 								data-user-name="{followee.nickname}"
-								>//TODO: a태그?
+								>
 								<div
 									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
 									<Avatar
@@ -178,7 +178,7 @@
 									<div class="ml-2 no-pointer-event">{followee.nickname}</div>
 									<div class="{classOnline} no-pointer-event"></div>
 								</div>
-							</a>
+							</div>
 						</li>
 					{/each}
 				</ul>
