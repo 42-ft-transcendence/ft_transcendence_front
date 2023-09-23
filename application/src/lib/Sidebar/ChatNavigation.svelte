@@ -8,7 +8,7 @@
 	import type { ComponentType } from 'svelte';
 	import { TreeView, TreeViewItem } from '@skeletonlabs/skeleton';
 	import { page } from '$app/stores';
-	import { channelIcon } from '$lib/common';
+	import { channelIcon, socket } from '$lib/common';
 	import StartDirectMessage from '$lib/Modal/StartDirectMessage.svelte';
 	import {
 		channelUserInStore,
@@ -27,20 +27,50 @@
 	export let data: any;
 
 	let userChannels: LeftSideBarChannel[];
-	let userDirects: LeftSideBarDirect[];
-	let userFollowees: UserProfile[];
+	$: userDirects = subscribeDirectUsers();
+	$: userFollowees = subscribeFolloweeUsers();
 
 	channelUserInStore.subscribe(() => {
 		userChannels = get(channelUserInStore);
 	});
 
-	directUserInStore.subscribe(() => {
-		userDirects = get(directUserInStore);
+	socket.on('change followeeState', (payload) => {
+		changeUserState(userDirects, payload);
+		changeUserState(userFollowees, payload);
+		userDirects = userDirects;
+		userFollowees = userFollowees;
 	});
 
-	followeeStore.subscribe(() => {
-		userFollowees = get(followeeStore);
-	});
+	function changeUserState(users: any[], changedUser: {userId: number, state:boolean}){
+		for (let user of users) {
+			if (user.userId === changedUser.userId){
+				user.state = changedUser.state;
+				break;
+			}
+		}
+	}
+
+	function subscribeDirectUsers() {
+		const result = [];
+		for(let user of $directUserInStore) {
+			result.push({ ...user, state: false});
+			socket.emit('subscribe userState', { targetId: user.userId });
+		}
+		return result;
+	};
+
+	function subscribeFolloweeUsers() {
+		const result = [];
+		for (let user of $followeeStore) {
+			result.push({
+				userId: user.id,
+				nickname: user.nickname,
+				avatar: user.avatar,
+				state: false
+			})
+		}
+		return result;
+	}
 
 	const classOnline =
 		'w-1.5 h-1.5 bg-success-500 relative top-2.5 rounded-full';
@@ -133,7 +163,7 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each userDirects as { href, userId, avatar, userName, channelId }}
+					{#each userDirects as { href, userId, avatar, userName, channelId, state}}
 						<li on:contextmenu|preventDefault="{handleRightClickedDM}">
 							<a
 								href="{href}"
@@ -144,7 +174,7 @@
 									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
 									<Avatar src="{avatar}" width="w-6" rounded="rounded-md" />
 									<div class="ml-2 no-pointer-event">{userName}</div>
-									<div class="{classOnline} no-pointer-event"></div>
+									<div class="{state ? classOnline : classOffline} no-pointer-event"></div>
 								</div>
 							</a>
 						</li>
@@ -163,20 +193,20 @@
 		<svelte:fragment slot="children">
 			<nav class="list-nav pr-2 pt-2">
 				<ul>
-					{#each userFollowees as followee}
+					{#each userFollowees as { userId, nickname, avatar, state}}
 						<li on:contextmenu|preventDefault="{handleFollowRightClick}">
 							<div class="list-option"
-								data-user-id="{followee.id}"
-								data-user-name="{followee.nickname}"
+								data-user-id="{userId}"
+								data-user-name="{nickname}"
 								>
 								<div
 									class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
 									<Avatar
-										src="{followee.avatar}"
+										src="{avatar}"
 										width="w-6"
 										rounded="rounded-md" />
-									<div class="ml-2 no-pointer-event">{followee.nickname}</div>
-									<div class="{classOnline} no-pointer-event"></div>
+									<div class="ml-2 no-pointer-event">{nickname}</div>
+									<div class="{state ? classOnline : classOffline} no-pointer-event"></div>
 								</div>
 							</div>
 						</li>
