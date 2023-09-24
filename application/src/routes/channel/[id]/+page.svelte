@@ -178,7 +178,7 @@
 				<div class="font-bold text-lg">{channelData.name}</div>
 			</div>
 			<button
-				class="p-2 rounded-md hover:bg-surface-200-700-token"
+				class="p-2 rounded-md hover:bg-surface-200-700-token {channelData.type === ChannelType.ONETOONE ? "invisible":""}"
 				on:click="{showChannelInfo}">
 				<div>
 					<i class="fa fa-user" aria-hidden="true"></i>{channelData._count
