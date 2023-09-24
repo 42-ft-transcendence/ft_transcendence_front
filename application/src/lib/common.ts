@@ -106,7 +106,7 @@ export async function follow(followeeId: number) {
 
 export async function unfollow(followeeId: number) {
 	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
-	removeFollowee(followee.followee);
+	socket.emit('remove Followee', { followeeId: followeeId })
 }
 
 export const channelIcon: { [index: string]: string } = {

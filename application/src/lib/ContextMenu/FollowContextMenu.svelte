@@ -22,7 +22,7 @@
 
 	async function doUnfollow() {
 		unfollow(userId);
-		await goto('/');
+		// await goto('/'); TODO: 팔로우는 채팅채널이 없기 때문
 	}
 
 	let menuItems = [

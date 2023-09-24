@@ -23,6 +23,7 @@
 		addNewDirect,
 		channelUserInStore,
 		directUserInStore,
+		removeFollowee,
 		userIdStore,
 	} from '$lib/store';
 	import { getCookie, hasCookie, socket } from '$lib/common';
@@ -95,6 +96,10 @@
 
 	socket.on('create Followee', (payload) => {
 		addFollowee(payload);
+	});
+
+	socket.on('remove Followee', (payload) => {
+		removeFollowee(payload);
 	});
 </script>
 
