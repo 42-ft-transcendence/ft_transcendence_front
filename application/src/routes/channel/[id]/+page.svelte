@@ -66,6 +66,10 @@
 		toastStore.trigger(t);
 	});
 
+	socket.on('someone has joined', () => {
+		channelData._count.participants += 1;
+	});
+
 	socket.on('someone has left', () => {
 		channelData._count.participants -= 1;
 	});
