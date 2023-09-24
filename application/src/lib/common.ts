@@ -101,7 +101,7 @@ export async function follow(followeeId: number) {
 	const followee = await postRequestApi(BaseUrl.FOLLOWS, {
 		followeeId: followeeId,
 	});
-	addFollowee(followee.followee);
+	socket.emit('create Followee', followee.followee);
 }
 
 export async function unfollow(followeeId: number) {

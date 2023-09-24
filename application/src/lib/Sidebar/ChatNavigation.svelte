@@ -25,15 +25,14 @@
 	import FollowContextMenu from '$lib/ContextMenu/FollowContextMenu.svelte';
 
 	export let data: any;
-
-	$: userDirects = subscribeDirectUsers();
-	$: userFollowees = subscribeFolloweeUsers();
+	$: userDirects = subscribeDirectUsers($directUserInStore);
+	$: userFollowees = subscribeFolloweeUsers($followeeStore);
 
 	socket.on('change followeeState', (payload) => {
 		changeUserState(userDirects, payload);
 		changeUserState(userFollowees, payload);
-		userDirects = userDirects;
-		userFollowees = userFollowees;
+		userDirects = [...userDirects];
+		userFollowees = [...userFollowees];
 	});
 
 	function changeUserState(users: any[], changedUser: {userId: number, state:boolean}){
@@ -44,25 +43,26 @@
 			}
 		}
 	}
-
-	function subscribeDirectUsers() {
+	
+	function subscribeDirectUsers(users: LeftSideBarDirect[]) {
 		const result = [];
-		for(let user of $directUserInStore) {
+		for(let user of users) {
 			result.push({ ...user, state: false});
 			socket.emit('subscribe userState', { targetId: user.userId });
 		}
 		return result;
 	};
 
-	function subscribeFolloweeUsers() {
+	function subscribeFolloweeUsers(users: UserProfile[]) {
 		const result = [];
-		for (let user of $followeeStore) {
+		for (let user of users) {
 			result.push({
 				userId: user.id,
 				nickname: user.nickname,
 				avatar: user.avatar,
 				state: false
 			})
+			socket.emit('subscribe userState', { targetId: user.id });
 		}
 		return result;
 	}

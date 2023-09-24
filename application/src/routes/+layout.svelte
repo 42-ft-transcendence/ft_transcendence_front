@@ -18,6 +18,7 @@
 	import { Modal } from '@skeletonlabs/skeleton';
 	import {
 		activateProfile,
+		addFollowee,
 		addNewChannel,
 		addNewDirect,
 		channelUserInStore,
@@ -90,6 +91,10 @@
 		);
 		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
 		await goto('/');
+	});
+
+	socket.on('create Followee', (payload) => {
+		addFollowee(payload);
 	});
 </script>
 
