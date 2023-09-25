@@ -51,7 +51,7 @@
 			});
 			modalStore.close();
 			const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
-			socket.emit('join Channel', dateChannel);
+			socket.emit('create Channel', dateChannel);
 			loadPage(dateChannel.id);
 		} catch (error: any) {
 			printOrRethrow(error);
@@ -66,7 +66,7 @@
 			});
 			const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
 			modalStore.close();
-			socket.emit('join Channel', dateChannel);
+			socket.emit('create Channel', dateChannel);
 			loadPage(dateChannel.id);
 		} catch (error: any) {
 			formData.password = undefined;

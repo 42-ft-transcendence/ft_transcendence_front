@@ -12,11 +12,16 @@
 	import { blockeeStore, userIdStore } from '$lib/store';
 	import { socket } from '$lib/common.js';
 	import { page } from '$app/stores';
+	import { ChannelType } from '$lib/type.js';
 
 	export let data;
 	console.log(data); //TODO: remove
 
 	$: channelData = data.channelData;
+	$: {
+		$page.url;
+		scrollChatBottom('auto');
+	}
 
 	let currentMessage: string = '';
 
@@ -41,10 +46,12 @@
 	})
 
 	socket.on('new Message', (newMessage) => {
-		if (newMessage.senderId == $userIdStore) // TODO: isMine 수정으로 인해 머지할 때 삭제
-			newMessage.isMine = true;
 		newMessage.createdAt = new Date(newMessage.createdAt);
 		channelData.messages = [...channelData.messages, newMessage];
+		// Smoothly scroll to the bottom of the feed
+		setTimeout(() => {
+			scrollChatBottom('smooth');
+		}, 0);
 	});
 
 	socket.on('mute User', (payload) => {
@@ -59,6 +66,10 @@
 		toastStore.trigger(t);
 	});
 
+	socket.on('someone has joined', () => {
+		channelData._count.participants += 1;
+	});
+
 	socket.on('someone has left', () => {
 		channelData._count.participants -= 1;
 	});
@@ -66,6 +77,9 @@
 	onMount(() => {
 		elemPage = document.querySelector('#page');
 		elemChat = document.querySelector('.chat');
+		setTimeout(() => {
+			scrollChatBottom('auto');
+		}, 0);
 	});
 
 	function addMessage(): void {
@@ -75,24 +89,23 @@
 			channelId: Number($page.params.id),
 			senderId: $userIdStore,
 		};
-		socket.emit('new Message', newMessage, (cb:any)=>{
-			if (cb.errorMessage){
-				const t: ToastSettings = {
-					message: cb.errorMessage,
-					background: 'variant-filled-warning',
-					hideDismiss: true,
-					timeout: 5000,
+		if (data.channelData.type === ChannelType.ONETOONE)
+			socket.emit('new Direct Message', newMessage);
+		else
+			socket.emit('new Message', newMessage, (cb:any)=>{
+				if (cb.errorMessage){
+					const t: ToastSettings = {
+						message: cb.errorMessage,
+						background: 'variant-filled-warning',
+						hideDismiss: true,
+						timeout: 5000,
+					}
+					toastStore.trigger(t);
 				}
-				toastStore.trigger(t);
-			}
-		});
+			});
 		// Clear the textarea message and dataFlag
 		currentMessage = '';
 		dateFlag = [-1, -1, -1];
-		// Smoothly scroll to the bottom of the feed
-		setTimeout(() => {
-			scrollChatBottom('smooth');
-		}, 0);
 	}
 
 	function scrollChatBottom(behavior?: ScrollBehavior): void {
@@ -169,7 +182,7 @@
 				<div class="font-bold text-lg">{channelData.name}</div>
 			</div>
 			<button
-				class="p-2 rounded-md hover:bg-surface-200-700-token"
+				class="p-2 rounded-md hover:bg-surface-200-700-token {channelData.type === ChannelType.ONETOONE ? "invisible":""}"
 				on:click="{showChannelInfo}">
 				<div>
 					<i class="fa fa-user" aria-hidden="true"></i>{channelData._count

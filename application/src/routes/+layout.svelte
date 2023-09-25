@@ -18,10 +18,12 @@
 	import { Modal } from '@skeletonlabs/skeleton';
 	import {
 		activateProfile,
+		addFollowee,
 		addNewChannel,
 		addNewDirect,
 		channelUserInStore,
 		directUserInStore,
+		removeFollowee,
 		userIdStore,
 	} from '$lib/store';
 	import { getCookie, hasCookie, socket } from '$lib/common';
@@ -41,12 +43,10 @@
 			socket.emit('leave Room', preChanRoom);
 		}
 		preChanRoom = $page.url.pathname;
-		if (
-			$page.url.pathname.includes('/channel') ||
-			$page.url.pathname.includes('/game')
-		) {
+		if ($page.url.pathname.includes('/channel'))
+			socket.emit('join Channel', {channelId: $page.params.id});
+		else if ($page.url.pathname.includes('/game'))
 			socket.emit('join Room', $page.url.pathname);
-		}
 	}
 	//TODO: 인자가 -1이면 사용자 자기 자신의 프로필을 불러오도록 구현했었지만, 현재 사용자가 로그인할 시 현재 사용자의 id를 스토어에 저장해 활용할 것이므로, 이를 활용하도록 하자.
 
@@ -70,11 +70,11 @@
 		await goto('/');
 	});
 
-	socket.on('join Channel', (payload) => {
+	socket.on('create Channel', (payload) => {
 		addNewChannel(payload);
 	});
 
-	socket.on('leave Channel', async (payload) => {
+	socket.on('remove Channel', async (payload) => {
 		$channelUserInStore = $channelUserInStore.filter(
 			(channel) => channel.id !== payload.channelId,
 		);
@@ -82,16 +82,24 @@
 		await goto('/');
 	});
 
-	socket.on('join DMChannel', (payload) => {
+	socket.on('create DMChannel', (payload) => {
 		addNewDirect(payload);
 	});
 
-	socket.on('leave DMChannel', async (payload) => {
+	socket.on('remove DMChannel', async (payload) => {
 		$directUserInStore = $directUserInStore.filter(
 			(DMChannel) => DMChannel.channelId !== payload.channelId,
 		);
 		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
 		await goto('/');
+	});
+
+	socket.on('create Followee', (payload) => {
+		addFollowee(payload);
+	});
+
+	socket.on('remove Followee', (payload) => {
+		removeFollowee(payload);
 	});
 </script>
 

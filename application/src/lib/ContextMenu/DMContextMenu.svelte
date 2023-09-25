@@ -25,7 +25,7 @@
 			const channel = await deleteRequestApi(
 				BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
 			);
-			socket.emit('leave DMChannel', {channelId:channelId})
+			socket.emit('remove DMChannel', {channelId:channelId})
 		} catch (error: any) {
 			printOrRethrow(error);
 		}
