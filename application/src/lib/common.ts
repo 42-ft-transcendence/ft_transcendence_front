@@ -81,15 +81,19 @@ export function isblocked(userId: number) {
 }
 
 export async function sendMessage(userId: number, userName: string) {
-	const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
-		interlocatorId: userId,
-		interlocatorName: userName,
-	});
-	// newDirect.userId = userId;
-	addNewDirect(newDirect);
-	socket.emit('create DMChannel', newDirect);
-	loadPage(newDirect.id);
-	//TOOD: close modal
+	try {
+		const newDirect = await postRequestApi(BaseUrl.CHANNELS + 'directChannel', {
+			interlocatorId: userId,
+			interlocatorName: userName,
+		});
+		// newDirect.userId = userId;
+		addNewDirect(newDirect);
+		socket.emit('create DMChannel', newDirect);
+		loadPage(newDirect.id);
+		//TOOD: close modal
+	} catch (error: any) {
+		printOrRethrow(error);
+	}
 }
 
 export function showProfile(id: number): void {

@@ -104,7 +104,7 @@
 </script>
 
 <Modal />
-<Toast />
+<Toast zIndex="z-[999]" />
 <AppShell>
 	<svelte:fragment slot="header">
 		<AppBar>
