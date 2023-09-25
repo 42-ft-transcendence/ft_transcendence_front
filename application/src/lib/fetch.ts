@@ -1,19 +1,48 @@
 import { getCookie, JWT_DB_KEY } from './common';
 
+function getErrorMessage(messages: any)
+{
+	if (typeof messages === 'object') {
+		return (messages as Array<string>).find(e => !!e);
+	} else if (typeof messages === 'string') {
+		if (!messages) messages = undefined;
+		return messages;
+	}
+	return undefined;
+}
+
 export async function getRequestApi(url: string) {
-	return await requestGetDelete('GET', url);
+	const response = await requestGetDelete('GET', url);
+	const data = await response.json();
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 export async function deleteRequestApi(url: string) {
-	return await requestGetDelete('DELETE', url);
+	const response = await requestGetDelete('DELETE', url);
+	const data = await response.json();
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 export async function postRequestApi(url: string, payload: any) {
-	return await requestPostPatch('POST', url, payload);
+	const response = await requestPostPatch('POST', url, payload);
+	const data = await response.json();
+	// console.log(typeof data.message[0]); string
+	// console.log((data.message).length); ok!
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 export async function patchRequestApi(url: string, payload: any) {
-	return await requestPostPatch('PATCH', url, payload);
+	const response = await requestPostPatch('PATCH', url, payload);
+	const data = await response.json();
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 export async function postRequestAuthApi(
@@ -21,7 +50,11 @@ export async function postRequestAuthApi(
 	payload: any,
 	targetInfo: any,
 ) {
-	return await requestPostPatchAuth('POST', url, payload, targetInfo);
+	const response = await requestPostPatchAuth('POST', url, payload, targetInfo);
+	const data = await response.json();
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 export async function patchRequestAuthApi(
@@ -29,32 +62,51 @@ export async function patchRequestAuthApi(
 	payload: any,
 	targetInfo: any,
 ) {
-	return await requestPostPatchAuth('PATCH', url, payload, targetInfo);
+	const response = await requestPostPatchAuth(
+		'PATCH',
+		url,
+		payload,
+		targetInfo,
+	);
+	const data = await response.json();
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 export async function deleteRequestAuthApi(url: string, targetInfo: any) {
-	return await requestGetDeleteAuth('DELETE', url, targetInfo);
+	const response = await requestGetDeleteAuth('DELETE', url, targetInfo);
+	const data = await response.json();
+	if (!response.ok)
+		throw new Error(getErrorMessage(data.message));
+	return data;
 }
 
 async function requestGetDelete(method: string, url: string) {
-	const response = await fetch(url, {
-		method: method,
-		headers: { Authorization: `Bearer ${getCookie(JWT_DB_KEY)}` },
-	});
-	return await response.json();
+	try {
+		return await fetch(url, {
+			method: method,
+			headers: { Authorization: `Bearer ${getCookie(JWT_DB_KEY)}` },
+		});
+	} catch (error) {
+		throw new Error('네트워크 문제로 인해 요청을 처리하지 못했습니다.');
+	}
 }
 
 async function requestPostPatch(method: string, url: string, payload: any) {
-	const response = await fetch(url, {
-		method: method,
-		mode: 'same-origin',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
-		},
-		body: JSON.stringify(payload),
-	});
-	return await response.json();
+	try {
+		return await fetch(url, {
+			method: method,
+			mode: 'same-origin',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
+			},
+			body: JSON.stringify(payload),
+		});
+	} catch (error) {
+		throw new Error('네트워크 문제로 인해 요청을 처리하지 못했습니다.');
+	}
 }
 
 async function requestGetDeleteAuth(
@@ -62,15 +114,18 @@ async function requestGetDeleteAuth(
 	url: string,
 	targetInfo: any,
 ) {
-	const response = await fetch(url, {
-		method: method,
-		headers: {
-			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
-			'Transcendence-Authorization-Channel-Id': `${targetInfo.channelId}`,
-			'Transcendence-Authorization-User-Id': `${targetInfo.userId}`,
-		},
-	});
-	return await response.json();
+	try {
+		return await fetch(url, {
+			method: method,
+			headers: {
+				Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
+				'Transcendence-Authorization-Channel-Id': `${targetInfo.channelId}`,
+				'Transcendence-Authorization-User-Id': `${targetInfo.userId}`,
+			},
+		});
+	} catch (error) {
+		throw new Error('네트워크 문제로 인해 요청을 처리하지 못했습니다.');
+	}
 }
 
 async function requestPostPatchAuth(
@@ -79,16 +134,19 @@ async function requestPostPatchAuth(
 	payload: any,
 	targetInfo: any,
 ) {
-	const response = await fetch(url, {
-		method: method,
-		mode: 'same-origin',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
-			'Transcendence-Authorization-Channel-Id': `${targetInfo.channelId}`,
-			'Transcendence-Authorization-User-Id': `${targetInfo.userId}`,
-		},
-		body: JSON.stringify(payload),
-	});
-	return await response.json();
+	try {
+		return await fetch(url, {
+			method: method,
+			mode: 'same-origin',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
+				'Transcendence-Authorization-Channel-Id': `${targetInfo.channelId}`,
+				'Transcendence-Authorization-User-Id': `${targetInfo.userId}`,
+			},
+			body: JSON.stringify(payload),
+		});
+	} catch (error) {
+		throw new Error('네트워크 문제로 인해 요청을 처리하지 못했습니다.');
+	}
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, printOrRethrow } from '$lib/common';
 	import { postRequestApi } from '$lib/fetch';
 	import { twoFactorAuthStore } from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
@@ -14,12 +14,15 @@
 	const cHeader = 'text-2xl font-bold';
 
 	async function disable2FA() {
-		const response = await postRequestApi(
-			BaseUrl.AUTH + 'otp/disable',
-			{ otpCode: codeInput },
-		);
-		twoFactorAuthStore.update((store) => false);
-		modalStore.close();
+		try {
+			await postRequestApi(
+				BaseUrl.AUTH + 'otp/disable', { otpCode: codeInput },
+			);
+			twoFactorAuthStore.update((store) => false);
+			modalStore.close();
+		} catch (error: any) {
+			printOrRethrow(error);
+		}
 	}
 </script>
 

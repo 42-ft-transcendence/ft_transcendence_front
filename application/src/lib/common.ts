@@ -12,7 +12,7 @@ import {
 	removeDirect,
 	removeFollowee,
 } from './store';
-import { modalStore } from '@skeletonlabs/skeleton';
+import { modalStore, toastStore } from '@skeletonlabs/skeleton';
 
 export const JWT_DB_KEY = 'JWTDatabase';
 export const JWT_OAUTH_KEY = 'JWTOAuth';
@@ -85,7 +85,7 @@ export async function sendMessage(userId: number, userName: string) {
 		interlocatorId: userId,
 		interlocatorName: userName,
 	});
-	newDirect.userId = userId;
+	// newDirect.userId = userId;
 	addNewDirect(newDirect);
 	socket.emit('create DMChannel', newDirect);
 	loadPage(newDirect.id);
@@ -107,6 +107,19 @@ export async function follow(followeeId: number) {
 export async function unfollow(followeeId: number) {
 	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
 	socket.emit('remove Followee', { followeeId: followeeId })
+}
+
+export function printOrRethrow(error: any) {
+	if (error.message) {
+		toastStore.trigger({
+			message: error.message,
+			background: 'variant-filled-warning',
+			hideDismiss: true,
+			timeout: 2000,
+		});
+	} else {
+		throw error;
+	}
 }
 
 export const channelIcon: { [index: string]: string } = {

@@ -1,12 +1,11 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl, printOrRethrow, socket } from '$lib/common';
-	import { deleteRequestApi } from '$lib/fetch';
+	import { sendMessage, unblock, unfollow } from '$lib/common';
 	import { activateProfile } from '$lib/store';
 
 	export let pointerEvent: MouseEvent;
-	let userId: number; //TODO: 안쓰면 지우기
-	let channelId: number;
+	let userId: number;
 
 	const contextmenu = new ContextMenu();
 	$: {
@@ -14,36 +13,23 @@
 		contextmenu.pos.x = contextmenu.pos.x;
 		contextmenu.pos.y = contextmenu.pos.y;
 		console.log(pointerEvent.target);
-		if (pointerEvent.target instanceof HTMLElement) {
+		if (pointerEvent.target instanceof HTMLElement)
 			userId = parseInt(pointerEvent.target.dataset.userId as string);
-			channelId = parseInt(pointerEvent.target.dataset.channelId as string);
-		}
-	}
-
-	async function leaveDM() {
-		try {
-			const channel = await deleteRequestApi(
-				BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
-			);
-			socket.emit('remove DMChannel', {channelId:channelId})
-		} catch (error: any) {
-			printOrRethrow(error);
-		}
 	}
 
 	let menuItems = [
+		{
+			name: 'unblock',
+			onClick: () => unblock(userId),
+			displayText: '차단 해제',
+			class: '',
+		},
 		{
 			name: 'see profile',
 			onClick: () => activateProfile(userId),
 			displayText: '프로필 보기',
 			class: '',
-		},
-		{
-			name: 'leave dm',
-			onClick: leaveDM,
-			displayText: '대화 닫기',
-			class: '',
-		},
+		}
 	];
 </script>
 

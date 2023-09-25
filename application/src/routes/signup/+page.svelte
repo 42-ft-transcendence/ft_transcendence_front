@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { BaseUrl, JWT_OAUTH_KEY, getCookie, hasCookie } from '$lib/common';
+	import { page } from '$app/stores';
+	import {
+		BaseUrl,
+		JWT_DB_KEY,
+		JWT_OAUTH_KEY,
+		getCookie,
+		hasCookie,
+	} from '$lib/common';
 	import { Avatar, FileDropzone, toastStore } from '@skeletonlabs/skeleton';
-	import { error } from '@sveltejs/kit';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	interface UserInput {
 		nickname: string;
@@ -15,13 +21,17 @@
 	const regExp = /[, ]/g;
 
 	const userInput: UserInput = { nickname: '', avatar: undefined };
+	let reloadFlag: boolean;
+	// const controller = new AbortController();
 
 	let preview: string | undefined;
 	let elemInput: HTMLInputElement;
 	let files: FileList | undefined;
 
 	onMount(async () => {
+		reloadFlag = true;
 		if (!hasCookie(JWT_OAUTH_KEY)) await goto('/login');
+		else if (hasCookie(JWT_DB_KEY)) await goto('/');
 		else
 			elemInput = document.querySelector('.dropzone-input') as HTMLInputElement; // FileDropzone component안에 dropzone-input 존재 null 안됨.
 	});
@@ -49,6 +59,7 @@
 		payload: any,
 		isDefaultAvatar: boolean,
 	) {
+		reloadFlag = false;
 		let headers: HeadersInit = {
 			Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
 		};
@@ -57,11 +68,14 @@
 			method: 'POST',
 			headers: headers,
 			body: payload,
+			// signal: controller.signal,
 		});
+		reloadFlag = true;
 		if (result.ok) await goto('/');
 		else {
+			const body = await result.json();
 			toastStore.trigger({
-				message: '중복된 닉네임을 사용할 수 없습니다.',
+				message: body.message,
 				background: 'variant-filled-warning',
 				hideDismiss: true,
 				timeout: 2000,
@@ -92,10 +106,21 @@
 				true,
 			);
 	}
+
 	function filterKey(e: Event & { target: HTMLTextAreaElement }): void {
 		userInput.nickname = userInput.nickname.replace(regExp, '');
 	}
 </script>
+
+<svelte:window
+	on:beforeunload="{(event) => {
+		if (!reloadFlag) {
+			event.preventDefault();
+			event.returnValue = '';
+			return '';
+		}
+		// controller.abort();
+	}}" />
 
 <div class="w-full h-full flex items-center justify-center">
 	<div class="card card-hover bg-initial w-3/5">

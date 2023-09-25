@@ -37,6 +37,7 @@
 		);
 		socket.emit('remove Channel', {channelId:channelId});
 	}
+	
 	let menuItems = [
 		{
 			name: 'leave channel',

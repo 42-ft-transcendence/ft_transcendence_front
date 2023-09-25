@@ -5,6 +5,7 @@
 		type ModalSettings,
 		type ModalComponent,
 	} from '@skeletonlabs/skeleton';
+	import type { ComponentType } from 'svelte';
 	import {
 		activateProfile,
 		blockeeStore,
@@ -19,11 +20,15 @@
 	import type { UserProfile } from '$lib/type';
 	import Enable2FaModal from '$lib/Modal/Enable2FAModal.svelte';
 	import Disable2FaModal from '$lib/Modal/Disable2FAModal.svelte';
+	import BlockListContextMenu from '$lib/ContextMenu/BlockListContextMenu.svelte';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
 	let blockList: UserProfile[];
 	let isAuthenticated: boolean;
+
+	let contextMenuComponent: ComponentType | undefined;
+	let pointerEvent: MouseEvent | undefined;
 
 	profileButtonStore.subscribe(() => {
 		sidebarRightBtn = $profileButtonStore;
@@ -62,6 +67,16 @@
 			component: disableTwoFactorAuthModalComponent,
 		};
 		modalStore.trigger(modal);
+	}
+
+	function handleRightClick(e: MouseEvent) {
+		contextMenuComponent = BlockListContextMenu;
+		pointerEvent = e;
+	}
+
+	function onPageClick(e: MouseEvent) {
+		contextMenuComponent = undefined;
+		pointerEvent = undefined;
 	}
 </script>
 
@@ -110,26 +125,16 @@
 					{#if i !== 0}
 						<hr />
 					{/if}
-					<li>
+					<li on:contextmenu|preventDefault="{handleRightClick}">
 						<div
 							class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
-							<div class="flex items-center">
+							<div class="flex items-center" data-user-id="{blockee.id}">
 								<Avatar
+									class="no-pointer-event"
 									src="{blockee.avatar}"
 									width="w-6"
 									rounded="rounded-md" />
-								<div class="ml-2">{blockee.nickname}</div>
-							</div>
-							<div class="flex item-center">
-								<button
-									type="button"
-									class="btn btn-sm variant-filled hidden group-hover:block"
-									on:click="{() => unblock(blockee.id)}">차단 해제</button>
-								<button
-									type="button"
-									class="btn btn-sm variant-filled hidden group-hover:block"
-									on:click="{() => activateProfile(blockee.id)}"
-									>프로필 보기</button>
+								<div class="ml-2 no-pointer-event">{blockee.nickname}</div>
 							</div>
 						</div>
 					</li>
@@ -138,3 +143,9 @@
 		</div>
 	{/if}
 </div>
+{#if contextMenuComponent !== undefined}
+	<svelte:component
+		this="{contextMenuComponent}"
+		pointerEvent="{pointerEvent}" />
+{/if}
+<svelte:window on:click="{onPageClick}" />

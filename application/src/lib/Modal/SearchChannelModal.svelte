@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl, dateReviver, channelIcon, loadPage, socket } from '$lib/common';
-	import { addNewChannel, channelUserInStore } from '$lib/store';
+	import { BaseUrl, dateReviver, channelIcon, loadPage, socket, printOrRethrow } from '$lib/common';
+	import { channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { ChannelType } from '$lib/type';
@@ -42,30 +42,36 @@
 	}
 
 	async function joinChannel(event: MouseEvent | KeyboardEvent) {
-		// TODO fuc joinChannel
 		const button = event.target as HTMLButtonElement;
 		const channelId = parseInt(button.dataset.channelId as string);
 
-		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
-			channelId: channelId,
-		});
-		modalStore.close();
-		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
-		socket.emit('create Channel', dateChannel);
-		loadPage(dateChannel.id);
+		try {
+			const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
+				channelId: channelId,
+			});
+			modalStore.close();
+			const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
+			socket.emit('create Channel', dateChannel);
+			loadPage(dateChannel.id);
+		} catch (error: any) {
+			printOrRethrow(error);
+		}
 	}
 
 	async function joinProtectedChannel(channelId: number) {
-		const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
-			channelId: channelId,
-			channelPassword: formData.password,
-		});
-		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
-		modalStore.close();
-		socket.emit('create Channel', dateChannel);
-		loadPage(dateChannel.id);
-		// 실패시 아래의 코드를 통해 기존에 남아있는 비밀번호 초기화
-		formData.password = undefined;
+		try {
+			const newChannel = await postRequestApi(BaseUrl.PARTICIPANTS, {
+				channelId: channelId,
+				channelPassword: formData.password,
+			});
+			const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
+			modalStore.close();
+			socket.emit('create Channel', dateChannel);
+			loadPage(dateChannel.id);
+		} catch (error: any) {
+			formData.password = undefined;
+			printOrRethrow(error);
+		}
 	}
 
 	function onPromptKeydown(event: KeyboardEvent, channelId: number): void {

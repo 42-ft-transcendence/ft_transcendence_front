@@ -20,11 +20,6 @@
 		}
 	}
 
-	async function doUnfollow() {
-		unfollow(userId);
-		// await goto('/'); TODO: 팔로우는 채팅채널이 없기 때문
-	}
-
 	let menuItems = [
 		{
 			name: 'send message',
@@ -40,7 +35,7 @@
 		},
 		{
 			name: 'unfollow',
-			onClick: doUnfollow,
+			onClick: () => unfollow(userId),
 			displayText: '팔로우 끊기',
 			class: '',
 		},
