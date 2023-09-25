@@ -51,7 +51,7 @@
 		});
 		modalStore.close();
 		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
-		socket.emit('join Channel', dateChannel);
+		socket.emit('create Channel', dateChannel);
 		loadPage(dateChannel.id);
 	}
 
@@ -62,7 +62,7 @@
 		});
 		const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
 		modalStore.close();
-		socket.emit('join Channel', dateChannel);
+		socket.emit('create Channel', dateChannel);
 		loadPage(dateChannel.id);
 		// 실패시 아래의 코드를 통해 기존에 남아있는 비밀번호 초기화
 		formData.password = undefined;

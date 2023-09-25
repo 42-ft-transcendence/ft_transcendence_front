@@ -87,7 +87,7 @@ export async function sendMessage(userId: number, userName: string) {
 	});
 	newDirect.userId = userId;
 	addNewDirect(newDirect);
-	socket.emit('join DMChannel', newDirect);
+	socket.emit('create DMChannel', newDirect);
 	loadPage(newDirect.id);
 	//TOOD: close modal
 }
@@ -101,12 +101,12 @@ export async function follow(followeeId: number) {
 	const followee = await postRequestApi(BaseUrl.FOLLOWS, {
 		followeeId: followeeId,
 	});
-	addFollowee(followee.followee);
+	socket.emit('create Followee', followee.followee);
 }
 
 export async function unfollow(followeeId: number) {
 	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
-	removeFollowee(followee.followee);
+	socket.emit('remove Followee', { followeeId: followeeId })
 }
 
 export const channelIcon: { [index: string]: string } = {

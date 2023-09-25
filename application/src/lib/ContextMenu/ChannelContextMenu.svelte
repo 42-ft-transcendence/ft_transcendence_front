@@ -35,7 +35,7 @@
 		const channel = await deleteRequestApi(
 			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
 		);
-		socket.emit('leave Channel', {channelId:channelId});
+		socket.emit('remove Channel', {channelId:channelId});
 	}
 	let menuItems = [
 		{
