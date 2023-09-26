@@ -44,7 +44,7 @@
 		}
 		preChanRoom = $page.url.pathname;
 		if ($page.url.pathname.includes('/channel'))
-			socket.emit('join Channel', {channelId: $page.params.id});
+			socket.emit('join Channel', { channelId: $page.params.id });
 		else if ($page.url.pathname.includes('/game'))
 			socket.emit('join Room', $page.url.pathname);
 	}
@@ -79,7 +79,7 @@
 			(channel) => channel.id !== payload.channelId,
 		);
 		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
-		await goto('/');
+		await goto('/', { replaceState: true });
 	});
 
 	socket.on('create DMChannel', (payload) => {
@@ -91,7 +91,7 @@
 			(DMChannel) => DMChannel.channelId !== payload.channelId,
 		);
 		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
-		await goto('/');
+		await goto('/', { replaceState: true });
 	});
 
 	socket.on('create Followee', (payload) => {
@@ -101,10 +101,43 @@
 	socket.on('remove Followee', (payload) => {
 		removeFollowee(payload);
 	});
+
+	socket.on('socket Exception', (payload) => {
+		const t: ToastSettings = {
+			message: payload.message,
+			background: 'variant-filled-warning',
+			hideDismiss: true,
+			timeout: 3000,
+		};
+		toastStore.trigger(t);
+	});
+
+	socket.on('show Invitation', (payload, ack) => {
+		let flag = false;
+		const t: ToastSettings = {
+			message: `${payload.userName} 사용자가 ${payload.mapType} 맵 게임을 함께 하길 원합니다!`,
+			timeout: 10000,
+			action: {
+				label: 'Y',
+				response: () => {
+					//게임 초대 수락
+					flag = true;
+					ack({ answer: flag });
+				},
+			},
+			callback: (response: { id: string; status: 'queued' | 'closed' }) => {
+				if (response.status === 'closed' && !flag) {
+					//게임 초대 거부
+					ack({ answer: flag });
+				}
+			},
+		};
+		toastStore.trigger(t);
+	});
 </script>
 
 <Modal />
-<Toast zIndex="z-[999]" />
+<Toast zIndex="z-[999]" buttonAction="btn-icon btn-icon-sm variant-filled" buttonDismissLabel="N" />
 <AppShell>
 	<svelte:fragment slot="header">
 		<AppBar>

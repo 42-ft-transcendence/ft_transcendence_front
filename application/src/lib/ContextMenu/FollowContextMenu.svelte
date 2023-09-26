@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
+	import SelectGameMapModal from '$lib/Modal/SelectGameMapModal.svelte';
 	import { sendMessage, unfollow } from '$lib/common';
 	import { activateProfile } from '$lib/store';
+	import { modalStore, type ModalComponent, type ModalSettings } from '@skeletonlabs/skeleton';
 
 	export let pointerEvent: MouseEvent;
 	let userId: number;
@@ -18,6 +20,21 @@
 			userId = parseInt(pointerEvent.target.dataset.userId as string);
 			userName = pointerEvent.target.dataset.userName as string;
 		}
+	}
+
+	const selectGameMapModalComponent: ModalComponent = {
+		ref: SelectGameMapModal,
+	};
+
+	function selectMap() {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: selectGameMapModalComponent,
+			meta: {
+				opponentId: userId,
+			}
+		};
+		modalStore.trigger(modal);
 	}
 
 	let menuItems = [
@@ -37,6 +54,12 @@
 			name: 'unfollow',
 			onClick: () => unfollow(userId),
 			displayText: '팔로우 끊기',
+			class: '',
+		},
+		{
+			name: 'invite',
+			onClick: selectMap,
+			displayText: '게임 초대하기',
 			class: '',
 		},
 	];
