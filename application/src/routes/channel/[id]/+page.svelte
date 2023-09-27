@@ -220,7 +220,7 @@
 								<small class="opacity-50"
 									>{convertTimeToDateFormat(bubble.createdAt)}</small>
 							</header>
-							<p>{bubble.content}</p>
+							<p class="break-all">{bubble.content}</p>
 						</div>
 						<Avatar src="{bubble.sender.avatar}" width="w-12" />
 					</div>
