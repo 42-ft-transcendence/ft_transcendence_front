@@ -25,10 +25,7 @@
 		//TODO check channel is a unique name?
 		try {
 			const newChannel = await postRequestApi(BaseUrl.CHANNELS, formData);
-			const dateChannel = JSON.parse(
-				JSON.stringify(newChannel),
-				dateReviver,
-			);
+			const dateChannel = JSON.parse(JSON.stringify(newChannel), dateReviver);
 			modalStore.close();
 			socket.emit('create Channel', dateChannel);
 			loadPage(dateChannel.id);
@@ -39,7 +36,7 @@
 
 	const channelTypes = [
 		{ name: 'PUBLIC', description: '사용자 누구나 가입할 수 있음' },
-		{ name: 'PRIVATE', description: '초대를 통해서만 가입할 수 있음' },
+		// { name: 'PRIVATE', description: '초대를 통해서만 가입할 수 있음' },
 		{ name: 'PROTECTED', description: '비밀번호를 통해 가입할 수 있음' },
 	];
 
