@@ -8,7 +8,7 @@
 		getCookie,
 		hasCookie,
 	} from '$lib/common';
-	import { Avatar, FileDropzone, toastStore } from '@skeletonlabs/skeleton';
+	import { Avatar, FileDropzone, ProgressRadial, toastStore } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 
 	interface UserInput {
@@ -70,9 +70,9 @@
 			body: payload,
 			// signal: controller.signal,
 		});
-		reloadFlag = true;
 		if (result.ok) await goto('/', { replaceState: true });
 		else {
+			reloadFlag = true;
 			const body = await result.json();
 			toastStore.trigger({
 				message: body.message,
@@ -127,6 +127,7 @@
 		<header class="card-header">회원가입</header>
 		<section class="p-4 space-y-2 flex flex-col justify-center">
 			<form class="{cForm}">
+				{#if reloadFlag}
 				<div class="label">
 					<span>프로필 이미지</span>
 					<Avatar class="w-3/12 m-auto" src="{preview}" />
@@ -161,8 +162,14 @@
 						</div>
 					{/if}
 				</div>
+				{:else}
+					<div class="flex justify-center items-center">
+					<ProgressRadial ... stroke={50} width="w-3/12"/>
+					</div>
+				{/if}
 			</form>
 		</section>
+		{#if reloadFlag}
 		<footer class="card-footer flex justify-end space-x-2">
 			<button
 				type="button"
@@ -171,5 +178,6 @@
 			<button type="button" class="btn variant-filled" on:click="{handleSubmit}"
 				>변경하기</button>
 		</footer>
+		{/if}
 	</div>
 </div>
