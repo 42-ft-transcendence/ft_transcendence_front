@@ -21,6 +21,7 @@
 	import Enable2FaModal from '$lib/Modal/Enable2FAModal.svelte';
 	import Disable2FaModal from '$lib/Modal/Disable2FAModal.svelte';
 	import BlockListContextMenu from '$lib/ContextMenu/BlockListContextMenu.svelte';
+	import { goto } from '$app/navigation';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
@@ -60,7 +61,7 @@
 	const disableTwoFactorAuthModalComponent: ModalComponent = {
 		ref: Disable2FaModal,
 	};
-	
+
 	async function disableTwoFactorAuth() {
 		const modal: ModalSettings = {
 			type: 'component',
@@ -77,6 +78,11 @@
 	function onPageClick(e: MouseEvent) {
 		contextMenuComponent = undefined;
 		pointerEvent = undefined;
+	}
+
+	async function logout() {
+		await getRequestApi(`${BaseUrl.AUTH}/logout`);
+		await goto('/login', { replaceState: true });
 	}
 </script>
 
@@ -99,6 +105,12 @@
 					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
 					>2FA 해제하기</button>
 			{/if}
+			{#if profile?.id === $userIdStore}
+				<button
+					on:click="{logout}"
+					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
+					>로그아웃</button>
+			{/if}
 		</div>
 		<button
 			class="p-2 rounded-md hover:bg-surface-200-700-token"
@@ -109,7 +121,11 @@
 		<Avatar src="{profile?.avatar}" width="w-44" />
 		<div class="p-2.5 flex justify-around">
 			{#if profile?.id !== $userIdStore}
-				<button type="button" on:click="{async () => await sendMessage(profile?.id, profile?.nickname)}" class="btn variant-filled">DM</button>
+				<button
+					type="button"
+					on:click="{async () =>
+						await sendMessage(profile?.id, profile?.nickname)}"
+					class="btn variant-filled">DM</button>
 				<button type="button" class="btn variant-filled">GAME</button>
 			{/if}
 		</div>
