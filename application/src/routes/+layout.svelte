@@ -34,15 +34,15 @@
 	export let data;
 	$: authenticated = data.authenticated;
 	let sidebarLeftBtn = false;
-	let preChanRoom: string | undefined = undefined; // default '/' ?
+	let preChannelRoom: string | undefined = undefined; // default '/' ?
 	$: {
 		if (
-			(preChanRoom && preChanRoom.includes('/channel')) ||
-			$page.url.pathname.includes('/game')
+			(preChannelRoom && (preChannelRoom.includes('/channel')) ||
+			$page.url.pathname.includes('/game'))
 		) {
-			socket.emit('leave Room', preChanRoom);
+			socket.emit('leave Room', preChannelRoom);
 		}
-		preChanRoom = $page.url.pathname;
+		preChannelRoom = $page.url.pathname;
 		if ($page.url.pathname.includes('/channel'))
 			socket.emit('join Channel', { channelId: $page.params.id });
 		else if ($page.url.pathname.includes('/game'))

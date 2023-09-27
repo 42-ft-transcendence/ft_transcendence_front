@@ -233,7 +233,7 @@
 								<small class="opacity-50"
 									>{convertTimeToDateFormat(bubble.createdAt)}</small>
 							</header>
-							<p>{bubble.content}</p>
+							<p class="break-all">{bubble.content}</p>
 						</div>
 					</div>
 				{/if}
