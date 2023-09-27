@@ -3,6 +3,7 @@
 		TabGroup,
 		Tab,
 		modalStore,
+		toastStore,
 	} from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
 	import { BaseUrl, block, socket, showProfile } from '$lib/common';
@@ -125,7 +126,15 @@
 
 	function mute(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
-		socket.emit('mute User', { channelId: channelId, targetId: userId });
+		socket.emit('mute User', { channelId: channelId, targetId: userId }, (destTime: Date) => {
+			const date = new Date(destTime);
+			toastStore.trigger({
+				message: `${date.getFullYear()}년 ${date.getMonth()}월 ${date.getDay()}일 ${date.getHours()}시 ${date.getMinutes()}분 ${date.getSeconds()}초까지 대상이 음소거 됩니다.`,
+				background: 'variant-filled-warning',
+				hideDismiss: true,
+				timeout: 2000,
+			})
+		});
 		// TODO: 필요한 경우 guard로부터 오는 에러 핸들링
 	}
 
@@ -165,7 +174,7 @@
 		await block(id);
 		if ($modalStore[0].meta.type === ChannelType.ONETOONE) {
 			modalStore.close();
-			await goto('/');
+			await goto('/', { replaceState: true });
 		}
 	}
 	// Base Classes

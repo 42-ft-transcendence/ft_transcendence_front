@@ -67,7 +67,7 @@
 			(channel) => channel.id !== payload.channelId,
 		);
 		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
-		await goto('/');
+		await goto('/', { replaceState: true });
 	});
 
 	socket.on('create Channel', (payload) => {
@@ -78,8 +78,10 @@
 		$channelUserInStore = $channelUserInStore.filter(
 			(channel) => channel.id !== payload.channelId,
 		);
-		if ($page.url.pathname !== '/channel/' + payload.channelId) return;
-		await goto('/', { replaceState: true });
+		if ($page.url.pathname !== '/channel/' + payload.channelId)
+			await goto($page.url.pathname, { replaceState: true })
+		else 
+			await goto('/', { replaceState: true });
 	});
 
 	socket.on('create DMChannel', (payload) => {

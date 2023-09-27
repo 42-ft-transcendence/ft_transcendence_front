@@ -30,8 +30,8 @@
 
 	onMount(async () => {
 		reloadFlag = true;
-		if (!hasCookie(JWT_OAUTH_KEY)) await goto('/login');
-		else if (hasCookie(JWT_DB_KEY)) await goto('/');
+		if (!hasCookie(JWT_OAUTH_KEY)) await goto('/login', { replaceState: true });
+		else if (hasCookie(JWT_DB_KEY)) await goto('/', { replaceState: true });
 		else
 			elemInput = document.querySelector('.dropzone-input') as HTMLInputElement; // FileDropzone component안에 dropzone-input 존재 null 안됨.
 	});
@@ -71,7 +71,7 @@
 			// signal: controller.signal,
 		});
 		reloadFlag = true;
-		if (result.ok) await goto('/');
+		if (result.ok) await goto('/', { replaceState: true });
 		else {
 			const body = await result.json();
 			toastStore.trigger({
@@ -80,7 +80,7 @@
 				hideDismiss: true,
 				timeout: 2000,
 			});
-			await goto('/signup');
+			await goto('/signup', { replaceState: true });
 		}
 	}
 

@@ -24,12 +24,12 @@ export async function load({ url }) {
 	if (['/login', '/signup', '/validate'].includes(url.pathname)) return;
 		
 	// before inserting user data into database
-	if (!hasCookie(JWT_OAUTH_KEY) && !hasCookie(JWT_DB_KEY)) await goto('/login');
-	else if (hasCookie(JWT_OAUTH_KEY)) await goto('/signup');
+	if (!hasCookie(JWT_OAUTH_KEY) && !hasCookie(JWT_DB_KEY)) await goto('/login', { replaceState: true });
+	else if (hasCookie(JWT_OAUTH_KEY)) await goto('/signup', { replaceState: true });
 	else {
 		const { refresh } = await getRequestApi(BaseUrl.USERS + 'twoFactorSetting');
 		// after insertion but not two factor authenticated
-		if (refresh) await goto('/validate');
+		if (refresh) await goto('/validate', { replaceState: true });
 		else {
 			// after insertion and two factor authenticated
 			channelUserInStore.set(
