@@ -37,7 +37,7 @@
 	let preChannelRoom: string | undefined = undefined; // default '/' ?
 	$: {
 		if (
-			(preChannelRoom && (preChannelRoom.includes('/channel')) ||
+			preChannelRoom && ((preChannelRoom.includes('/channel')) ||
 			$page.url.pathname.includes('/game'))
 		) {
 			socket.emit('leave Room', preChannelRoom);
