@@ -37,8 +37,9 @@
 	let preChannelRoom: string | undefined = undefined; // default '/' ?
 	$: {
 		if (
-			preChannelRoom && ((preChannelRoom.includes('/channel')) ||
-			$page.url.pathname.includes('/game'))
+			preChannelRoom &&
+			(preChannelRoom.includes('/channel') ||
+				$page.url.pathname.includes('/game'))
 		) {
 			socket.emit('leave Room', preChannelRoom);
 		}
@@ -79,9 +80,8 @@
 			(channel) => channel.id !== payload.channelId,
 		);
 		if ($page.url.pathname !== '/channel/' + payload.channelId)
-			await goto($page.url.pathname, { replaceState: true })
-		else 
-			await goto('/', { replaceState: true });
+			await goto($page.url.pathname, { replaceState: true });
+		else await goto('/', { replaceState: true });
 	});
 
 	socket.on('create DMChannel', (payload) => {
@@ -138,8 +138,15 @@
 	});
 </script>
 
+<svelte:head>
+	<title>PonGo</title>
+</svelte:head>
+
 <Modal />
-<Toast zIndex="z-[999]" buttonAction="btn-icon btn-icon-sm variant-filled" buttonDismissLabel="N" />
+<Toast
+	zIndex="z-[999]"
+	buttonAction="btn-icon btn-icon-sm variant-filled"
+	buttonDismissLabel="N" />
 <AppShell>
 	<svelte:fragment slot="header">
 		<AppBar>
