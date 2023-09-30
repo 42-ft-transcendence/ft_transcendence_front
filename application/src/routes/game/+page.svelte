@@ -5,7 +5,7 @@
 	import Game from '$lib/Game/Game.svelte';
 	import { socket } from '$lib/common';
 
-	let state:string = 'gamming';
+	let state:string = '';
 	let gameType:string | undefined;
 	let pageElement: HTMLElement | null;
 
@@ -17,14 +17,12 @@
 	onMount(() => {
 		pageElement = document.querySelector('#page');
 		pageElement?.classList.add('h-screen');
-		socket.emit('get UserState');
+		socket.emit('get UserState', (userState:string) => {
+			state = userState;
+		});
 		return () => {
 			pageElement?.classList.remove('h-screen');
 		};
-	});
-
-	socket.on('get UserState', (payload) => {
-		// state 상태 갱신
 	});
 
 	function waitingGame() {

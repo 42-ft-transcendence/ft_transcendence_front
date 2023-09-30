@@ -3,6 +3,7 @@
 	import { onMount } from "svelte";
 	type Player = { x:number, y:number, width:number, height:number, score:number, color:string}
 	type Ball = { x:number, y:number, radius:number, color:string}
+	type GameInfo = { ball: { x:number, y:number }, player1: { y:number, score: number }, player2: { y:number, score:number }}
 	let pageElement: Element;
 	let canvasElement: HTMLCanvasElement;
 	let ctx: CanvasRenderingContext2D | null;
@@ -36,19 +37,25 @@
 		return () => resizeObserver.unobserve(pageElement);
 	});
 
-	socket.on('redraw', (payload) => {
-		// 서버의 위치 정보를 통해 다시 그리기
+	socket.on('update Game', (payload: GameInfo) => {
+		isGameStarted = true;
+		updateGame(payload);
 		draw();
 	});
 
-	socket.on('starting Game', () => {
+	socket.on('end Game', (payload) => {
 		draw();
-		drawText('We are going to start the game...');
+		drawText(payload);
 	});
 
-	socket.on('', (payload) => {
-		
-	});
+	function updateGame(gameInfo: GameInfo) {
+		ball.x = gameInfo.ball.x;
+		ball.y = gameInfo.ball.y;
+		player1.y = gameInfo.player1.y;
+		player1.score = gameInfo.player1.score;
+		player2.y = gameInfo.player2.y;
+		player2.score = gameInfo.player2.score;
+	}
 
 	function responsiveRatio() {
 		let width = pageElement.clientWidth;
