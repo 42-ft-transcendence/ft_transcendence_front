@@ -25,6 +25,7 @@
 
 	socket.on('get UserState', (payload) => {
 		// state 상태 갱신
+		state = payload.state;
 	});
 
 	function waitingGame() {

@@ -32,12 +32,22 @@
 		if (ctx !== null)
 			canvas = ctx;
 		draw();
+		drawText('We are going to start the game...');
 		return () => resizeObserver.unobserve(pageElement);
 	});
 
 	socket.on('redraw', (payload) => {
 		// 서버의 위치 정보를 통해 다시 그리기
 		draw();
+	});
+
+	socket.on('starting Game', () => {
+		draw();
+		drawText('We are going to start the game...');
+	});
+
+	socket.on('', (payload) => {
+		
 	});
 
 	function responsiveRatio() {
@@ -80,20 +90,29 @@
 		canvas.strokeStyle = 'white';
 		canvas.lineWidth = 5;
 		canvas.beginPath();
-		canvas.setLineDash([20, 20]);
+		canvas.setLineDash([20, 30]);
 		canvas.moveTo(resolveWidth / 2, 0);
 		canvas.lineTo(resolveWidth / 2, resolveHeight);
 		canvas.stroke();
 	}
 
+	function drawText(str: string) {
+		canvas.font = '100px Arial';
+		canvas.textAlign = 'center';
+		canvas.fillStyle = 'white';
+		canvas.fillText(str, resolveWidth / 2, resolveHeight / 2);
+	}
+
+	// 키보드 조작인 경우.
 	function movePlayer(e: KeyboardEvent) {
-		// TODO:payload 백엔드에 맞춰서 변경.
 		if (isGameStarted) {
 			if (e.key === 'ArrowUp') {
-				socket.emit('move Player', {direction: 'up'});
+				console.log('up')
+				socket.volatile.emit('move Player', {direction: 'up'});
 			}
 			else if (e.key === 'ArrowDown') {
-				socket.emit('move Player', {direction: 'down'});
+				console.log('down')
+				socket.volatile.emit('move Player', {direction: 'down'});
 			}
 		}
 	}
