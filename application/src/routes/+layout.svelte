@@ -124,13 +124,13 @@
 				response: () => {
 					//게임 초대 수락
 					flag = true;
-					ack({ answer: flag });
+					ack({ answer: flag, socketId: socket.id });
 				},
 			},
 			callback: (response: { id: string; status: 'queued' | 'closed' }) => {
 				if (response.status === 'closed' && !flag) {
 					//게임 초대 거부
-					ack({ answer: flag });
+					ack({ answer: flag, socketId: socket.id });
 				}
 			},
 		};
