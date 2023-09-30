@@ -87,7 +87,7 @@
 	
 	function drawPlayerwithSore(player: Player) {
 		canvas.fillStyle = player.color;
-		canvas.fillRect(player.x, player.y, player.width, player.height);
+		canvas.fillRect(player.x - initWidth / 2, player.y - initHeight / 2, player.width, player.height);
 
 		canvas.font = '60px Arial';
 		canvas.fillText(player.score.toString(), player.x < resolveWidth / 2 ? resolveWidth / 2 - 100 - (player.score.toString().length) * 40 : resolveWidth / 2 + 100, 100);
