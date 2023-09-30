@@ -89,7 +89,7 @@
 <div
 	class="flex-col h-full bg-surface-100-800-token w-0 ease-in-out duration-300 {sidebarRightBtn
 		? 'border-l border-surface-500/30 sm:w-64'
-		: ''} ">
+		: 'overflow-hidden'} ">
 	<div class="grid grid-cols-[1fr_auto] p-2.5 border-y border-surface-500/30">
 		<div class="gap-y-2 flex flex-col items-center">
 			<div class="font-bold text-lg">{profile?.nickname}</div>
