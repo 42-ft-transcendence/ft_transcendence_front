@@ -10,11 +10,15 @@
 
 	async function onFormSubmit() {
 		const user: UserProfile = await getRequestApi(`${BaseUrl.USERS}/oneself`);
-		socket.emit('invite', { userName: user.nickname, mapType: formData.type, opponentId: $modalStore[0].meta.opponentId });
+		socket.emit('invite', {
+			userName: user.nickname,
+			mapType: formData.type,
+			opponentId: $modalStore[0].meta.opponentId,
+		});
 		modalStore.close();
 	}
 
-	const mapTypes = [{ type: 'NORMAL' }, { type: 'SPEED' }];
+	const mapTypes = [{ type: 'NORMAL' }, { type: 'FAST' }];
 
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
