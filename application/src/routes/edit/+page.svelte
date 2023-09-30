@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import {
 		BaseUrl,
@@ -8,6 +8,14 @@
 		getCookie,
 		hasCookie,
 	} from '$lib/common';
+	import { getRequestApi } from '$lib/fetch';
+	import {
+		activateProfile,
+		deactivateProfile,
+		profileIdStore,
+		userIdStore,
+	} from '$lib/store';
+	import type { UserProfile } from '$lib/type';
 	import {
 		Avatar,
 		FileDropzone,
@@ -29,6 +37,7 @@
 	let reloadFlag: boolean;
 	// const controller = new AbortController();
 
+	let userProfile: UserProfile;
 	let preview: string | undefined;
 	let elemInput: HTMLInputElement;
 	let files: FileList | undefined;
@@ -36,8 +45,11 @@
 	onMount(async () => {
 		reloadFlag = true;
 		elemInput = document.querySelector('.dropzone-input') as HTMLInputElement; // FileDropzone component안에 dropzone-input 존재 null 안됨.
-		if (!hasCookie(JWT_OAUTH_KEY)) await goto('/login', { replaceState: true });
-		else if (hasCookie(JWT_DB_KEY)) await goto('/', { replaceState: true });
+		if (!hasCookie(JWT_DB_KEY)) await goto('/', { replaceState: true });
+		else {
+			userProfile = await getRequestApi(BaseUrl.USERS + $userIdStore);
+			preview = userProfile.avatar;
+		}
 	});
 
 	function onChangeHandler(e: Event): void {
@@ -53,29 +65,26 @@
 
 	function resetFile(): void {
 		if (elemInput) elemInput.value = '';
-		preview = '';
+		preview = userProfile.avatar;
 		userInput.avatar = undefined;
 		files = undefined;
 	}
 
-	async function fetchSignupApi(
-		url: string,
-		payload: any,
-		isDefaultAvatar: boolean,
-	) {
+	async function fetchEditApi(url: string, payload: any, avatarFlag: boolean) {
 		reloadFlag = false;
 		let headers: HeadersInit = {
-			Authorization: `Bearer ${getCookie(JWT_OAUTH_KEY)}`,
+			Authorization: `Bearer ${getCookie(JWT_DB_KEY)}`,
 		};
-		if (isDefaultAvatar) headers[`${'Content-Type'}`] = 'application/json';
+		if (avatarFlag) headers[`${'Content-Type'}`] = 'application/json';
 		const result = await fetch(url, {
-			method: 'POST',
+			method: 'PATCH',
 			headers: headers,
 			body: payload,
-			// signal: controller.signal,
 		});
-		if (result.ok) await goto('/', { replaceState: true });
-		else {
+		if (result.ok) {
+			await goto('/', { replaceState: true });
+			location.reload();
+		} else {
 			reloadFlag = true;
 			const body = await result.json();
 			toastStore.trigger({
@@ -84,16 +93,12 @@
 				hideDismiss: true,
 				timeout: 2000,
 			});
-			await goto('/signup', { replaceState: true });
+			await goto('/edit', { replaceState: true });
 		}
 	}
 
-	async function setDefault() {
-		await fetchSignupApi(
-			BaseUrl.USERS + 'defaultAvatar',
-			JSON.stringify({}),
-			false,
-		);
+	function goBack() {
+		window.history.back();
 	}
 
 	async function handleSubmit() {
@@ -102,17 +107,13 @@
 			const formData = new FormData();
 			if (nickname) formData.append('nickname', nickname);
 			formData.append('avatar', avatar);
-			await fetchSignupApi(BaseUrl.USERS + 'customAvatar', formData, false);
+			await fetchEditApi(BaseUrl.USERS + 'updateProfile', formData, false);
 		} else
-			await fetchSignupApi(
-				BaseUrl.USERS + 'defaultAvatar',
-				JSON.stringify({ nickname: nickname === '' ? undefined : nickname }),
+			await fetchEditApi(
+				BaseUrl.USERS + 'updateNickname',
+				JSON.stringify({ nickname: nickname }),
 				true,
 			);
-	}
-
-	function filterKey(e: Event & { target: HTMLTextAreaElement }): void {
-		userInput.nickname = userInput.nickname.replace(regExp, '');
 	}
 </script>
 
@@ -128,7 +129,7 @@
 
 <div class="w-full h-full flex items-center justify-center">
 	<div class="card card-hover bg-initial w-3/5">
-		<header class="card-header">회원가입</header>
+		<header class="card-header">정보 수정</header>
 		<section class="p-4 space-y-2 flex flex-col justify-center">
 			<form class="{cForm}">
 				{#if reloadFlag}
@@ -176,14 +177,12 @@
 		</section>
 		{#if reloadFlag}
 			<footer class="card-footer flex justify-end space-x-2">
-				<button
-					type="button"
-					class="btn variant-ghost-surface"
-					on:click="{setDefault}">기본값으로 설정</button>
+				<button type="button" class="btn variant-filled" on:click="{goBack}"
+					>뒤로가기</button>
 				<button
 					type="button"
 					class="btn variant-filled"
-					on:click="{handleSubmit}">변경하기</button>
+					on:click="{handleSubmit}">수정하기</button>
 			</footer>
 		{/if}
 	</div>

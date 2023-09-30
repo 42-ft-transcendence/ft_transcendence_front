@@ -80,6 +80,10 @@
 		pointerEvent = undefined;
 	}
 
+	async function editInfo() {
+		await goto('/edit');
+	}
+
 	async function logout() {
 		await getRequestApi(`${BaseUrl.AUTH}/logout`);
 		await goto('/login', { replaceState: true });
@@ -107,6 +111,10 @@
 			{/if}
 			{#if profile?.id === $userIdStore}
 				<button
+					on:click="{editInfo}"
+					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
+					>정보 수정</button>
+				<button
 					on:click="{logout}"
 					class="bg-surface-500 hover:bg-gray-100 text-white py-1 px-2 rounded text-xs"
 					>로그아웃</button>
@@ -126,7 +134,7 @@
 					on:click="{async () =>
 						await sendMessage(profile?.id, profile?.nickname)}"
 					class="btn variant-filled">DM</button>
-				<button type="button" class="btn variant-filled">GAME</button>
+				<!-- <button type="button" class="btn variant-filled">GAME</button> -->
 			{/if}
 		</div>
 	</div>
