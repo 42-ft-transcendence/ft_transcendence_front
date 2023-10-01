@@ -43,6 +43,18 @@
 		draw();
 	});
 
+	socket.on('pause Game', (gameInfo: GameInfo, payload: {count:number}) => {
+		isGameStarted = false;
+		updateGame(gameInfo);
+		canvas.fillStyle = '#003f9e';
+		canvas.fillRect(0, 0, canvasElement.width, canvasElement.height);
+		drawMap();
+		drawBall();
+		drawPlayerwithSore(player1);
+		drawPlayerwithSore(player2);
+		drawText(`Pause Game ${Math.floor(payload.count / 60)}`);
+	});
+
 	socket.on('end Game', (payload) => {
 		draw();
 		drawText(payload);
@@ -71,7 +83,7 @@
 
 	function draw() {
 		canvas.fillStyle = '#0066ff';
-		canvas.fillRect(0, 0, canvasElement.width, canvasElement.height);
+		canvas.fillRect(0, 0, resolveWidth, resolveHeight);
 		drawMap();
 		drawBall();
 		drawPlayerwithSore(player1);
