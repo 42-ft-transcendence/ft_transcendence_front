@@ -27,7 +27,8 @@ export const enum BaseUrl {
 	BANNED = '/api/bans/',
 	BLOCKED = '/api/blocks/',
 	FOLLOWS = '/api/follows/',
-	AUTH = '/api/auth/'
+	AUTH = '/api/auth/',
+	MATCHES = '/api/matches/'
 }
 
 export function getCookie(name: string) {

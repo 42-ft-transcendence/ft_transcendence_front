@@ -5,7 +5,6 @@
 		type ModalSettings,
 		type ModalComponent,
 	} from '@skeletonlabs/skeleton';
-	import type { ComponentType } from 'svelte';
 	import {
 		activateProfile,
 		blockeeStore,
@@ -17,11 +16,13 @@
 	} from '$lib/store';
 	import { BaseUrl, sendMessage, unblock } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
-	import type { UserProfile } from '$lib/type';
+	import type { MatchHistory, UserProfile } from '$lib/type';
 	import Enable2FaModal from '$lib/Modal/Enable2FAModal.svelte';
 	import Disable2FaModal from '$lib/Modal/Disable2FAModal.svelte';
 	import BlockListContextMenu from '$lib/ContextMenu/BlockListContextMenu.svelte';
 	import { goto } from '$app/navigation';
+	import type { ComponentType } from 'svelte';
+	import { loop_guard, onMount } from 'svelte/internal';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
@@ -31,8 +32,21 @@
 	let contextMenuComponent: ComponentType | undefined;
 	let pointerEvent: MouseEvent | undefined;
 
-	profileButtonStore.subscribe(() => {
+	let matchHistory: MatchHistory[] = [];
+
+	onMount(async () => {
+		matchHistory = await getRequestApi(
+			BaseUrl.MATCHES + `${$userIdStore}/top5`,
+		);
+	});
+
+	profileButtonStore.subscribe(async () => {
 		sidebarRightBtn = $profileButtonStore;
+		if ($profileIdStore !== -1) {
+			matchHistory = await getRequestApi(
+				BaseUrl.MATCHES + `${$profileIdStore}/top5`,
+			);
+		}
 	});
 	profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
@@ -140,6 +154,35 @@
 	</div>
 	<div class="p-2.5">
 		<div class="font-bold text-lg">대전 기록</div>
+		<ul>
+			{#each matchHistory as { winner, loser }, i}
+				{#if i !== 0}
+					<hr />
+				{/if}
+				<li>
+					<div
+						class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
+						<div class="flex items-center">
+							<Avatar
+								class="no-pointer-event"
+								src="{winner.id === $profileIdStore
+									? loser.avatar
+									: winner.avatar}"
+								width="w-6"
+								rounded="rounded-md" />
+							<div class="ml-2 no-pointer-event">
+								{winner.id === $profileIdStore
+									? loser.nickname
+									: winner.nickname}
+							</div>
+							<div class="ml-2 no-pointer-event">
+								{winner.id === $profileIdStore ? '승' : '패'}
+							</div>
+						</div>
+					</div>
+				</li>
+			{/each}
+		</ul>
 	</div>
 	{#if $userIdStore === $profileIdStore}
 		<div class="p-2.5">

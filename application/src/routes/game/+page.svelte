@@ -4,6 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import Game from '$lib/Game/Game.svelte';
 	import { socket } from '$lib/common';
+	import { gameStateStore } from '$lib/store';
 
 	let state:string = '';
 	let gameType:string | undefined;
@@ -14,11 +15,15 @@
 		{img: 'http/gif', gameName:'스피드 게임', gameType:'speed'},
 	];
 
+	gameStateStore.subscribe(() => {
+		state = $gameStateStore;
+	});
+
 	onMount(() => {
 		pageElement = document.querySelector('#page');
 		pageElement?.classList.add('h-screen');
 		socket.emit('get UserState', (userState:string) => {
-			state = userState;
+			gameStateStore.update(() => userState);
 		});
 		return () => {
 			pageElement?.classList.remove('h-screen');
@@ -35,7 +40,7 @@
 			toastStore.trigger(t);
 			return ;
 		}
-		state = 'waiting';
+		gameStateStore.update(() => 'waiting');
 	};
 
 	function changeGameType(type:string){

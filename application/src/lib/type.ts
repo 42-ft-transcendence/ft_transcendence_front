@@ -50,6 +50,11 @@ export interface Followee {
 	followee: UserProfile;
 }
 
+export interface MatchHistory {
+	winner: { id: number, avatar: string, nickname: string 	};
+	loser: { id: number, avatar: string, nickname: string };
+}
+
 export enum ChannelType {
 	PUBLIC = 'PUBLIC',
 	PRIVATE = 'PRIVATE',

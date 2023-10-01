@@ -3,12 +3,14 @@
 	import { BaseUrl, channelIcon, socket } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { UserProfile } from '$lib/type';
+	import { deactivateProfile } from '$lib/store';
 
 	export let parent: any;
 
 	const formData = { type: 'NORMAL' };
 
 	async function onFormSubmit() {
+		deactivateProfile();
 		const user: UserProfile = await getRequestApi(`${BaseUrl.USERS}/oneself`);
 		socket.emit('invite', {
 			userName: user.nickname,
