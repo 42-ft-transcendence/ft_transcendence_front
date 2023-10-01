@@ -10,6 +10,7 @@ import type {
 export const channelUserInStore = writable(Array<LeftSideBarChannel>());
 export const directUserInStore = writable(Array<LeftSideBarDirect>());
 export const profileButtonStore = writable(false);
+export const lSideBarButtonStore = writable(false);
 export const profileIdStore = writable(-1);
 export const blockeeStore = writable(Array<UserProfile>());
 export const userIdStore = writable(-1);
@@ -67,6 +68,13 @@ export function deactivateProfile() {
 	profileButtonStore.update(() => false);
 }
 
+export function activateLeftSideBar() {
+	lSideBarButtonStore.update(() => true);
+}
+
+export function deactivateLeftSideBar() {
+	lSideBarButtonStore.update(() => false);
+}
 export function addBlockee(blockee: UserProfile) {
 	if (get(blockeeStore).every((b) => b.id !== blockee.id))
 		blockeeStore.update((store) => { store.push(blockee); return store; });
