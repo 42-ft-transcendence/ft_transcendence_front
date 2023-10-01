@@ -6,32 +6,32 @@
 	import { socket } from '$lib/common';
 	import { gameStateStore } from '$lib/store';
 
-	let state:string = '';
-	let gameType:string | undefined;
+	let mapType:string | undefined;
 	let pageElement: HTMLElement | null;
 
-	const gameCards: {img: string, gameName:string, gameType:string}[] = [
-		{img: 'http/gif', gameName:'일반 게임', gameType:'normal'},
-		{img: 'http/gif', gameName:'스피드 게임', gameType:'speed'},
+	const gameCards: {img: string, gameName:string, mapType:string}[] = [
+		{img: 'http/gif', gameName:'일반 게임', mapType:'NORMAL'},
+		{img: 'http/gif', gameName:'스피드 게임', mapType:'FAST'},
 	];
 
-	gameStateStore.subscribe(() => {
-		state = $gameStateStore;
-	});
 
 	onMount(() => {
 		pageElement = document.querySelector('#page');
 		pageElement?.classList.add('h-screen');
 		socket.emit('get UserState', (userState:string) => {
-			gameStateStore.update(() => userState);
+			$gameStateStore = userState;
 		});
 		return () => {
 			pageElement?.classList.remove('h-screen');
 		};
 	});
 
+	socket.on('get UserState', (userState:string) => {
+		$gameStateStore = userState;
+	}); 
+
 	function waitingGame() {
-		if (gameType === undefined){
+		if (mapType === undefined){
 			const t: ToastSettings = {
 				message: '게임을 선택해 주세요.',
 				hideDismiss: true,
@@ -40,30 +40,30 @@
 			toastStore.trigger(t);
 			return ;
 		}
-		gameStateStore.update(() => 'waiting');
+		socket.emit('join GameQueue', {mapType: mapType});
+		$gameStateStore = 'waiting';
 	};
 
 	function changeGameType(type:string){
-		gameType = type;
+		mapType = type;
 		//state 확인
-		//socket.emit
 	}
 	
 	const cCard = 'snap-start shrink-0 card card-hover py-20 w-40 md:w-80 text-center';
 </script>
 
-<div class="gamePage flex flex-col h-[90vh] justify-center items-center {state === 'gamming' ? 'bg-zinc-700': ''}">
-{#if state === 'waiting'}
+<div class="gamePage flex flex-col h-[90vh] justify-center items-center {$gameStateStore === 'gamming' ? 'bg-zinc-700': ''}">
+{#if $gameStateStore === 'waiting'}
 <div class="flex flex-col items-center p-4 space-y-2" transition:fade>
 <ProgressRadial stroke={50} meter="stroke-primary-500" track="stroke-primary-500/30" width="w-20"/>
 <p class="text-primary-500">상대를 찾는 중</p>
 </div>
-{:else if state === 'gamming'}
+{:else if $gameStateStore === 'gamming'}
 <Game />
 {:else}
 <div class="snap-x scroll-px-4 snap-mandatory scroll-smooth flex gap-4 overflow-x-auto px-4 py-10">
 	{#each gameCards as gameCard}
-		<button class="{cCard} {gameCard.gameType === gameType ? 'border-[4px] border-primary-600-300-token' : ''}" on:click="{() => changeGameType(gameCard.gameType)}">
+		<button class="{cCard} {gameCard.mapType === mapType ? 'border-[4px] border-primary-600-300-token' : ''}" on:click="{() => changeGameType(gameCard.mapType)}">
 			<header class="card-header">(header)</header>
 			<section class="p-4">(content)</section>
 			<footer class="card-footer">{gameCard.gameName}</footer>

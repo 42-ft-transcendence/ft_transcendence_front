@@ -1,11 +1,7 @@
 <script lang="ts">
-	import Profile from '$lib/Sidebar/Profile.svelte';
 	import { socket } from '$lib/common';
 	import {
-		deactivateProfile,
 		gameStateStore,
-		profileIdStore,
-		userIdStore,
 	} from '$lib/store';
 	import { onMount } from 'svelte';
 	type Player = {
@@ -35,7 +31,7 @@
 	const radiusBall = 15;
 	// 1080 / 2 = 540 +- height/2 플레이어 y 위치
 	// 1920 - 뒤쪽 벽 거리(100) +- width/2 플레이어 x의 위치
-	// width = 20
+	// width = 20  
 	const player1: Player = {
 		x: initBackSideMargin,
 		y: resolveHeight / 2 - initHeight / 2,
@@ -106,7 +102,7 @@
 		draw();
 		drawText(`${payload.winner} WIN!`);
 		setTimeout(() => {
-			gameStateStore.update(() => '');
+			$gameStateStore = '';
 		}, 2000);
 	});
 
@@ -117,7 +113,7 @@
 		player1.score = gameInfo.player1.score;
 		player2.y = gameInfo.player2.y;
 		player2.score = gameInfo.player2.score;
-	}
+	};
 
 	function responsiveRatio() {
 		let width = pageElement.clientWidth;
@@ -129,7 +125,7 @@
 		}
 		canvasElement.style.width = `${width}px`;
 		canvasElement.style.height = `${height}px`;
-	}
+	};
 
 	function draw() {
 		canvas.fillStyle = '#0066ff';
@@ -138,15 +134,15 @@
 		drawBall();
 		drawPlayerwithSore(player1);
 		drawPlayerwithSore(player2);
-	}
+	};
 
 	function drawBall() {
 		canvas.fillStyle = ball.color;
 		canvas.beginPath();
 		canvas.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
 		canvas.fill();
-	}
-
+	};
+	
 	function drawPlayerwithSore(player: Player) {
 		canvas.fillStyle = player.color;
 		canvas.fillRect(
@@ -164,7 +160,7 @@
 				: resolveWidth / 2 + 100,
 			100,
 		);
-	}
+	};
 
 	function drawMap() {
 		canvas.strokeStyle = 'white';
@@ -174,14 +170,14 @@
 		canvas.moveTo(resolveWidth / 2, 0);
 		canvas.lineTo(resolveWidth / 2, resolveHeight);
 		canvas.stroke();
-	}
+	};
 
 	function drawText(str: string) {
 		canvas.font = '100px Arial';
 		canvas.textAlign = 'center';
 		canvas.fillStyle = 'white';
 		canvas.fillText(str, resolveWidth / 2, resolveHeight / 2);
-	}
+	};
 
 	// 키보드 조작인 경우.
 	function movePlayer(e: KeyboardEvent) {
