@@ -136,6 +136,10 @@
 		};
 		toastStore.trigger(t);
 	});
+
+	socket.on('goto Game', async () => {
+		await goto('/game');
+	});
 </script>
 
 <svelte:head>
