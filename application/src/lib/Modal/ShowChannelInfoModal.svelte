@@ -6,7 +6,7 @@
 		toastStore,
 	} from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, socket, showProfile } from '$lib/common';
+	import { BaseUrl, block, socket, showProfile, printOrRethrow } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -93,15 +93,19 @@
 		};
 		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /ban으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
 		//TODO: socket.io로 밴 처리하기
-		const user = await postRequestAuthApi(BaseUrl.BANNED, payload, payload); //TODO: 여기선 가드를 위한 사용자 정의 헤더도 중복이 되나?
-		socket.emit('kick User', {
-			channelId: parseInt($modalStore[0].meta.id),
-			targetId: userId,
-			channelName: $modalStore[0].meta.title,
-		});
-		participants = participants.filter((p) => p.id !== user.id);
-		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
-		banned = [...banned, user];
+		try {
+			const user = await postRequestAuthApi(BaseUrl.BANNED, payload, payload); //TODO: 여기선 가드를 위한 사용자 정의 헤더도 중복이 되나?
+			socket.emit('kick User', {
+				channelId: parseInt($modalStore[0].meta.id),
+				targetId: userId,
+				channelName: $modalStore[0].meta.title,
+			});
+			participants = participants.filter((p) => p.id !== user.id);
+			normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
+			banned = [...banned, user];
+		} catch (err: any) {
+			printOrRethrow(err);
+		}
 	}
 
 	async function kick(userId: number) {
@@ -110,26 +114,31 @@
 			userId: userId,
 			channelId: channelId,
 		};
-		//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /kick으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
-		const user = await deleteRequestAuthApi(
-			BaseUrl.PARTICIPANTS + `userId/${userId}/channelId/${channelId}`,
-			payload,
-		);
-		socket.emit('kick User', {
-			channelId: channelId,
-			targetId: userId,
-			channelName: $modalStore[0].meta.title,
-		});
-		participants = participants.filter((p) => p.id !== user.id);
-		normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
+		try {
+			//TODO: 루트 파라미터로 자원을 특정하고 요청 바디를 비우는 게 적절할까 아니면 루트 파라미터를 사용하지 않고 uri를 /kick으로 설정한 뒤 요청 바디를 사용하는 게 적절할까
+			const user = await deleteRequestAuthApi(
+				BaseUrl.PARTICIPANTS + `userId/${userId}/channelId/${channelId}`,
+				payload,
+			);
+			socket.emit('kick User', {
+				channelId: channelId,
+				targetId: userId,
+				channelName: $modalStore[0].meta.title,
+			});
+			participants = participants.filter((p) => p.id !== user.id);
+			normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
+		} catch (err: any) {
+			printOrRethrow(err);
+		}
 	}
 
 	function mute(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
+		//TODO: mute User에 소켓 가드 걸기
 		socket.emit('mute User', { channelId: channelId, targetId: userId }, (destTime: Date) => {
 			const date = new Date(destTime);
 			toastStore.trigger({
-				message: `${date.getFullYear()}년 ${date.getMonth()}월 ${date.getDay()}일 ${date.getHours()}시 ${date.getMinutes()}분 ${date.getSeconds()}초까지 대상이 음소거 됩니다.`,
+				message: `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDay()}일 ${date.getHours()}시 ${date.getMinutes()}분 ${date.getSeconds()}초까지 대상이 음소거 됩니다.`,
 				background: 'variant-filled-warning',
 				hideDismiss: true,
 				timeout: 2000,

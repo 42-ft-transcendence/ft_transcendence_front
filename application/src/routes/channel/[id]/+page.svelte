@@ -31,7 +31,7 @@
 	// ƒør making comment timezone
 	const date = new Date();
 	const todayYear = date.getFullYear();
-	const todayMonth = date.getMonth();
+	const todayMonth = date.getMonth() + 1;
 	const todayDay = date.getDate();
 	let dateFlag: number[] = [-1, -1, -1];
 	// parent div page element
@@ -204,12 +204,7 @@
 					{:else}
 						<div class="flex justify-center items-center">
 							<span class="badge variant-filled">
-								{bubble.createdAt.getFullYear() +
-									'년 ' +
-									bubble.createdAt.getMonth() +
-									'월 ' +
-									bubble.createdAt.getDate() +
-									'일'}
+								{`${bubble.createdAt.getFullYear()}년 ${bubble.createdAt.getMonth() + 1}월 ${bubble.createdAt.getDate()}일`}
 							</span>
 						</div>
 					{/if}

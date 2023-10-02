@@ -35,7 +35,7 @@
 
 	async function searchUser() {
 		users = await getRequestApi(
-			BaseUrl.USERS + (input ? `name/?name=${input}` : ''),
+			BaseUrl.USERS + (input && input.trim() ? `name/?name=${input.trim()}` : ''),
 		);
 		if (users) {
 			users = users.filter(

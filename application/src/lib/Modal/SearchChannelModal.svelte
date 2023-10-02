@@ -35,7 +35,7 @@
 	async function searchChannel() {
 		searchResult = await getRequestApi(
 			BaseUrl.CHANNELS +
-				(input && input.trim() ? `name/?type=GROUP&partialName=${input}` : '?type=GROUP'),
+				(input && input.trim() ? `name/?type=GROUP&partialName=${input.trim()}` : '?type=GROUP'),
 		);
 		if (searchResult)
 			searchResult = searchResult.filter(
