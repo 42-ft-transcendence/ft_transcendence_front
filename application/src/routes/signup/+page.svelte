@@ -74,8 +74,10 @@
 			body: payload,
 			// signal: controller.signal,
 		});
-		if (result.ok) await goto('/', { replaceState: true });
-		else {
+		if (result.ok) {
+			await goto('/', { replaceState: true });
+			window.location.reload();
+		} else {
 			reloadFlag = true;
 			const body = await result.json();
 			toastStore.trigger({
