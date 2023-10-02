@@ -121,6 +121,7 @@
 
 	async function logout() {
 		await getRequestApi(`${BaseUrl.AUTH}/logout`);
+		location.reload();
 		await goto('/login', { replaceState: true });
 	}
 </script>

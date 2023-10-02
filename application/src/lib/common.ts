@@ -87,7 +87,7 @@ export async function sendMessage(userId: number, userName: string) {
 			interlocatorId: userId,
 			interlocatorName: userName,
 		});
-		// newDirect.userId = userId;
+		newDirect.userId = userId;
 		addNewDirect(newDirect);
 		socket.emit('create DMChannel', newDirect);
 		loadPage(newDirect.id);
