@@ -55,6 +55,16 @@ export interface MatchHistory {
 	loser: { id: number, avatar: string, nickname: string };
 }
 
+export interface MatchHistoryDetail {
+	type: string,
+	mapType: string,
+	matchAt: Date,
+	winnerId: number,
+	loserId: number,
+	winner: { avatar: string, nickname: string };
+	loser: { avatar: string, nickname: string };
+}
+
 export enum ChannelType {
 	PUBLIC = 'PUBLIC',
 	PRIVATE = 'PRIVATE',
