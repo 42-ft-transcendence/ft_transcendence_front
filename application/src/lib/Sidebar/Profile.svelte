@@ -66,7 +66,7 @@
 		unsubscribeBlockee();
 		unsubscribTwoFactorAuth();
 	});
-	
+
 	const enable2FAModalComponent: ModalComponent = {
 		ref: Enable2FaModal,
 	};
@@ -175,9 +175,9 @@
 	</div>
 	<div class="p-2.5">
 		<button
-					on:click="{showMatchHistory}"
-					class="font-bold text-lg hover:bg-gray-100 text-white py-1 rounded"
-					>대전 기록</button>
+			on:click="{showMatchHistory}"
+			class="font-bold text-lg hover:bg-gray-100 text-white py-1 rounded"
+			>대전 기록</button>
 		<ul>
 			{#each matchHistory as { winner, loser }, i}
 				{#if i !== 0}
@@ -220,7 +220,7 @@
 						<div
 							class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400"
 							data-user-id="{blockee.id}">
-							<div class="flex items-center">
+							<div class="flex items-center no-pointer-event">
 								<Avatar
 									class="no-pointer-event"
 									src="{blockee.avatar}"

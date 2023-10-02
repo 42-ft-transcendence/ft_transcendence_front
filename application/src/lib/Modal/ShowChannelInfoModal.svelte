@@ -175,24 +175,32 @@
 	async function addAdministrator(id: number) {
 		const channelId = $modalStore[0].meta.id;
 		const payload = { channelId: channelId, userId: id };
-		const admin = await postRequestAuthApi(
-			BaseUrl.ADMINISTRATORS,
-			payload,
-			payload,
-		);
-		administrators = [...administrators, admin];
-		normalParticipants = normalParticipants.filter((p) => p.id !== id);
+		try {
+			const admin = await postRequestAuthApi(
+				BaseUrl.ADMINISTRATORS,
+				payload,
+				payload,
+			);
+			administrators = [...administrators, admin];
+			normalParticipants = normalParticipants.filter((p) => p.id !== id);
+		} catch (err: any) {
+			printOrRethrow(err);
+		}
 	}
 	//TODO: authorization "owner"
 	async function removeAdministrator(id: number) {
 		const channelId = $modalStore[0].meta.id;
 		const payload = { channelId: channelId, userId: id };
-		const removed = await deleteRequestAuthApi(
-			BaseUrl.ADMINISTRATORS + `channelId/${channelId}/userId/${id}`,
-			payload,
-		);
-		administrators = administrators.filter((a) => a.id !== id);
-		normalParticipants = [...normalParticipants, removed];
+		try {
+			const removed = await deleteRequestAuthApi(
+				BaseUrl.ADMINISTRATORS + `channelId/${channelId}/userId/${id}`,
+				payload,
+			);
+			administrators = administrators.filter((a) => a.id !== id);
+			normalParticipants = [...normalParticipants, removed];
+		} catch (err: any) {
+			printOrRethrow(err);
+		}
 	}
 
 	async function dispatchBlock(id: number) {
