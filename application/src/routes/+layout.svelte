@@ -144,8 +144,8 @@
 		toastStore.trigger(t);
 	});
 
-	socket.on('goto Game', async () => {
-		await goto('/game');
+	socket.on('goto Url', async (url:string) => {
+		await goto(url);
 	});
 
 	socket.on('deactivate Sidebars', () => {
