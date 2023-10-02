@@ -6,7 +6,13 @@
 		toastStore,
 	} from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, socket, showProfile, printOrRethrow } from '$lib/common';
+	import {
+		BaseUrl,
+		block,
+		socket,
+		showProfile,
+		printOrRethrow,
+	} from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -16,7 +22,7 @@
 	import { blockeeStore, userIdStore } from '$lib/store';
 	import { ChannelType } from '$lib/type';
 	import { goto } from '$app/navigation';
-	
+
 	//TODO: 관리자에 대한 ban, kick, mute 가능해야 하나? nono
 
 	type User = {
@@ -135,25 +141,35 @@
 	function mute(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
 		//TODO: mute User에 소켓 가드 걸기
-		socket.emit('mute User', { channelId: channelId, targetId: userId }, (destTime: Date) => {
-			const date = new Date(destTime);
-			toastStore.trigger({
-				message: `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDay()}일 ${date.getHours()}시 ${date.getMinutes()}분 ${date.getSeconds()}초까지 대상이 음소거 됩니다.`,
-				background: 'variant-filled-warning',
-				hideDismiss: true,
-				timeout: 2000,
-			})
-		});
+		socket.emit(
+			'mute User',
+			{ channelId: channelId, targetId: userId },
+			(destTime: Date) => {
+				const date = new Date(destTime);
+				toastStore.trigger({
+					message: `${date.getFullYear()}년 ${
+						date.getMonth() + 1
+					}월 ${date.getDay()}일 ${date.getHours()}시 ${date.getMinutes()}분 ${date.getSeconds()}초까지 대상이 음소거 됩니다.`,
+					background: 'variant-filled-warning',
+					hideDismiss: true,
+					timeout: 2000,
+				});
+			},
+		);
 		// TODO: 필요한 경우 guard로부터 오는 에러 핸들링
 	}
 
 	async function unban(userId: number) {
 		const channelId = parseInt($modalStore[0].meta.id);
-		const user = await deleteRequestAuthApi(
-			BaseUrl.BANNED + `userId/${userId}/channelId/${channelId}`,
-			{ channelId: channelId, userId: userId },
-		);
-		banned = banned.filter((b) => b.id !== user.id);
+		try {
+			const user = await deleteRequestAuthApi(
+				BaseUrl.BANNED + `userId/${userId}/channelId/${channelId}`,
+				{ channelId: channelId, userId: userId },
+			);
+			banned = banned.filter((b) => b.id !== user.id);
+		} catch (err: any) {
+			printOrRethrow(err);
+		}
 	}
 
 	async function addAdministrator(id: number) {
