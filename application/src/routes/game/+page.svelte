@@ -40,8 +40,15 @@
 			toastStore.trigger(t);
 			return ;
 		}
-		socket.emit('join GameQueue', {mapType: mapType});
-		$gameStateStore = 'waiting';
+		socket.emit('join GameQueue', {mapType: mapType}, (payload: any) => {
+			console.log(payload)
+			const t: ToastSettings = {
+				message: payload.errorMessage,
+				hideDismiss: true,
+				timeout: 2000
+			};
+			toastStore.trigger(t);
+		});
 	};
 
 	function changeGameType(type:string){
