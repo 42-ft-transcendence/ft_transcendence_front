@@ -22,18 +22,15 @@
 	let canvasElement: HTMLCanvasElement;
 	let ctx: CanvasRenderingContext2D | null;
 	let canvas: CanvasRenderingContext2D;
-	let isGameStarted: boolean = false; // TODO: 백엔드에 따라 변경.
+	let isGameStarted: boolean = false;
 	const initWidth = 20;
 	const initHeight = 150;
 	const initBackSideMargin = 100;
 	const resolveWidth = 1920;
 	const resolveHeight = 1080;
 	const radiusBall = 15;
-	// 1080 / 2 = 540 +- height/2 플레이어 y 위치
-	// 1920 - 뒤쪽 벽 거리(100) +- width/2 플레이어 x의 위치
-	// width = 20  
 	const player1: Player = {
-		x: initBackSideMargin,
+		x: initBackSideMargin - initWidth / 2,
 		y: resolveHeight / 2 - initHeight / 2,
 		width: initWidth,
 		height: initHeight,
@@ -78,7 +75,7 @@
 		isGameStarted = false;
 		updateGame(gameInfo);
 		canvas.fillStyle = '#003f9e';
-		canvas.fillRect(0, 0, canvasElement.width, canvasElement.height);
+		canvas.fillRect(0, 0, resolveWidth, resolveHeight);
 		drawMap();
 		drawBall();
 		drawPlayerwithSore(player1);

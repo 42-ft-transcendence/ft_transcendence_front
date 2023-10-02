@@ -60,7 +60,7 @@
 	//TODO: 인자가 -1이면 사용자 자기 자신의 프로필을 불러오도록 구현했었지만, 현재 사용자가 로그인할 시 현재 사용자의 id를 스토어에 저장해 활용할 것이므로, 이를 활용하도록 하자.
 
 	onDestroy(unsubscribe);
-	
+
 	if (hasCookie(JWT_DB_KEY)) {
 		socket.auth = { token:`${getCookie(JWT_DB_KEY)}` };
 		socket.connect();
@@ -147,8 +147,8 @@
 		toastStore.trigger(t);
 	});
 
-	socket.on('goto Game', async () => {
-		await goto('/game');
+	socket.on('goto Url', async (url:string) => {
+		await goto(url);
 	});
 
 	socket.on('deactivate Sidebars', () => {
