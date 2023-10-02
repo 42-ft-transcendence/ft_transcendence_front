@@ -7,7 +7,7 @@
 <div class="flex flex-col h-full justify-center items-center">
 	<div class="h-1/6 flex flex-col h-full justify-center items-center">
 	<h1 class="h1">
-		<span class="bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone text-7xl">PongGo</span>
+		<span class="bg-gradient-to-br from-blue-500 to-cyan-300 bg-clip-text text-transparent box-decoration-clone text-7xl">PonGo</span>
 	</h1>
 	</div>
 </div>
