@@ -5,6 +5,7 @@
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { addNewDirect, blockeeStore, directUserInStore, followeeStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
+	import { onDestroy } from 'svelte';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -14,7 +15,7 @@
 
 	let followeeIds: number[];
 
-	followeeStore.subscribe(() => {
+	const unsubscribe = followeeStore.subscribe(() => {
 		followeeIds = get(followeeStore).map((followee) => followee.id);
 		console.log(`followeeIds: ${followeeIds}`);
 		if (users)
@@ -29,6 +30,8 @@
 	const formData = {
 		name: '',
 	};
+
+	onDestroy(unsubscribe);
 
 	async function searchUser() {
 		users = await getRequestApi(

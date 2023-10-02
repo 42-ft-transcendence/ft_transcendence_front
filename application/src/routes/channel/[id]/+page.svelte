@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import {
 		Avatar,
 		modalStore,
@@ -41,10 +41,12 @@
 	
 	let blocked: number[] = [];
 
-	blockeeStore.subscribe(() => {
+	const unsubscribe = blockeeStore.subscribe(() => {
 		blocked = $blockeeStore.map((b) => b.id);
 	})
 
+	onDestroy(unsubscribe);
+	
 	socket.on('new Message', (newMessage) => {
 		newMessage.createdAt = new Date(newMessage.createdAt);
 		channelData.messages = [...channelData.messages, newMessage];
@@ -252,6 +254,7 @@
 				id="prompt"
 				placeholder=" Write a message..."
 				rows="1"
+				maxlength="500"
 				on:keypress="{onPromptKeydown}"></textarea>
 			<button
 				class="{currentMessage ? 'variant-filled-primary' : 'input-group-shim'}"

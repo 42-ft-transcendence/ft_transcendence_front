@@ -6,6 +6,7 @@
 	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { sendMessage } from '../common';
+	import { onMount } from 'svelte';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -15,7 +16,7 @@
 
 	let interlocatorNames: string[];
 
-	directUserInStore.subscribe(() => {
+	const unsubscribe = directUserInStore.subscribe(() => {
 		interlocatorNames = get(directUserInStore).map((direct) => direct.userName);
 		if (users)
 			users = users.filter(
@@ -29,6 +30,8 @@
 		name: '',
 		password: undefined,
 	};
+
+	onMount(unsubscribe);
 
 	async function searchUser() {
 		users = await getRequestApi(

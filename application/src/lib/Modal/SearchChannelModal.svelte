@@ -5,6 +5,7 @@
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { ChannelType } from '$lib/type';
+	import { onDestroy } from 'svelte';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -14,7 +15,7 @@
 
 	let userChannelIds: number[];
 
-	channelUserInStore.subscribe(() => {
+	const unsubscribe = channelUserInStore.subscribe(() => {
 		userChannelIds = get(channelUserInStore).map((channel) => channel.id);
 		if (searchResult)
 			searchResult = searchResult.filter(
@@ -22,6 +23,8 @@
 			);
 	});
 
+	onDestroy(unsubscribe);
+	
 	let input: string | undefined;
 	// Form Data
 	const formData = {

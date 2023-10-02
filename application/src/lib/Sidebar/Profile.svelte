@@ -22,7 +22,8 @@
 	import BlockListContextMenu from '$lib/ContextMenu/BlockListContextMenu.svelte';
 	import { goto } from '$app/navigation';
 	import type { ComponentType } from 'svelte';
-	import { loop_guard, onMount } from 'svelte/internal';
+	import { loop_guard, onDestroy, onMount } from 'svelte/internal';
+	import ShowMatchHistoryModal from '$lib/Modal/ShowMatchHistoryModal.svelte';
 
 	let sidebarRightBtn = false;
 	let profile: UserProfile;
@@ -40,7 +41,7 @@
 		);
 	});
 
-	profileButtonStore.subscribe(async () => {
+	const unsubscribeProfileButton = profileButtonStore.subscribe(async () => {
 		sidebarRightBtn = $profileButtonStore;
 		if ($profileIdStore !== -1) {
 			matchHistory = await getRequestApi(
@@ -48,18 +49,25 @@
 			);
 		}
 	});
-	profileIdStore.subscribe(async () => {
+	const unsubscribeProfileId = profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
 		profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
 		if ($profileIdStore !== $userIdStore) blockList = [];
 	});
-	blockeeStore.subscribe(() => {
+	const unsubscribeBlockee = blockeeStore.subscribe(() => {
 		blockList = $blockeeStore;
 	});
-	twoFactorAuthStore.subscribe(() => {
+	const unsubscribTwoFactorAuth = twoFactorAuthStore.subscribe(() => {
 		isAuthenticated = $twoFactorAuthStore;
 	});
 
+	onDestroy(() => {
+		unsubscribeProfileButton();
+		unsubscribeProfileId();
+		unsubscribeBlockee();
+		unsubscribTwoFactorAuth();
+	});
+	
 	const enable2FAModalComponent: ModalComponent = {
 		ref: Enable2FaModal,
 	};
@@ -80,6 +88,19 @@
 		const modal: ModalSettings = {
 			type: 'component',
 			component: disableTwoFactorAuthModalComponent,
+		};
+		modalStore.trigger(modal);
+	}
+
+	const showMatchHistoryModalComponent: ModalComponent = {
+		ref: ShowMatchHistoryModal,
+	};
+
+	async function showMatchHistory() {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: showMatchHistoryModalComponent,
+			meta: { userId: $profileIdStore },
 		};
 		modalStore.trigger(modal);
 	}
@@ -153,7 +174,10 @@
 		</div>
 	</div>
 	<div class="p-2.5">
-		<div class="font-bold text-lg">대전 기록</div>
+		<button
+					on:click="{showMatchHistory}"
+					class="font-bold text-lg hover:bg-gray-100 text-white py-1 rounded"
+					>대전 기록</button>
 		<ul>
 			{#each matchHistory as { winner, loser }, i}
 				{#if i !== 0}
