@@ -52,7 +52,6 @@
 	const unsubscribeProfileId = profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
 		profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
-		if ($profileIdStore !== $userIdStore) blockList = [];
 	});
 	const unsubscribeBlockee = blockeeStore.subscribe(() => {
 		blockList = $blockeeStore;
@@ -219,8 +218,9 @@
 					{/if}
 					<li on:contextmenu|preventDefault="{handleRightClick}">
 						<div
-							class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
-							<div class="flex items-center" data-user-id="{blockee.id}">
+							class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400"
+							data-user-id="{blockee.id}">
+							<div class="flex items-center">
 								<Avatar
 									class="no-pointer-event"
 									src="{blockee.avatar}"
