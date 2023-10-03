@@ -30,8 +30,8 @@
 	const resolveHeight = 1080;
 	const radiusBall = 15;
 	const player1: Player = {
-		x: initBackSideMargin - initWidth / 2,
-		y: resolveHeight / 2 - initHeight / 2,
+		x: initBackSideMargin + initWidth / 2,
+		y: resolveHeight / 2,
 		width: initWidth,
 		height: initHeight,
 		score: 0,
@@ -39,7 +39,7 @@
 	};
 	const player2: Player = {
 		x: resolveWidth - initBackSideMargin - initWidth / 2,
-		y: resolveHeight / 2 - initHeight / 2,
+		y: resolveHeight / 2,
 		width: initWidth,
 		height: initHeight,
 		score: 0,
