@@ -43,7 +43,7 @@
 		if (
 			preChannelRoom &&
 			(preChannelRoom.includes('/channel') ||
-				$page.url.pathname.includes('/game'))
+			preChannelRoom.includes('/game'))
 		) {
 			socket.emit('leave Room', preChannelRoom);
 		}
