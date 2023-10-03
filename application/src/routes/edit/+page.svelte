@@ -7,6 +7,7 @@
 		JWT_OAUTH_KEY,
 		getCookie,
 		hasCookie,
+		printError,
 	} from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import {
@@ -47,8 +48,12 @@
 		elemInput = document.querySelector('.dropzone-input') as HTMLInputElement; // FileDropzone component안에 dropzone-input 존재 null 안됨.
 		if (!hasCookie(JWT_DB_KEY)) await goto('/', { replaceState: true });
 		else {
-			userProfile = await getRequestApi(BaseUrl.USERS + $userIdStore);
-			preview = userProfile.avatar;
+			try {
+				userProfile = await getRequestApi(BaseUrl.USERS + $userIdStore);
+				preview = userProfile.avatar;
+			} catch (err: any) {
+				printError(err);
+			}
 		}
 	});
 
@@ -103,17 +108,21 @@
 
 	async function handleSubmit() {
 		const { nickname, avatar } = userInput;
-		if (avatar) {
-			const formData = new FormData();
-			if (nickname) formData.append('nickname', nickname);
-			formData.append('avatar', avatar);
-			await fetchEditApi(BaseUrl.USERS + 'updateProfile', formData, false);
-		} else
-			await fetchEditApi(
-				BaseUrl.USERS + 'updateNickname',
-				JSON.stringify({ nickname: nickname }),
-				true,
-			);
+		try {
+			if (avatar) {
+				const formData = new FormData();
+				if (nickname) formData.append('nickname', nickname);
+				formData.append('avatar', avatar);
+				await fetchEditApi(BaseUrl.USERS + 'updateProfile', formData, false);
+			} else
+				await fetchEditApi(
+					BaseUrl.USERS + 'updateNickname',
+					JSON.stringify({ nickname: nickname }),
+					true,
+				);
+		} catch (err: any) {
+			printError(err);
+		}
 	}
 </script>
 

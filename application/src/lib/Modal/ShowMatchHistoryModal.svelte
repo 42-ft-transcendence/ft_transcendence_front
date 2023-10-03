@@ -1,36 +1,55 @@
 <script lang="ts">
-	import { BaseUrl } from '$lib/common';
+	import { BaseUrl, printError } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { MatchHistoryDetail } from '$lib/type';
-	import { Table, modalStore, type TableSource, tableMapperValues } from '@skeletonlabs/skeleton';
+	import {
+		Table,
+		modalStore,
+		type TableSource,
+		tableMapperValues,
+	} from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
 	const userId: number = $modalStore[0].meta.userId;
-	
+
 	let matchHistoryDetail: MatchHistoryDetail[] = [];
 	$: tableData = matchHistoryDetail.map((d) => {
 		const date = new Date(d.matchAt);
 		return {
-			avatar:	`<img src="${d.winnerId === userId ? d.loser.avatar : d.winner.avatar}" class="avatar-image rounded-full w-10" />`,
+			avatar: `<img src="${
+				d.winnerId === userId ? d.loser.avatar : d.winner.avatar
+			}" class="avatar-image rounded-full w-10" />`,
 			nickname: d.winnerId === userId ? d.loser.nickname : d.winner.nickname,
 			map: d.mapType,
 			result: d.winnerId === userId ? '승' : '패',
 			date: `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`,
-		}
+		};
 	});
 
 	$: tableSource = {
 		head: ['아바타', '닉네임', '맵', '승패', '날짜'],
-		body: tableMapperValues(tableData, ['avatar', 'nickname', 'map', 'result', 'date']),
-		foot: ['Total', '', `<code class="code">${tableData.length}</code>`]
+		body: tableMapperValues(tableData, [
+			'avatar',
+			'nickname',
+			'map',
+			'result',
+			'date',
+		]),
+		foot: ['Total', '', `<code class="code">${tableData.length}</code>`],
 	};
-	
+
 	onMount(async () => {
-		matchHistoryDetail = await getRequestApi(BaseUrl.MATCHES + `${userId}/detail`)
-		matchHistoryDetail = [...matchHistoryDetail];
+		try {
+			matchHistoryDetail = await getRequestApi(
+				BaseUrl.MATCHES + `${userId}/detail`,
+			);
+			matchHistoryDetail = [...matchHistoryDetail];
+		} catch (err: any) {
+			printError(err);
+		}
 	});
 
 	// Base Classes
@@ -44,7 +63,7 @@
 {#if $modalStore[0]}
 	<div class="{cBase}">
 		<header class="{cHeader}">Match History</header>
-		<hr/>
+		<hr />
 		<!-- <ul>
 			<li>
 				<div
@@ -79,7 +98,7 @@
 			</li>
 			{/each}
 		</ul> -->
-		<Table source={tableSource} />
+		<Table source="{tableSource}" />
 		<footer class="modal-footer {parent.regionFooter}">
 			<button class="btn {parent.buttonNeutral}" on:click="{parent.onClose}"
 				>{parent.buttonTextCancel}</button>

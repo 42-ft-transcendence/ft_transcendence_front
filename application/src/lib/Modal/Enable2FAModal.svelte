@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { modalStore, toastStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl, printOrRethrow } from '$lib/common';
+	import { BaseUrl, printError } from '$lib/common';
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
 	import { postRequestApi } from '$lib/fetch';
@@ -15,7 +15,7 @@
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
-	
+
 	onMount(async () => {
 		const response = await postRequestApi(BaseUrl.AUTH + 'otp/generate', {});
 		QRCode.toDataURL(response.otpauthUrl)
@@ -34,13 +34,11 @@
 
 	async function enable2FA() {
 		try {
-			await postRequestApi(
-				BaseUrl.AUTH + 'otp/enable', { otpCode: codeInput },
-			);
+			await postRequestApi(BaseUrl.AUTH + 'otp/enable', { otpCode: codeInput });
 			twoFactorAuthStore.update(() => true);
 			modalStore.close();
 		} catch (error: any) {
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 </script>

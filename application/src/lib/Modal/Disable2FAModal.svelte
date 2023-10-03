@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { BaseUrl, printOrRethrow } from '$lib/common';
+	import { BaseUrl, printError } from '$lib/common';
 	import { postRequestApi } from '$lib/fetch';
 	import { twoFactorAuthStore } from '$lib/store';
 	import { modalStore } from '@skeletonlabs/skeleton';
-	
+
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
@@ -15,13 +15,13 @@
 
 	async function disable2FA() {
 		try {
-			await postRequestApi(
-				BaseUrl.AUTH + 'otp/disable', { otpCode: codeInput },
-			);
+			await postRequestApi(BaseUrl.AUTH + 'otp/disable', {
+				otpCode: codeInput,
+			});
 			twoFactorAuthStore.update((store) => false);
 			modalStore.close();
 		} catch (error: any) {
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 </script>

@@ -1,9 +1,22 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, follow, loadPage, showProfile } from '$lib/common';
+	import {
+		BaseUrl,
+		block,
+		follow,
+		loadPage,
+		printError,
+		showProfile,
+	} from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
-	import { addNewDirect, blockeeStore, directUserInStore, followeeStore, userIdStore } from '$lib/store';
+	import {
+		addNewDirect,
+		blockeeStore,
+		directUserInStore,
+		followeeStore,
+		userIdStore,
+	} from '$lib/store';
 	import { get } from 'svelte/store';
 	import { onDestroy } from 'svelte';
 
@@ -18,10 +31,7 @@
 	const unsubscribe = followeeStore.subscribe(() => {
 		followeeIds = get(followeeStore).map((followee) => followee.id);
 		console.log(`followeeIds: ${followeeIds}`);
-		if (users)
-			users = users.filter(
-				(user) => !followeeIds.includes(user.id),
-			);
+		if (users) users = users.filter((user) => !followeeIds.includes(user.id));
 	});
 
 	let input: string;
@@ -34,13 +44,16 @@
 	onDestroy(unsubscribe);
 
 	async function searchUser() {
-		users = await getRequestApi(
-			BaseUrl.USERS + (input && input.trim() ? `name/?name=${input.trim()}` : ''),
-		);
-		if (users) {
-			users = users.filter(
-				(user) => !followeeIds.includes(user.id),
+		try {
+			users = await getRequestApi(
+				BaseUrl.USERS +
+					(input && input.trim() ? `name/?name=${input.trim()}` : ''),
 			);
+			if (users) {
+				users = users.filter((user) => !followeeIds.includes(user.id));
+			}
+		} catch (err: any) {
+			printError(err);
 		}
 	}
 
@@ -93,7 +106,7 @@
 											<div class="ml-2">{user.nickname}</div>
 										</div>
 										<div class="flex items-center">
-											{#if user.id !== $userIdStore && !$followeeStore.some(f => f.id === user.id)}
+											{#if user.id !== $userIdStore && !$followeeStore.some((f) => f.id === user.id)}
 												<button
 													type="button"
 													class="btn btn-sm variant-filled hidden group-hover:block"
@@ -103,7 +116,7 @@
 												type="button"
 												class="btn btn-sm variant-filled hidden group-hover:block"
 												on:click="{() => showProfile(user.id)}"
-											>프로필 보기</button>
+												>프로필 보기</button>
 										</div>
 									</div>
 								</li>

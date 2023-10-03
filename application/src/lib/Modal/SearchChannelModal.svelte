@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl, dateReviver, channelIcon, loadPage, socket, printOrRethrow } from '$lib/common';
+	import {
+		BaseUrl,
+		dateReviver,
+		channelIcon,
+		loadPage,
+		socket,
+		printError,
+	} from '$lib/common';
 	import { channelUserInStore } from '$lib/store';
 	import { get } from 'svelte/store';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
@@ -24,7 +31,7 @@
 	});
 
 	onDestroy(unsubscribe);
-	
+
 	let input: string | undefined;
 	// Form Data
 	const formData = {
@@ -33,15 +40,22 @@
 	};
 
 	async function searchChannel() {
-		searchResult = await getRequestApi(
-			BaseUrl.CHANNELS +
-				(input && input.trim() ? `name/?type=GROUP&partialName=${input.trim()}` : '?type=GROUP'),
-		);
-		if (searchResult)
-			searchResult = searchResult.filter(
-				(channel) => !userChannelIds.includes(channel.id),
+		try {
+			searchResult = await getRequestApi(
+				BaseUrl.CHANNELS +
+					(input && input.trim()
+						? `name/?type=GROUP&partialName=${input.trim()}`
+						: '?type=GROUP'),
 			);
-		input = undefined;
+			if (searchResult)
+				searchResult = searchResult.filter(
+					(channel) => !userChannelIds.includes(channel.id),
+				);
+		} catch (err: any) {
+			printError(err);
+		} finally {
+			input = undefined;
+		}
 	}
 
 	async function joinChannel(event: MouseEvent | KeyboardEvent) {
@@ -57,7 +71,7 @@
 			socket.emit('create Channel', dateChannel);
 			loadPage(dateChannel.id);
 		} catch (error: any) {
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 
@@ -73,7 +87,7 @@
 			loadPage(dateChannel.id);
 		} catch (error: any) {
 			formData.password = undefined;
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 

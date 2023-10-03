@@ -6,7 +6,7 @@
 		channelIcon,
 		loadPage,
 		socket,
-		printOrRethrow,
+		printError,
 	} from '$lib/common';
 	import { postRequestApi } from '$lib/fetch';
 
@@ -30,7 +30,7 @@
 			socket.emit('create Channel', dateChannel);
 			loadPage(dateChannel.id);
 		} catch (error: any) {
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { BaseUrl, JWT_DB_KEY, hasCookie, printOrRethrow } from '$lib/common';
+	import { BaseUrl, JWT_DB_KEY, hasCookie, printError } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
 	import { onMount } from 'svelte';
 
@@ -8,8 +8,14 @@
 
 	onMount(async () => {
 		if (!hasCookie(JWT_DB_KEY)) await goto('/login', { replaceState: true });
-		const { refresh } = await getRequestApi(BaseUrl.USERS + 'twoFactorSetting');
-		if (!refresh) await goto('/', { replaceState: true });
+		try {
+			const { refresh } = await getRequestApi(
+				BaseUrl.USERS + 'twoFactorSetting',
+			);
+			if (!refresh) await goto('/', { replaceState: true });
+		} catch (err: any) {
+			printError(err);
+		}
 	});
 
 	async function authenticate() {
@@ -18,9 +24,9 @@
 				otpCode: codeInput,
 			});
 			await goto('/', { replaceState: true }); //TODO: 에러가 발생했을 때 `/` 링크로 이동하지 않는지 확인하기
-		} catch(error: any) {
+		} catch (error: any) {
 			codeInput = '';
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 </script>

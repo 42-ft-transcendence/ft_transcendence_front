@@ -14,7 +14,7 @@
 		twoFactorAuthStore,
 		userIdStore,
 	} from '$lib/store';
-	import { BaseUrl, sendMessage, unblock } from '$lib/common';
+	import { BaseUrl, printError, sendMessage, unblock } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { MatchHistory, UserProfile } from '$lib/type';
 	import Enable2FaModal from '$lib/Modal/Enable2FAModal.svelte';
@@ -36,22 +36,34 @@
 	let matchHistory: MatchHistory[] = [];
 
 	onMount(async () => {
-		matchHistory = await getRequestApi(
-			BaseUrl.MATCHES + `${$userIdStore}/top5`,
-		);
+		try {
+			matchHistory = await getRequestApi(
+				BaseUrl.MATCHES + `${$userIdStore}/top5`,
+			);
+		} catch (err: any) {
+			printError(err);
+		}
 	});
 
 	const unsubscribeProfileButton = profileButtonStore.subscribe(async () => {
 		sidebarRightBtn = $profileButtonStore;
 		if ($profileIdStore !== -1) {
-			matchHistory = await getRequestApi(
-				BaseUrl.MATCHES + `${$profileIdStore}/top5`,
-			);
+			try {
+				matchHistory = await getRequestApi(
+					BaseUrl.MATCHES + `${$profileIdStore}/top5`,
+				);
+			} catch (err: any) {
+				printError(err);
+			}
 		}
 	});
 	const unsubscribeProfileId = profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
-		profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
+		try {
+			profile = await getRequestApi(BaseUrl.USERS + $profileIdStore);
+		} catch (err: any) {
+			printError(err);
+		}
 	});
 	const unsubscribeBlockee = blockeeStore.subscribe(() => {
 		blockList = $blockeeStore;
@@ -119,9 +131,14 @@
 	}
 
 	async function logout() {
-		await getRequestApi(`${BaseUrl.AUTH}/logout`);
-		location.reload();
-		await goto('/login', { replaceState: true });
+		try {
+			await getRequestApi(`${BaseUrl.AUTH}/logout`);
+		} catch (err: any) {
+			printError(err);
+		} finally {
+			location.reload();
+			await goto('/login', { replaceState: true });
+		}
 	}
 </script>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl, socket } from '$lib/common';
+	import { BaseUrl, printError, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
 
 	export let pointerEvent: MouseEvent;
@@ -32,12 +32,16 @@
 		 * 일반 사용자
 		 * 1. participant 모델에서 JWT 사용자, 현재 채널에 대한 데이터를 제거
 		 */
-		const channel = await deleteRequestApi(
-			BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
-		);
-		socket.emit('remove Channel', {channelId:channelId});
+		try {
+			const channel = await deleteRequestApi(
+				BaseUrl.PARTICIPANTS + `channelId/${channelId}`,
+			);
+			socket.emit('remove Channel', { channelId: channelId });
+		} catch (err: any) {
+			printError(err);
+		}
 	}
-	
+
 	let menuItems = [
 		{
 			name: 'leave channel',

@@ -6,13 +6,7 @@
 		toastStore,
 	} from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import {
-		BaseUrl,
-		block,
-		socket,
-		showProfile,
-		printOrRethrow,
-	} from '$lib/common';
+	import { BaseUrl, block, socket, showProfile, printError } from '$lib/common';
 	import {
 		deleteRequestAuthApi,
 		getRequestApi,
@@ -75,16 +69,20 @@
 
 	onMount(async () => {
 		adminSwitch = localStorage.getItem('adminSwitch') === 'true';
-		content = await getRequestApi(
-			BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`,
-		);
-		participants = content.participants.map((p) => p.user);
-		administrators = content.administrators.map((a) => a.user);
-		banned = content.bans.map((b) => b.user);
+		try {
+			content = await getRequestApi(
+				BaseUrl.CHANNELS + `${$modalStore[0].meta.id}/contents`,
+			);
+			participants = content.participants.map((p) => p.user);
+			administrators = content.administrators.map((a) => a.user);
+			banned = content.bans.map((b) => b.user);
 
-		normalParticipants = participants.filter(
-			(p) => !administrators.some((a) => a.nickname === p.nickname),
-		);
+			normalParticipants = participants.filter(
+				(p) => !administrators.some((a) => a.nickname === p.nickname),
+			);
+		} catch (err: any) {
+			printError(err);
+		}
 	});
 
 	function toggleAdminSwitch() {
@@ -110,7 +108,7 @@
 			normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
 			banned = [...banned, user];
 		} catch (err: any) {
-			printOrRethrow(err);
+			printError(err);
 		}
 	}
 
@@ -134,7 +132,7 @@
 			participants = participants.filter((p) => p.id !== user.id);
 			normalParticipants = normalParticipants.filter((p) => p.id !== user.id);
 		} catch (err: any) {
-			printOrRethrow(err);
+			printError(err);
 		}
 	}
 
@@ -168,7 +166,7 @@
 			);
 			banned = banned.filter((b) => b.id !== user.id);
 		} catch (err: any) {
-			printOrRethrow(err);
+			printError(err);
 		}
 	}
 
@@ -184,7 +182,7 @@
 			administrators = [...administrators, admin];
 			normalParticipants = normalParticipants.filter((p) => p.id !== id);
 		} catch (err: any) {
-			printOrRethrow(err);
+			printError(err);
 		}
 	}
 	//TODO: authorization "owner"
@@ -199,7 +197,7 @@
 			administrators = administrators.filter((a) => a.id !== id);
 			normalParticipants = [...normalParticipants, removed];
 		} catch (err: any) {
-			printOrRethrow(err);
+			printError(err);
 		}
 	}
 

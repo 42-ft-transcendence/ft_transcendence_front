@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { BaseUrl, block, loadPage, socket } from '$lib/common';
+	import { BaseUrl, block, loadPage, printError, socket } from '$lib/common';
 	import { getRequestApi, postRequestApi } from '$lib/fetch';
-	import { addNewDirect, blockeeStore, directUserInStore, userIdStore } from '$lib/store';
+	import {
+		addNewDirect,
+		blockeeStore,
+		directUserInStore,
+		userIdStore,
+	} from '$lib/store';
 	import { get } from 'svelte/store';
 	import { sendMessage } from '../common';
 	import { onMount } from 'svelte';
@@ -34,13 +39,17 @@
 	onMount(unsubscribe);
 
 	async function searchUser() {
-		users = await getRequestApi(
-			BaseUrl.USERS + (input ? `name/?name=${input}` : ''),
-		);
-		if (users) {
-			users = users.filter(
-				(user) => !interlocatorNames.includes(user.nickname),
+		try {
+			users = await getRequestApi(
+				BaseUrl.USERS + (input ? `name/?name=${input}` : ''),
 			);
+			if (users) {
+				users = users.filter(
+					(user) => !interlocatorNames.includes(user.nickname),
+				);
+			}
+		} catch (err: any) {
+			printError(err);
 		}
 	}
 
@@ -102,7 +111,7 @@
 											<div class="ml-2">{user.nickname}</div>
 										</div>
 										<div class="flex items-center">
-											{#if user.id !== $userIdStore && !$blockeeStore.some(b => b.id === user.id)}
+											{#if user.id !== $userIdStore && !$blockeeStore.some((b) => b.id === user.id)}
 												<button
 													type="button"
 													class="btn btn-sm variant-filled hidden group-hover:block"
@@ -113,7 +122,7 @@
 													data-user-id="{user.id}"
 													data-user-name="{user.nickname}"
 													on:click="{startDM}">대화 시작</button>
-											{/if}		
+											{/if}
 										</div>
 									</div>
 								</li>

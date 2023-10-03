@@ -65,16 +65,24 @@ export async function loadPage(routeParam: number) {
 }
 
 export async function block(blockeeId: number) {
-	const blocked = await postRequestApi(BaseUrl.BLOCKED, {
-		blockeeId: blockeeId,
-	});
-	addBlockee(blocked.blockee);
-	if (blocked.channelId) removeDirect(blocked.channelId);
+	try {
+		const blocked = await postRequestApi(BaseUrl.BLOCKED, {
+			blockeeId: blockeeId,
+		});
+		addBlockee(blocked.blockee);
+		if (blocked.channelId) removeDirect(blocked.channelId);
+	} catch (err: any) {
+		printError(err);
+	}
 }
 
 export async function unblock(blockeeId: number) {
-	const blockee = await deleteRequestApi(BaseUrl.BLOCKED + `${blockeeId}`);
-	removeBlockee(blockee.blockee);
+	try {
+		const blockee = await deleteRequestApi(BaseUrl.BLOCKED + `${blockeeId}`);
+		removeBlockee(blockee.blockee);
+	} catch (err: any) {
+		printError(err);
+	}
 }
 
 export function isblocked(userId: number) {
@@ -93,7 +101,7 @@ export async function sendMessage(userId: number, userName: string) {
 		loadPage(newDirect.id);
 		//TOOD: close modal
 	} catch (error: any) {
-		printOrRethrow(error);
+		printError(error);
 	}
 }
 
@@ -103,18 +111,26 @@ export function showProfile(id: number): void {
 }
 
 export async function follow(followeeId: number) {
-	const followee = await postRequestApi(BaseUrl.FOLLOWS, {
-		followeeId: followeeId,
-	});
-	socket.emit('create Followee', followee.followee);
+	try {
+		const followee = await postRequestApi(BaseUrl.FOLLOWS, {
+			followeeId: followeeId,
+		});
+		socket.emit('create Followee', followee.followee);
+	} catch (err: any) {
+		printError(err);
+	}
 }
 
 export async function unfollow(followeeId: number) {
-	const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
-	socket.emit('remove Followee', { followeeId: followeeId })
+	try {
+		const followee = await deleteRequestApi(BaseUrl.FOLLOWS + followeeId);
+		socket.emit('remove Followee', { followeeId: followeeId })
+	} catch (err: any) {
+		printError(err);
+	}
 }
 
-export function printOrRethrow(error: any) {
+export function printError(error: any) {
 	if (error.message) {
 		toastStore.trigger({
 			message: error.message,
@@ -122,8 +138,6 @@ export function printOrRethrow(error: any) {
 			hideDismiss: true,
 			timeout: 2000,
 		});
-	} else {
-		throw error;
 	}
 }
 

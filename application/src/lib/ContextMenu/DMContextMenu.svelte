@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ContextMenu } from '$lib/ContextMenu/ContextMenu';
-	import { BaseUrl, printOrRethrow, socket } from '$lib/common';
+	import { BaseUrl, printError, socket } from '$lib/common';
 	import { deleteRequestApi } from '$lib/fetch';
 	import { activateProfile } from '$lib/store';
 
@@ -25,9 +25,9 @@
 			const channel = await deleteRequestApi(
 				BaseUrl.PARTICIPANTS + `directChannelId/${channelId}`,
 			);
-			socket.emit('remove DMChannel', {channelId:channelId})
+			socket.emit('remove DMChannel', { channelId: channelId });
 		} catch (error: any) {
-			printOrRethrow(error);
+			printError(error);
 		}
 	}
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { modalStore } from '@skeletonlabs/skeleton';
-	import { BaseUrl, channelIcon, socket } from '$lib/common';
+	import { BaseUrl, channelIcon, printError, socket } from '$lib/common';
 	import { getRequestApi } from '$lib/fetch';
 	import type { UserProfile } from '$lib/type';
 	import { deactivateProfile } from '$lib/store';
@@ -11,13 +11,18 @@
 
 	async function onFormSubmit() {
 		deactivateProfile();
-		const user: UserProfile = await getRequestApi(`${BaseUrl.USERS}/oneself`);
-		socket.emit('invite', {
-			userName: user.nickname,
-			mapType: formData.type,
-			opponentId: $modalStore[0].meta.opponentId,
-		});
-		modalStore.close();
+		try {
+			const user: UserProfile = await getRequestApi(`${BaseUrl.USERS}/oneself`);
+			socket.emit('invite', {
+				userName: user.nickname,
+				mapType: formData.type,
+				opponentId: $modalStore[0].meta.opponentId,
+			});
+		} catch (err: any) {
+			printError(err);
+		} finally {
+			modalStore.close();
+		}
 	}
 
 	const mapTypes = [{ type: 'NORMAL' }, { type: 'FAST' }];
