@@ -220,9 +220,9 @@
 						<div
 							class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400"
 							data-user-id="{blockee.id}">
-							<div class="flex items-center no-pointer-event">
+							<div
+								class="w-full grid grid-cols-[auto_1fr_auto] no-pointer-event">
 								<Avatar
-									class="no-pointer-event"
 									src="{blockee.avatar}"
 									width="w-6"
 									rounded="rounded-md" />
@@ -241,3 +241,9 @@
 		pointerEvent="{pointerEvent}" />
 {/if}
 <svelte:window on:click="{onPageClick}" />
+
+<style>
+	.no-pointer-event {
+		pointer-events: none;
+	}
+</style>
