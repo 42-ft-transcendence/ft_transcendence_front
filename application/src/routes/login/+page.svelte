@@ -1,9 +1,8 @@
 <script>
-	import dotenv from 'dotenv';
-	dotenv.config();
+	import { page } from '$app/stores';
 
 	async function handleLogin() {
-		window.location.replace(`${process.env.FRONTND_URL}/api/oauth/42`);
+		window.location.replace(`http://10.14.10.7:8080/api/oauth/42`);
 	}
 </script>
 
