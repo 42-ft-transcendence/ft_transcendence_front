@@ -428,13 +428,11 @@
 															rounded="rounded-md" />
 														<div class="ml-2">{nickname}</div>
 													</div>
-													{#if nickname !== $modalStore[0].meta.owner}
-														<button
-															type="button"
-															class="btn btn-sm variant-filled hidden group-hover:block"
-															on:click="{() => removeAdministrator(id)}"
-															>관리자제거</button>
-													{/if}
+													<button
+														type="button"
+														class="btn btn-sm variant-filled hidden group-hover:block"
+														on:click="{() => removeAdministrator(id)}"
+														>관리자제거</button>
 												</div>
 											</li>
 										{/each}
