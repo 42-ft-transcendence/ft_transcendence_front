@@ -33,29 +33,8 @@
 	let contextMenuComponent: ComponentType | undefined;
 	let pointerEvent: MouseEvent | undefined;
 
-	let matchHistory: MatchHistory[] = [];
-
-	onMount(async () => {
-		try {
-			matchHistory = await getRequestApi(
-				BaseUrl.MATCHES + `${$userIdStore}/top5`,
-			);
-		} catch (err: any) {
-			printError(err);
-		}
-	});
-
 	const unsubscribeProfileButton = profileButtonStore.subscribe(async () => {
 		sidebarRightBtn = $profileButtonStore;
-		if ($profileIdStore !== -1) {
-			try {
-				matchHistory = await getRequestApi(
-					BaseUrl.MATCHES + `${$profileIdStore}/top5`,
-				);
-			} catch (err: any) {
-				printError(err);
-			}
-		}
 	});
 	const unsubscribeProfileId = profileIdStore.subscribe(async () => {
 		if ($profileIdStore === -1) return;
@@ -195,35 +174,6 @@
 			on:click="{showMatchHistory}"
 			class="font-bold text-lg hover:bg-gray-100 text-white py-1 rounded"
 			>대전 기록</button>
-		<ul>
-			{#each matchHistory as { winner, loser }, i}
-				{#if i !== 0}
-					<hr />
-				{/if}
-				<li>
-					<div
-						class="group w-full grid grid-cols-[1fr_auto] h-12 p-2 rounded-md hover:bg-surface-400">
-						<div class="flex items-center">
-							<Avatar
-								class="no-pointer-event"
-								src="{winner.id === $profileIdStore
-									? loser.avatar
-									: winner.avatar}"
-								width="w-6"
-								rounded="rounded-md" />
-							<div class="ml-2 no-pointer-event">
-								{winner.id === $profileIdStore
-									? loser.nickname
-									: winner.nickname}
-							</div>
-							<div class="ml-2 no-pointer-event">
-								{winner.id === $profileIdStore ? '승' : '패'}
-							</div>
-						</div>
-					</div>
-				</li>
-			{/each}
-		</ul>
 	</div>
 	{#if $userIdStore === $profileIdStore}
 		<div class="p-2.5">
