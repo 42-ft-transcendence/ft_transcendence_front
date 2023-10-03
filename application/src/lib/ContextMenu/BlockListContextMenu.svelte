@@ -12,7 +12,6 @@
 		contextmenu.rightClickContextMenu(pointerEvent);
 		contextmenu.pos.x = contextmenu.pos.x;
 		contextmenu.pos.y = contextmenu.pos.y;
-		console.log(pointerEvent.target);
 		if (pointerEvent.target instanceof HTMLElement)
 			userId = parseInt(pointerEvent.target.dataset.userId as string);
 	}

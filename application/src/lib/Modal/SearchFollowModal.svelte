@@ -30,7 +30,6 @@
 
 	const unsubscribe = followeeStore.subscribe(() => {
 		followeeIds = get(followeeStore).map((followee) => followee.id);
-		console.log(`followeeIds: ${followeeIds}`);
 		if (users) users = users.filter((user) => !followeeIds.includes(user.id));
 	});
 

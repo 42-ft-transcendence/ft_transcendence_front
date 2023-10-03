@@ -41,7 +41,6 @@
 			return ;
 		}
 		socket.emit('join GameQueue', {mapType: mapType}, (payload: any) => {
-			console.log(payload)
 			const t: ToastSettings = {
 				message: payload.errorMessage,
 				hideDismiss: true,
