@@ -15,7 +15,6 @@
 	import { ChannelType } from '$lib/type.js';
 
 	export let data;
-	console.log(data); //TODO: remove
 
 	$: channelData = data.channelData;
 	$: {

@@ -168,10 +168,8 @@
 	function movePlayer(e: KeyboardEvent) {
 		if (isGameStarted) {
 			if (e.key === 'ArrowUp') {
-				console.log('up');
 				socket.volatile.emit('move Player', { direction: 'up' });
 			} else if (e.key === 'ArrowDown') {
-				console.log('down');
 				socket.volatile.emit('move Player', { direction: 'down' });
 			}
 		}

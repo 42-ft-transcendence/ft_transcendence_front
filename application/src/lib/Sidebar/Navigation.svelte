@@ -38,7 +38,7 @@
 		? sidebarLeftExtension
 			? 'border-r border-surface-500/30 sm:w-[450px]'
 			: 'border-r border-surface-500/30 sm:w-20'
-		: ''} ">
+		: 'overflow-hidden'} ">
 	<AppRail>
 		{#each appRailTiles as appRailTile, i}
 			{#if appRailTile.component}
