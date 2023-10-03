@@ -1,8 +1,9 @@
 <script>
-	import { goto } from '$app/navigation';
+	import dotenv from 'dotenv';
+	dotenv.config();
 
 	async function handleLogin() {
-		window.location.replace('http://localhost:8080/api/oauth/42');
+		window.location.replace(`${process.env.FRONTND_URL}/api/oauth/42`);
 	}
 </script>
 

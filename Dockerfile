@@ -7,9 +7,9 @@ RUN		npm run build
 
 # deploy stage
 FROM				nginx:stable-alpine
-RUN					rm /etc/nginx/conf.d/default.conf
+# RUN					rm /etc/nginx/conf.d/default.conf
 COPY --from=build	/application/build/ /application/
-COPY 				./transcendence.conf /etc/nginx/conf.d/
+# COPY 				./transcendence.conf /etc/nginx/conf.d/
 EXPOSE				8080
 
 # #TODO: remove
